@@ -1,0 +1,273 @@
+# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+
+# ===========================
+# Ruby / Rails
+# ===========================
+
+# Ignore bundler config and installed gems
+/.bundle
+/vendor/bundle
+
+# Ignore all logfiles and tempfiles
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+!/tmp/pids/.keep
+
+# Ignore pidfiles, but keep the directory
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Ignore uploaded files in development
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+
+# Ignore master key for decrypting credentials
+/config/master.key
+/config/credentials/*.key
+
+# ===========================
+# Environment Variables
+# ===========================
+
+# Sensitive environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Keep example file for reference
+!.env.example
+
+# ===========================
+# Database
+# ===========================
+
+# Database dumps and backups
+*.sql
+*.sqlite3
+*.sqlite3-*
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/db/*.sqlite3-*
+
+# PostgreSQL specific
+*.dump
+*.backup
+
+# ===========================
+# Testing
+# ===========================
+
+# RSpec / Test Coverage
+/coverage/
+/spec/tmp
+/spec/examples.txt
+.rspec_status
+
+# ===========================
+# IDEs and Editors
+# ===========================
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# RubyMine / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# TextMate
+*.tmproj
+*.tmproject
+tmtags
+
+# ===========================
+# Operating Systems
+# ===========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# ===========================
+# Assets & Public Files
+# ===========================
+
+# Ignore precompiled assets
+/public/assets
+/public/packs
+/public/packs-test
+
+# Ignore uploaded files (if using Active Storage)
+/public/uploads
+
+# Node modules (if Rails uses Node for assets)
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+# ===========================
+# Docker
+# ===========================
+
+# Docker volumes and temp files
+docker-compose.override.yml
+.dockerignore
+
+# ===========================
+# CI/CD
+# ===========================
+
+# CircleCI local CLI
+.circleci/local-*
+
+# ===========================
+# AWS / Cloud
+# ===========================
+
+# AWS credentials (NEVER commit these)
+.aws/
+aws-credentials.yml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# ===========================
+# Background Jobs
+# ===========================
+
+# Sidekiq
+dump.rdb
+
+# ===========================
+# Logs & Debugging
+# ===========================
+
+# Rails logs
+*.log
+
+# Byebug
+.byebug_history
+
+# Ruby Debug
+.rdbgrc
+.rdbgrc.local
+
+# ===========================
+# Security & Secrets
+# ===========================
+
+# SSL certificates (if stored locally)
+*.pem
+*.key
+*.crt
+*.csr
+
+# API keys and secrets
+secrets.yml
+secret_token.rb
+
+# JWT secrets
+jwt_secret.txt
+
+# ===========================
+# Project Specific
+# ===========================
+
+# Built frontend assets (Vue.js compiled files)
+/public/dist
+/public/vue
+
+# Documentation generated files
+/doc/app
+
+# Simplecov (code coverage)
+coverage/
+
+# Annotate gem
+/annotations.txt
+
+# Brakeman security scan results
+/brakeman-report.html
+
+# Rubocop cache
+.rubocop-*
+
+# Spring (Rails application preloader)
+/spring/*.pid
+
+# Bootsnap cache
+/tmp/cache/bootsnap*
+
+# Action Cable
+/tmp/cable
