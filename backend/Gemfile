@@ -26,6 +26,9 @@ gem "aws-sdk-s3", require: false
 # Reduces boot times through caching
 gem "bootsnap", require: false
 
+# Pagination
+gem 'kaminari'
+
 # Use Active Storage variants
 # gem "image_processing", "~> 1.2"
 
