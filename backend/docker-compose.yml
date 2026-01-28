@@ -1,0 +1,85 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: portfolio_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: portfolio_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Job Queue
+  redis:
+    image: redis:7-alpine
+    container_name: portfolio_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Rails API (Optional - can run on host or in Docker)
+  # Uncomment if you want Rails in Docker too
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   command: bundle exec rails server -b 0.0.0.0
+  #   volumes:
+  #     - .:/app
+  #     - bundle_cache:/usr/local/bundle
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:postgres@db:5432/portfolio_development
+  #     REDIS_URL: redis://redis:6379/0
+  #   env_file:
+  #     - .env.development
+
+  # Sidekiq Worker (Optional - can run on host or in Docker)
+  # Uncomment if you want Sidekiq in Docker
+  # sidekiq:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   command: bundle exec sidekiq
+  #   volumes:
+  #     - .:/app
+  #     - bundle_cache:/usr/local/bundle
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:postgres@db:5432/portfolio_development
+  #     REDIS_URL: redis://redis:6379/0
+  #   env_file:
+  #     - .env.development
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  # bundle_cache:
+  #   driver: local

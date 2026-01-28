@@ -30,7 +30,7 @@ class Contact < ApplicationRecord
   private
 
   def send_notification
-    # Will implement email sending later
-    # EmailNotificationJob.perform_later(self.id)
+    # Queue email job to send in background
+    EmailNotificationJob.perform_later(self.id)
   end
 end
