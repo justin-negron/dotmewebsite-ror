@@ -7,31 +7,20 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # In development, allow requests from Vite dev server and local file testing
-    if Rails.env.development?
-      origins 'http://localhost:5173', 'null'  # 'null' for file:// protocol testing
-    else
-      origins ENV.fetch('FRONTEND_URL', 'https://justinnegron.me')
+    origins do |source, env|
+      # In development, allow multiple origins
+      if Rails.env.development?
+        ['localhost:5173', 'localhost:3000'].include?(source)
+      else
+        # In production, only allow your frontend domain
+        [ENV.fetch('FRONTEND_URL', 'https://justinnegron.dev')].include?(source)
+      end
     end
 
     resource '*',
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
       credentials: true,
-      max_age: 86400,
-      expose: ['Authorization']  # Expose auth headers if needed
-  end
-  
-  # Optional: Allow requests from your production domain
-  if Rails.env.production?
-    allow do
-      origins 'https://justinnegron.me', 'https://www.justinnegron.me'
-      
-      resource '*',
-        headers: :any,
-        methods: [:get, :post, :put, :patch, :delete, :options, :head],
-        credentials: true,
-        max_age: 86400
-    end
+      max_age: 86400
   end
 end
