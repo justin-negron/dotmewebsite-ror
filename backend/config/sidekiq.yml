@@ -1,0 +1,25 @@
+---
+# Sidekiq configuration
+
+:concurrency: 5
+
+# Queues with priority (higher number = higher priority)
+:queues:
+  - [critical, 5]
+  - [default, 3]
+  - [mailers, 2]
+  - [low, 1]
+
+# Production settings
+production:
+  :concurrency: 10
+  
+# Development settings
+development:
+  :concurrency: 2
+
+# Retry failed jobs
+:max_retries: 3
+
+# Dead job retention
+:dead_max_jobs: 10000

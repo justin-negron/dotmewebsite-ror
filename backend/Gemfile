@@ -14,8 +14,9 @@ gem "rack-cors"
 gem "rack-attack"
 
 # Background Jobs
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 7.3"
 gem "redis", ">= 4.0.1"
+gem 'connection_pool', '~> 2.4'
 
 # JSON Serialization
 gem "active_model_serializers", "~> 0.10.0"
@@ -25,6 +26,9 @@ gem "aws-sdk-s3", require: false
 
 # Reduces boot times through caching
 gem "bootsnap", require: false
+
+# Pagination
+gem 'kaminari'
 
 # Use Active Storage variants
 # gem "image_processing", "~> 1.2"

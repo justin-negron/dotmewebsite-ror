@@ -1,0 +1,32 @@
+# Development Dockerfile
+FROM ruby:3.2.3-alpine
+
+# Install dependencies
+RUN apk add --no-cache \
+    build-base \
+    postgresql-dev \
+    postgresql-client \
+    tzdata \
+    git \
+    libyaml-dev
+
+# Set working directory
+WORKDIR /app
+
+# Install bundler
+RUN gem install bundler:2.4.20
+
+# Copy Gemfile
+COPY Gemfile Gemfile.lock ./
+
+# Install gems
+RUN bundle install
+
+# Copy app
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Start server
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]

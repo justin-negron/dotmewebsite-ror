@@ -1,0 +1,15 @@
+New Contact Form Submission
+============================
+
+From: <%= @contact.name %>
+Email: <%= @contact.email %>
+<% if @contact.subject.present? %>Subject: <%= @contact.subject %><% end %>
+
+Message:
+--------
+<%= @contact.message %>
+
+Submitted: <%= @contact.created_at.strftime('%B %d, %Y at %I:%M %p') %>
+
+---
+This email was sent from your portfolio contact form at justinnegron.dev
