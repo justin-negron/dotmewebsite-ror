@@ -10,7 +10,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     origins do |source, env|
       # In development, allow multiple origins
       if Rails.env.development?
-        ['localhost:5173', 'localhost:3000'].include?(source)
+        ['localhost:5173', 'localhost:3000', 'null'].include?(source)
       else
         # In production, only allow your frontend domain
         [ENV.fetch('FRONTEND_URL', 'https://justinnegron.dev')].include?(source)
