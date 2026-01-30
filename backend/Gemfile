@@ -47,6 +47,8 @@ group :development, :test do
   
   # Interactive console
   gem "pry-rails"
+
+  gem 'simplecov', require: false, group: :test
 end
 
 group :development do
