@@ -11,8 +11,8 @@ class BlogPost < ApplicationRecord
   scope :by_tag, ->(tag) { where("? = ANY(tags)", tag) }
 
   # Callbacks
-  before_validation :generate_slug, on: :create
-  before_validation :generate_excerpt, if: -> { excerpt.blank? }
+  before_validation :generate_slug, on: :create, if: -> { title.present? }
+  before_validation :generate_excerpt, if: -> { excerpt.blank? && content.present? }
   before_save :set_published_at, if: -> { published_changed? && published? }
 
   # Instance methods

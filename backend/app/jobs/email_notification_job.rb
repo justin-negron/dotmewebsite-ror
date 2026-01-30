@@ -2,7 +2,7 @@ class EmailNotificationJob < ApplicationJob
   queue_as :mailers
   
   # Retry with exponential backoff
-  retry_on StandardError, wait: :exponentially_longer, attempts: 3
+  retry_on StandardError, wait: :polynomially_longer, attempts: 3
   
   def perform(contact_id)
     # Send notification to site owner
