@@ -96,6 +96,18 @@ RSpec.configure do |config|
     clear_enqueued_jobs
     clear_performed_jobs
   end
+
+  # Include FactoryBot methods
+  config.include FactoryBot::Syntax::Methods
+  
+  # Include request spec helpers
+  config.include RequestSpecHelper, type: :request
+  
+  # Include ActiveJob test helpers
+  config.include ActiveJob::TestHelper
+  
+  # Include time helpers for time travel
+  config.include ActiveSupport::Testing::TimeHelpers
 end
 
 # Configure Shoulda Matchers

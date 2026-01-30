@@ -2,10 +2,17 @@ require 'rails_helper'
 
 RSpec.describe BlogPost, type: :model do
   describe 'validations' do
+    subject { build(:blog_post) }
+    
     it { should validate_presence_of(:title) }
-    it { should validate_presence_of(:slug) }
     it { should validate_presence_of(:content) }
     it { should validate_uniqueness_of(:slug) }
+    
+    it 'validates slug format' do
+      blog_post = build(:blog_post, slug: 'Invalid Slug!')
+      expect(blog_post).not_to be_valid
+      expect(blog_post.errors[:slug]).to be_present
+    end
   end
   
   describe 'scopes' do

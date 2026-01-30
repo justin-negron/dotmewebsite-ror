@@ -26,19 +26,30 @@ RSpec.describe Contact, type: :model do
   end
   
   describe 'scopes' do
-    let!(:old_contact) { create(:contact, created_at: 2.days.ago) }
-    let!(:new_contact) { create(:contact, created_at: 1.day.ago) }
-    let!(:newest_contact) { create(:contact) }
-    let!(:read_contact) { create(:contact, :read) }
-    
     it 'returns unread contacts' do
+      new_contact = create(:contact)
+      read_contact = create(:contact, :read)
+      
       expect(Contact.unread).to include(new_contact)
       expect(Contact.unread).not_to include(read_contact)
     end
     
     it 'orders by most recent first' do
-      expect(Contact.recent.first).to eq(newest_contact)
-      expect(Contact.recent.last).to eq(old_contact)
+      travel_to 3.days.ago do
+        @old_contact = create(:contact)
+      end
+      
+      travel_to 2.days.ago do
+        @middle_contact = create(:contact)
+      end
+      
+      travel_to 1.day.ago do
+        @new_contact = create(:contact)
+      end
+      
+      contacts = Contact.recent.to_a
+      expect(contacts.first).to eq(@new_contact)
+      expect(contacts.last).to eq(@old_contact)
     end
   end
   

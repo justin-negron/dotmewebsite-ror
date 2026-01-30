@@ -14,8 +14,8 @@ RSpec.describe Experience, type: :model do
   end
   
   describe 'scopes' do
-    let!(:current_job) { create(:experience, :current) }
-    let!(:past_job) { create(:experience, :past) }
+    let!(:current_job) { create(:experience, :current, start_date: 1.year.ago) }
+    let!(:past_job) { create(:experience, :past, start_date: 2.years.ago) }
     let!(:older_job) { create(:experience, :past, start_date: 3.years.ago) }
     
     it 'returns current experiences' do
@@ -29,11 +29,10 @@ RSpec.describe Experience, type: :model do
     end
     
     it 'orders by start_date descending' do
-      project1 = create(:experience, start_date: 2.years.ago)
-      project2 = create(:experience, start_date: 1.year.ago)
-      
-      expect(Experience.ordered.first).to eq(project2)
-      expect(Experience.ordered.last).to eq(project1)
+      experiences = Experience.ordered.to_a
+      expect(experiences.first).to eq(current_job)
+      expect(experiences.second).to eq(past_job)
+      expect(experiences.last).to eq(older_job)
     end
   end
   
