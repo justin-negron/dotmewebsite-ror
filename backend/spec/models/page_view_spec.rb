@@ -86,4 +86,36 @@ RSpec.describe PageView, type: :model do
       expect(page_view.browser_name).to eq('Unknown')
     end
   end
+
+  describe '#browser_name edge cases' do
+    it 'detects Edge browser' do
+      page_view = build(:page_view, user_agent: 'Mozilla/5.0 Edge/120.0')
+      expect(page_view.browser_name).to eq('Edge')
+    end
+    
+    it 'returns Other for unrecognized browser' do
+      page_view = build(:page_view, user_agent: 'SomeWeirdBrowser/1.0')
+      expect(page_view.browser_name).to eq('Other')
+    end
+    
+    it 'handles empty string user agent' do
+      page_view = build(:page_view, user_agent: '')
+      expect(page_view.browser_name).to eq('Unknown')
+    end
+    
+    it 'prioritizes Chrome detection' do
+      page_view = build(:page_view, user_agent: 'Mozilla/5.0 AppleWebKit/537.36 Chrome/120.0 Safari/537.36')
+      expect(page_view.browser_name).to eq('Chrome')
+    end
+    
+    it 'detects Safari when no Chrome' do
+      page_view = build(:page_view, user_agent: 'Mozilla/5.0 AppleWebKit/537.36 Safari/537.36')
+      expect(page_view.browser_name).to eq('Safari')
+    end
+    
+    it 'detects Firefox' do
+      page_view = build(:page_view, user_agent: 'Mozilla/5.0 Gecko/20100101 Firefox/120.0')
+      expect(page_view.browser_name).to eq('Firefox')
+    end
+  end
 end

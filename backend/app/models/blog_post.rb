@@ -54,6 +54,6 @@ class BlogPost < ApplicationRecord
   end
 
   def set_published_at
-    self.published_at = Time.current if published?
+    self.published_at = Time.current # if published? (redundant)
   end
 end

@@ -2,10 +2,12 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Projects', type: :request do
   describe 'GET /api/v1/projects' do
-    let!(:projects) { create_list(:project, 3) }
-    let!(:featured_project) { create(:project, :featured) }
-    
     it 'returns all projects' do
+      # Clean slate - create exactly what we're testing
+      Project.destroy_all
+      create_list(:project, 3)
+      create(:project, :featured)
+      
       get '/api/v1/projects'
       
       expect(response).to have_http_status(:success)
@@ -14,6 +16,10 @@ RSpec.describe 'Api::V1::Projects', type: :request do
     end
     
     it 'returns only featured projects when filtered' do
+      Project.destroy_all
+      create_list(:project, 2)
+      featured = create(:project, :featured)
+      
       get '/api/v1/projects?featured=true'
       
       expect(response).to have_http_status(:success)
@@ -44,6 +50,19 @@ RSpec.describe 'Api::V1::Projects', type: :request do
       
       expect(response).to have_http_status(:not_found)
       expect(json[:success]).to be false
+    end
+  end
+
+  describe 'filtering by tech stack' do
+    it 'filters projects by technology' do
+      ruby_project = create(:project, tech_stack: ['Ruby', 'Rails'])
+      js_project = create(:project, tech_stack: ['JavaScript', 'React'])
+      
+      get '/api/v1/projects?tech=Ruby'
+      
+      expect(response).to have_http_status(:success)
+      expect(json_data.size).to eq(1)
+      expect(json_data.first[:id]).to eq(ruby_project.id)
     end
   end
 end
