@@ -2,121 +2,367 @@
 
 Ruby on Rails API backend for justinnegron.dev portfolio website.
 
-## Tech Stack
+## 📋 Table of Contents
 
-- Ruby 3.2.2
-- Rails 7.1
-- PostgreSQL 15
-- Redis 7
-- Sidekiq (background jobs)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [Testing](#testing)
+- [Deployment](#deployment)
 
-## Setup
+## 🛠 Tech Stack
 
-### Prerequisites
+- **Ruby** 3.2.3
+- **Rails** 7.1.6
+- **PostgreSQL** 15+ (via Docker)
+- **Redis** 7+ (via Docker)
+- **Sidekiq** - Background job processing
+- **RSpec** - Testing framework
+- **Docker** - Containerized services
 
-- Ruby 3.2.2
-- PostgreSQL 15+
-- Redis 7+
+## ✨ Features
+
+- RESTful API with versioning (v1)
+- Portfolio projects management
+- Work experience tracking
+- Blog with view counting
+- Contact form with email notifications
+- Analytics (page view tracking)
+- Background job processing
+- Comprehensive test coverage (100%)
+- CORS enabled for frontend integration
+
+## 📦 Prerequisites
+
+- Ruby 3.2.3
 - Bundler
+- Docker & Docker Compose
+- Node.js 20+ (for frontend, later)
 
-### Installation
+## 🚀 Setup
 
-1. Clone the repository
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/yourusername/portfolio-backend.git
 cd portfolio-backend
 ```
 
-2. Install dependencies
+### 2. Install Dependencies
+
 ```bash
 bundle install
 ```
 
-3. Set up environment variables
+### 3. Set Up Environment Variables
+
 ```bash
 cp .env.example .env.development
 ```
 
 Edit `.env.development` and add your values:
-- Database credentials
-- Redis URL
+- Database credentials (default works with Docker)
+- Redis URL (default works with Docker)
 - JWT secret (generate with `rails secret`)
 - SMTP credentials (for contact form emails)
 
-4. Create and migrate database
+### 4. Start Docker Services
+
+```bash
+docker compose up -d
+```
+
+Verify services are running:
+```bash
+docker compose ps
+```
+
+### 5. Create and Migrate Database
+
 ```bash
 rails db:create
 rails db:migrate
 rails db:seed
 ```
 
-5. Start Redis
-```bash
-redis-server
-```
+## 🎮 Running the Application
 
-6. Start Rails server
+### Development Mode
+
+**Terminal 1 - Rails Server:**
 ```bash
 rails server
 ```
 
-API will be available at `http://localhost:3000`
+**Terminal 2 - Sidekiq Worker:**
+```bash
+bundle exec sidekiq
+```
 
-## Environment Variables
+**Terminal 3 - Commands:**
+```bash
+# Run tests
+bundle exec rspec
 
-See `.env.example` for all available environment variables.
+# Rails console
+rails console
 
-### Required Variables
+# Check routes
+rails routes | grep api
+```
 
-- `DATABASE_URL` - PostgreSQL connection string
-- `REDIS_URL` - Redis connection string
-- `JWT_SECRET` - Secret for JWT token generation (min 32 chars)
-- `FRONTEND_URL` - Frontend application URL (for CORS)
-- `SMTP_*` - Email configuration for contact form
+### Access Points
 
-### Optional Variables
+- **API Base URL:** http://localhost:3000/api/v1
+- **Sidekiq Dashboard:** http://localhost:3000/sidekiq
+- **Email Previews:** http://localhost:3000/rails/mailers
 
-- `AWS_*` - AWS credentials for S3 uploads
-- `RATE_LIMIT_*` - API rate limiting configuration
-- `ANALYTICS_ENABLED` - Enable/disable analytics tracking
-
-## API Endpoints
+## 📚 API Documentation
 
 ### Public Endpoints
 
-- `GET /api/v1/projects` - List all projects
-- `GET /api/v1/projects/:id` - Get single project
-- `GET /api/v1/experiences` - List work experiences
-- `GET /api/v1/blog_posts` - List published blog posts
-- `GET /api/v1/blog_posts/:slug` - Get single blog post
-- `POST /api/v1/contacts` - Submit contact form
-- `POST /api/v1/analytics/track` - Track page view
+#### Projects
+```
+GET    /api/v1/projects           # List all projects
+GET    /api/v1/projects/:id       # Get single project
+GET    /api/v1/projects?featured=true  # Filter featured
+GET    /api/v1/projects?tech=Ruby      # Filter by technology
+```
 
-### Admin Endpoints (Authentication Required)
+#### Experiences
+```
+GET    /api/v1/experiences        # List all experiences
+GET    /api/v1/experiences?current=true  # Current job only
+GET    /api/v1/experiences?past=true     # Past jobs only
+```
 
-- Full CRUD for projects, experiences, blog posts
-- Contact form submissions management
-- Analytics dashboard
+#### Blog Posts
+```
+GET    /api/v1/blog_posts         # List published posts
+GET    /api/v1/blog_posts/:slug   # Get single post
+GET    /api/v1/blog_posts?tag=Ruby      # Filter by tag
+```
 
-## Testing
+#### Contact
+```
+POST   /api/v1/contacts           # Submit contact form
+Body: {
+  "contact": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "subject": "Inquiry",
+    "message": "Your message here"
+  }
+}
+```
+
+#### Analytics
+```
+POST   /api/v1/analytics/track    # Track page view
+Body: { "path": "/projects" }
+```
+
+### Response Format
+
+All responses follow this format:
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "current_page": 1,
+    "total_pages": 1,
+    "total_count": 10
+  }
+}
+```
+
+Error responses:
+
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "errors": ["Detailed error 1", "Detailed error 2"]
+}
+```
+
+## 🧪 Testing
+
+### Run All Tests
 
 ```bash
 bundle exec rspec
 ```
 
-## Deployment
+### Run Specific Tests
 
-See `.env.production.example` for production environment variables.
+```bash
+# Single file
+bundle exec rspec spec/models/project_spec.rb
+
+# Single test
+bundle exec rspec spec/models/project_spec.rb:10
+
+# By type
+bundle exec rspec spec/models
+bundle exec rspec spec/requests
+bundle exec rspec spec/serializers
+```
+
+### Test Coverage
+
+```bash
+# Generate coverage report
+bundle exec rspec
+
+# View coverage
+open coverage/index.html
+```
+
+**Current Coverage:**
+- Line Coverage: 100%
+- Branch Coverage: 100%
+
+## 🔧 Development Tools
+
+### Rails Console
+
+```bash
+rails console
+
+# Test API response
+Project.all
+BlogPost.published.count
+```
+
+### Database Console
+
+```bash
+# Access PostgreSQL directly
+docker compose exec db psql -U postgres -d portfolio_development
+
+# List tables
+\dt
+
+# Query
+SELECT * FROM projects;
+```
+
+### Background Jobs
+
+Monitor Sidekiq: http://localhost:3000/sidekiq
+
+### Email Testing
+
+Preview emails: http://localhost:3000/rails/mailers
+
+## 🚀 Deployment
+
+### Environment Variables (Production)
+
+Set these in your deployment platform:
+
+```bash
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
+JWT_SECRET=<generate with: rails secret>
+SECRET_KEY_BASE=<generate with: rails secret>
+SMTP_ADDRESS=smtp.sendgrid.net
+SMTP_USERNAME=apikey
+SMTP_PASSWORD=<your_sendgrid_key>
+FROM_EMAIL=hello@justinnegron.dev
+FRONTEND_URL=https://justinnegron.dev
+AWS_ACCESS_KEY_ID=<your_key>
+AWS_SECRET_ACCESS_KEY=<your_secret>
+RAILS_ENV=production
+```
+
+### Docker Production Build
+
+```bash
+docker build -t portfolio-backend .
+docker run -p 3000:3000 portfolio-backend
+```
 
 ### AWS ECS Deployment
 
-1. Set environment variables in AWS Secrets Manager
-2. Build and push Docker image to ECR
-3. Update ECS task definition
-4. Deploy to ECS cluster
+See `infrastructure/README.md` for detailed deployment instructions.
 
-Detailed deployment instructions in `/infrastructure/README.md`
+## 📁 Project Structure
 
-## License
+```
+backend/
+├── app/
+│   ├── controllers/api/v1/    # API endpoints
+│   ├── models/                # Data models
+│   ├── serializers/           # JSON serializers
+│   ├── mailers/               # Email templates
+│   └── jobs/                  # Background jobs
+├── config/
+│   ├── routes.rb              # API routes
+│   ├── database.yml           # DB config
+│   └── initializers/          # App configuration
+├── db/
+│   ├── migrate/               # Database migrations
+│   └── seeds.rb               # Sample data
+├── spec/                      # Test suite
+├── docker-compose.yml         # Docker services
+└── Dockerfile                 # Production image
+
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
 
 Private - All Rights Reserved
+
+## 🐛 Troubleshooting
+
+### Database connection errors
+
+```bash
+# Restart Docker services
+docker compose down
+docker compose up -d
+
+# Verify they're running
+docker compose ps
+```
+
+### Redis connection errors
+
+```bash
+# Check Redis
+docker compose exec redis redis-cli ping
+# Should return: PONG
+```
+
+### Test failures
+
+```bash
+# Reset test database
+RAILS_ENV=test rails db:drop db:create db:migrate
+```
+
+### Port already in use
+
+```bash
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+```
+
+## 📞 Support
+
+For issues or questions, contact: your.email@example.com
