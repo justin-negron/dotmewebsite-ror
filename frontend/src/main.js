@@ -7,8 +7,8 @@
  * ============================================================================
  */
 
-import { createApp } from '../node_modules_backup/vue'
-import { createPinia } from '../node_modules_backup/pinia'
+import { createApp } from '../node_modules/vue'
+import { createPinia } from '../node_modules/pinia'
 
 import App from './App.vue'
 import router from './router'

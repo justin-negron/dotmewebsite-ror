@@ -1,5 +1,5 @@
-import { ref, computed } from '../../node_modules_backup/vue'
-import { defineStore } from '../../node_modules_backup/pinia'
+import { ref, computed } from '../../node_modules/vue'
+import { defineStore } from '../../node_modules/pinia'
 
 export const useCounterStore = defineStore('counter', () => {
   const count = ref(0)

@@ -7,20 +7,20 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins do |source, env|
-      # In development, allow multiple origins
-      if Rails.env.development?
-        ['localhost:5173', 'localhost:3000', 'null'].include?(source)
-      else
-        # In production, only allow your frontend domain
-        [ENV.fetch('FRONTEND_URL', 'https://justinnegron.dev')].include?(source)
-      end
+    # In development, allow localhost origins
+    if Rails.env.development?
+      origins 'http://localhost:5173', 
+              'http://127.0.0.1:5173',
+              'localhost:5173'
+    else
+      # In production, only allow your frontend domain
+      origins ENV.fetch('FRONTEND_URL', 'https://justinnegron.dev')
     end
 
     resource '*',
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
-      credentials: true,
+      credentials: false,  # Changed to false for now (simpler)
       max_age: 86400
   end
 end
