@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 /**
  * ============================================================================
  * HomeView.vue - Home Page View
@@ -15,11 +15,15 @@ const isSetupComplete = ref(true)
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
+  <div
+    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800"
+  >
     <div class="max-w-4xl mx-auto px-4 text-center">
       <!-- Success Icon -->
       <div class="mb-8">
-        <div class="inline-flex items-center justify-center w-24 h-24 bg-success-100 dark:bg-success-900 rounded-full">
+        <div
+          class="inline-flex items-center justify-center w-24 h-24 bg-success-100 dark:bg-success-900 rounded-full"
+        >
           <svg
             class="w-12 h-12 text-success-600 dark:text-success-400"
             fill="none"
@@ -47,19 +51,32 @@ const isSetupComplete = ref(true)
       </p>
 
       <!-- Status Badge -->
-      <div v-if="isSetupComplete" class="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg mb-12">
+      <div
+        v-if="isSetupComplete"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg mb-12"
+      >
         <span class="w-3 h-3 bg-success-500 rounded-full animate-pulse" />
-        <span class="text-gray-700 dark:text-gray-300 font-medium">
-          All systems operational
-        </span>
+        <span class="text-gray-700 dark:text-gray-300 font-medium"> All systems operational </span>
       </div>
 
       <!-- Feature List -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div class="card p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mb-4 mx-auto">
-            <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          <div
+            class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mb-4 mx-auto"
+          >
+            <svg
+              class="w-6 h-6 text-primary-600 dark:text-primary-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
             </svg>
           </div>
           <h3 class="text-lg font-semibold mb-2">Lightning Fast</h3>
@@ -69,21 +86,43 @@ const isSetupComplete = ref(true)
         </div>
 
         <div class="card p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-secondary-100 dark:bg-secondary-900 rounded-lg flex items-center justify-center mb-4 mx-auto">
-            <svg class="w-6 h-6 text-secondary-600 dark:text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+          <div
+            class="w-12 h-12 bg-secondary-100 dark:bg-secondary-900 rounded-lg flex items-center justify-center mb-4 mx-auto"
+          >
+            <svg
+              class="w-6 h-6 text-secondary-600 dark:text-secondary-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+              />
             </svg>
           </div>
           <h3 class="text-lg font-semibold mb-2">Beautiful Design</h3>
-          <p class="text-gray-600 dark:text-gray-400">
-            Styled with Tailwind CSS utility classes
-          </p>
+          <p class="text-gray-600 dark:text-gray-400">Styled with Tailwind CSS utility classes</p>
         </div>
 
         <div class="card p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-success-100 dark:bg-success-900 rounded-lg flex items-center justify-center mb-4 mx-auto">
-            <svg class="w-6 h-6 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div
+            class="w-12 h-12 bg-success-100 dark:bg-success-900 rounded-lg flex items-center justify-center mb-4 mx-auto"
+          >
+            <svg
+              class="w-6 h-6 text-success-600 dark:text-success-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <h3 class="text-lg font-semibold mb-2">Production Ready</h3>

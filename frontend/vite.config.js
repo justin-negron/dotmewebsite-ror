@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, loadEnv } from 'vite'
 
@@ -22,6 +23,7 @@ export default defineConfig(({ mode }) => {
     // Plugins
     // ========================================================================
     plugins: [
+      tailwindcss(),
       vue({
         script: {
           defineModel: true,

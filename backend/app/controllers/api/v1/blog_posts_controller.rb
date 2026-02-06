@@ -11,19 +11,19 @@ module Api
         @blog_posts = @blog_posts.page(params[:page]).per(params[:per_page] || 10)
         
         render_success(
-          ActiveModelSerializers::SerializableResource.new(@blog_posts).as_json,
+          BlogPostResource.new(@blog_posts).to_h,
           meta: pagination_meta(@blog_posts)
         )
       end
-      
+
       def show
         @blog_post = BlogPost.published.find_by!(slug: params[:slug])
-        
+
         # Increment view count
         @blog_post.increment_view_count!
-        
+
         render_success(
-          ActiveModelSerializers::SerializableResource.new(@blog_post).as_json
+          BlogPostResource.new(@blog_post).to_h
         )
       end
     end

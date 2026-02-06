@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 /**
  * ============================================================================
  * App.vue - Root Component
@@ -42,7 +42,7 @@ onMounted(() => {
 #app {
   /* Ensure app takes full viewport height */
   min-height: 100vh;
-  
+
   /* Enable smooth font rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -14,16 +14,16 @@ module Api
         @projects = @projects.page(params[:page]).per(params[:per_page] || 10)
         
         render_success(
-          ActiveModelSerializers::SerializableResource.new(@projects).as_json,
+          ProjectResource.new(@projects).to_h,
           meta: pagination_meta(@projects)
         )
       end
-      
+
       def show
         @project = Project.find(params[:id])
-        
+
         render_success(
-          ActiveModelSerializers::SerializableResource.new(@project).as_json
+          ProjectResource.new(@project).to_h
         )
       end
     end
