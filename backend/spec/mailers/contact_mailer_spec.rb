@@ -7,8 +7,8 @@ RSpec.describe ContactMailer, type: :mailer do
     
     it 'renders the headers' do
       expect(mail.subject).to eq('New Contact Form Submission: Test Subject')
-      expect(mail.to).to eq([ENV.fetch('FROM_EMAIL', 'hello@justinnegron.dev')])
-      expect(mail.from).to eq([ENV.fetch('FROM_EMAIL', 'hello@justinnegron.dev')])
+      expect(mail.to).to eq([ENV.fetch('FROM_EMAIL', 'justinnegron174@gmail.com')])
+      expect(mail.from).to eq([ENV.fetch('FROM_EMAIL', 'justinnegron174@gmail.com')])
       expect(mail.reply_to).to eq(['john@example.com'])
     end
     
@@ -36,7 +36,7 @@ RSpec.describe ContactMailer, type: :mailer do
     it 'renders the headers' do
       expect(mail.subject).to eq('Thanks for reaching out!')
       expect(mail.to).to eq(['john@example.com'])
-      expect(mail.from).to eq([ENV.fetch('FROM_EMAIL', 'hello@justinnegron.dev')])
+      expect(mail.from).to eq([ENV.fetch('FROM_EMAIL', 'justinnegron174@gmail.com')])
     end
     
     it 'includes contact name in body' do
