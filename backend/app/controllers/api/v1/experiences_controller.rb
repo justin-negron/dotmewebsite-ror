@@ -12,7 +12,7 @@ module Api
         @experiences = @experiences.page(params[:page]).per(params[:per_page] || 20)
         
         render_success(
-          ActiveModelSerializers::SerializableResource.new(@experiences).as_json,
+          ExperienceResource.new(@experiences).to_h,
           meta: pagination_meta(@experiences)
         )
       end

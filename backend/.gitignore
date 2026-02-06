@@ -178,7 +178,6 @@ yarn-debug.log*
 
 # Docker volumes and temp files
 docker-compose.override.yml
-.dockerignore
 
 # ===========================
 # CI/CD

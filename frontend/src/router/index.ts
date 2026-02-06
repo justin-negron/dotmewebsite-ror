@@ -1,0 +1,88 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    title?: string
+    description?: string
+    requiresAuth?: boolean
+  }
+}
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    name: 'home',
+    component: () => import('@/views/HomeView.vue'),
+    meta: {
+      title: 'Home',
+      description: 'Welcome to my portfolio',
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: () => import('@/views/AboutView.vue'),
+    meta: {
+      title: 'About',
+      description: 'Learn more about me',
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/views/HomeView.vue'),
+    meta: {
+      title: '404 - Not Found',
+      description: 'Page not found',
+      requiresAuth: false,
+    },
+  },
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth' as const,
+        top: 80,
+      }
+    }
+
+    return { top: 0, behavior: 'smooth' as const }
+  },
+})
+
+router.beforeEach((to, _from, next) => {
+  const baseTitle = import.meta.env.VITE_APP_TITLE || 'Portfolio'
+  document.title = to.meta.title ? `${to.meta.title} | ${baseTitle}` : baseTitle
+
+  const metaDescription = document.querySelector('meta[name="description"]')
+  if (metaDescription && to.meta.description) {
+    metaDescription.setAttribute('content', to.meta.description)
+  }
+
+  next()
+})
+
+router.afterEach((to, from) => {
+  if (import.meta.env.DEV) {
+    console.log(`Navigation: ${from.path} → ${to.path}`)
+  }
+})
+
+router.onError((error: Error) => {
+  console.error('Router error:', error)
+})
+
+export default router

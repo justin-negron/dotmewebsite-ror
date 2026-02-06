@@ -29,7 +29,7 @@ module Api
       end
       
       # Standard error response
-      def render_error(message, status: :unprocessable_entity, errors: [])
+      def render_error(message, status: :unprocessable_content, errors: [])
         render json: {
           success: false,
           message: message,
@@ -45,7 +45,7 @@ module Api
       def unprocessable_entity(exception)
         render_error(
           'Validation failed',
-          status: :unprocessable_entity,
+          status: :unprocessable_content,
           errors: exception.record.errors.full_messages
         )
       end

@@ -43,8 +43,14 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
-  # config.cache_store = :mem_cache_store
+  # Use Redis as the cache store (separate DB from Sidekiq on DB 0)
+  config.cache_store = :redis_cache_store, {
+    url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1"),
+    expires_in: 1.hour,
+    error_handler: lambda do |method:, returning:, exception:|
+      Rails.logger.error("Redis cache error: #{exception.class}: #{exception.message}")
+    end
+  }
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   # config.active_job.queue_adapter = :resque

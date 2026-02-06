@@ -19,6 +19,8 @@ class Experience < ApplicationRecord
   end
 
   def duration
+    return 'N/A' if start_date.nil?
+    
     start_year = start_date.year
     end_year = end_date&.year || Date.current.year
     
