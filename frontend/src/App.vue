@@ -15,14 +15,7 @@ import { onMounted } from 'vue'
  * Initialize application on mount
  */
 onMounted(() => {
-  // Add smooth scroll behavior to html element
   document.documentElement.classList.add('smooth-scroll')
-
-  // Set initial color scheme (optional - implement dark mode later)
-  // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  // if (prefersDark) {
-  //   document.documentElement.classList.add('dark')
-  // }
 })
 </script>
 
