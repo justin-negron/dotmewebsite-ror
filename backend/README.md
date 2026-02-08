@@ -15,7 +15,7 @@ Ruby on Rails API backend for justinnegron.dev portfolio website.
 
 ## 🛠 Tech Stack
 
-- **Ruby** 3.2.3
+- **Ruby** 3.4.8
 - **Rails** 7.1.6
 - **PostgreSQL** 15+ (via Docker)
 - **Redis** 7+ (via Docker)
@@ -37,7 +37,7 @@ Ruby on Rails API backend for justinnegron.dev portfolio website.
 
 ## 📦 Prerequisites
 
-- Ruby 3.2.3
+- Ruby 3.4.8
 - Bundler
 - Docker & Docker Compose
 - Node.js 20+ (for frontend, later)
