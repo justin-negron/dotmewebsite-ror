@@ -3,6 +3,17 @@ import type { Ref } from 'vue'
 import { handleApiError } from '@/services'
 import type { ApiError } from '@/types'
 
+/**
+ * Composable for component-local API calls that do NOT need global state.
+ *
+ * For data shared across components (projects, experiences, blog posts),
+ * prefer using the Pinia stores in @/stores instead.
+ *
+ * Use cases for useApi:
+ * - One-off mutations (e.g., a form submission with component-local state)
+ * - API calls whose results are only needed in a single component
+ * - Prototyping a new feature before creating a dedicated store
+ */
 export function useApi<T>(apiFunction: (...args: unknown[]) => Promise<T>) {
   const data: Ref<T | null> = ref(null)
   const loading = ref(false)

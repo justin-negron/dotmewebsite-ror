@@ -41,15 +41,15 @@ RSpec.describe PageView, type: :model do
   end
   
   describe '.views_by_date' do
-    before do
-      create_list(:page_view, 3, created_at: Date.today)
-      create_list(:page_view, 2, created_at: 1.day.ago)
-    end
-    
     it 'groups views by date' do
-      views = PageView.views_by_date(7)
-      expect(views[Date.today]).to eq(3)
-      expect(views[1.day.ago.to_date]).to eq(2)
+      travel_to Time.zone.local(2026, 1, 15, 12, 0, 0) do
+        create_list(:page_view, 3, created_at: Time.current)
+        create_list(:page_view, 2, created_at: 1.day.ago)
+
+        views = PageView.views_by_date(7)
+        expect(views[Date.current]).to eq(3)
+        expect(views[1.day.ago.to_date]).to eq(2)
+      end
     end
   end
   

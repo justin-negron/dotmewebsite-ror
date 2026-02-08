@@ -31,9 +31,19 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/blog',
+    name: 'blog',
+    component: () => import('@/views/BlogView.vue'),
+    meta: {
+      title: 'Blog',
+      description: 'Thoughts on software engineering and technology',
+      requiresAuth: false,
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
-    component: () => import('@/views/HomeView.vue'),
+    component: () => import('@/views/NotFoundView.vue'),
     meta: {
       title: '404 - Not Found',
       description: 'Page not found',
