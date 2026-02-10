@@ -542,3 +542,21 @@
     @apply bg-primary-500 text-white;
   }
 }
+
+/* ============================================================================
+   View Transitions — circular reveal for theme toggle
+   ============================================================================ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  will-change: clip-path, filter;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}

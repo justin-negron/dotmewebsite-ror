@@ -24,7 +24,7 @@ class Experience < ApplicationRecord
     start_year = start_date.year
     end_year = end_date&.year || Date.current.year
     
-    if start_year == end_year
+    if start_year == end_year && start_date.month == end_date&.month
       start_date.strftime("%B %Y")
     else
       end_str = current? ? "Present" : end_date.strftime("%B %Y")

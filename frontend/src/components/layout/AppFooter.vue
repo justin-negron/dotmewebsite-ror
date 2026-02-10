@@ -1,29 +1,44 @@
 <script setup lang="ts">
+import { useTerminalBridge } from '@/composables/useTerminalBridge'
+
+const { triggerAutoType, triggerClearAutoType } = useTerminalBridge()
+
 const socialLinks = [
   {
     label: 'GitHub',
+    command: 'github',
     href: 'https://github.com/justin-negron',
     external: true,
   },
   {
     label: 'LinkedIn',
+    command: 'linkedin',
     href: 'https://www.linkedin.com/in/justin-negron/',
     external: true,
   },
   {
     label: 'Email',
+    command: 'email',
     href: 'mailto:justinnegron174@gmail.com',
     external: false,
   },
 ] as const
 
 const currentYear = new Date().getFullYear()
+
+function handleHover(command: string) {
+  triggerAutoType(command)
+}
+
+function handleLeave() {
+  triggerClearAutoType()
+}
 </script>
 
 <template>
-  <footer class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+  <footer class="footer-shell">
     <div class="container py-8">
-      <div class="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+      <div class="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
         <!-- Social Links -->
         <div class="flex items-center gap-6">
           <a
@@ -32,8 +47,10 @@ const currentYear = new Date().getFullYear()
             :href="link.href"
             :target="link.external ? '_blank' : undefined"
             :rel="link.external ? 'noopener noreferrer' : undefined"
-            class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+            class="social-link group flex items-center gap-2"
             :aria-label="link.label"
+            @mouseenter="handleHover(link.command)"
+            @mouseleave="handleLeave()"
           >
             <!-- GitHub -->
             <svg
@@ -74,14 +91,53 @@ const currentYear = new Date().getFullYear()
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
+
+            <span class="hidden text-xs font-mono sm:inline">{{ link.label }}</span>
           </a>
         </div>
 
-        <!-- Copyright -->
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          &copy; {{ currentYear }} Justin Negron. All rights reserved.
-        </p>
+        <!-- Right side: tagline + copyright -->
+        <div class="flex flex-col items-center gap-1 sm:items-end">
+          <p class="text-xs font-mono text-gray-400 dark:text-gray-500">
+            Built with Rails &amp; Vue
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            &copy; {{ currentYear }} Justin Negron
+          </p>
+        </div>
       </div>
     </div>
   </footer>
 </template>
+
+<style scoped>
+.footer-shell {
+  border-top: 1px solid rgba(var(--skin-rgb), 0.1);
+  background: white;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+:is(.dark *).footer-shell {
+  background: #0a0a0a;
+  border-top-color: rgba(var(--skin-light-rgb), 0.08);
+}
+
+.social-link {
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.social-link:hover {
+  color: var(--skin-600);
+}
+
+:is(.dark *).social-link {
+  color: #9ca3af;
+}
+
+:is(.dark *).social-link:hover {
+  color: var(--skin-400);
+}
+</style>

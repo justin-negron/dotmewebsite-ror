@@ -69,7 +69,7 @@ function handleNavClick(event: Event, item: NavItem) {
         <div
           class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 p-6"
         >
-          <span class="text-lg font-bold text-gradient">JN</span>
+          <span class="text-lg font-bold" style="color: var(--skin-600)">JN</span>
           <button
             type="button"
             class="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -93,11 +93,18 @@ function handleNavClick(event: Event, item: NavItem) {
             <li v-for="item in NAV_ITEMS" :key="item.href">
               <a
                 :href="item.href"
-                :class="[
-                  'block rounded-lg px-4 py-3 text-base font-medium transition-colors duration-200',
+                class="block rounded-lg px-4 py-3 text-base font-medium transition-colors duration-200"
+                :style="
                   isActive(item)
-                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
+                    ? {
+                        color: 'var(--skin-600)',
+                        backgroundColor: 'rgba(var(--skin-rgb), 0.08)',
+                      }
+                    : undefined
+                "
+                :class="[
+                  !isActive(item) &&
+                    'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
                 ]"
                 @click="handleNavClick($event, item)"
               >
