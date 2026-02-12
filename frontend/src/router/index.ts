@@ -41,6 +41,16 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/blog/:slug',
+    name: 'blog-post',
+    component: () => import('@/views/BlogPostView.vue'),
+    meta: {
+      title: 'Blog Post',
+      description: 'Read the full article',
+      requiresAuth: false,
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFoundView.vue'),
