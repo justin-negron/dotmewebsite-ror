@@ -8,7 +8,7 @@ const props = withDefaults(
     post: BlogPost
     featured?: boolean
   }>(),
-  { featured: false },
+  { featured: false }
 )
 
 const router = useRouter()
@@ -64,7 +64,15 @@ function navigateToPost() {
 
     <!-- Hover arrow -->
     <div class="card-arrow" aria-hidden="true">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
         <line x1="2" y1="8" x2="12" y2="8" />
         <polyline points="8,4 12,8 8,12" />
       </svg>
@@ -123,7 +131,9 @@ function navigateToPost() {
   width: 3px;
   background: linear-gradient(to bottom, var(--skin-500), transparent 85%);
   opacity: 0.35;
-  transition: opacity 0.3s ease, width 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    width 0.3s ease;
 }
 
 .blog-card:hover .card-accent {

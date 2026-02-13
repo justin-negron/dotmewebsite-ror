@@ -11,6 +11,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Projects', href: '/#projects', isRoute: false },
   { label: 'Experience', href: '/#experience', isRoute: false },
   { label: 'Blog', href: '/blog', isRoute: true },
+  { label: 'About', href: '/#about', isRoute: false },
   { label: 'Contact', href: '/#contact', isRoute: false },
 ]
 

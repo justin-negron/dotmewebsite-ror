@@ -58,7 +58,7 @@ watch(
         hasRevealed.value = true
       })
     }
-  },
+  }
 )
 </script>
 
@@ -116,15 +116,17 @@ watch(
         <div v-else-if="blogStore.error" class="text-center py-16">
           <div class="error-icon">!</div>
           <p class="error-text mt-4">Failed to load blog posts.</p>
-          <button class="retry-btn mt-4" @click="blogStore.fetchPosts({}, true)">
-            Try Again
-          </button>
+          <button class="retry-btn mt-4" @click="blogStore.fetchPosts({}, true)">Try Again</button>
         </div>
 
         <!-- Empty state -->
         <div v-else-if="posts.length === 0" class="text-center py-16">
           <p class="empty-text">
-            {{ blogStore.currentTag ? `No posts tagged "${blogStore.currentTag}".` : 'No posts yet — check back soon.' }}
+            {{
+              blogStore.currentTag
+                ? `No posts tagged "${blogStore.currentTag}".`
+                : 'No posts yet — check back soon.'
+            }}
           </p>
           <button
             v-if="blogStore.currentTag"
@@ -138,10 +140,7 @@ watch(
         <!-- Posts -->
         <template v-else>
           <!-- Featured / latest post -->
-          <div
-            v-if="featuredPost"
-            :class="['featured-wrap', hasRevealed ? 'is-revealed' : '']"
-          >
+          <div v-if="featuredPost" :class="['featured-wrap', hasRevealed ? 'is-revealed' : '']">
             <span class="latest-label">Latest</span>
             <BlogCard :post="featuredPost" featured />
           </div>
@@ -159,16 +158,21 @@ watch(
           </div>
 
           <!-- Pagination -->
-          <div
-            v-if="blogStore.totalPages > 1"
-            class="pagination"
-          >
+          <div v-if="blogStore.totalPages > 1" class="pagination">
             <button
               class="page-btn"
               :disabled="!blogStore.hasPreviousPage"
               @click="handlePageChange(blogStore.currentPage - 1)"
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
                 <polyline points="9,2 4,7 9,12" />
               </svg>
               Prev
@@ -182,7 +186,15 @@ watch(
               @click="handlePageChange(blogStore.currentPage + 1)"
             >
               Next
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
                 <polyline points="5,2 10,7 5,12" />
               </svg>
             </button>
@@ -223,19 +235,11 @@ watch(
 .blog-header {
   padding-top: 7.5rem;
   padding-bottom: 3rem;
-  background: linear-gradient(
-    180deg,
-    rgba(var(--skin-rgb), 0.03) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg, rgba(var(--skin-rgb), 0.03) 0%, transparent 100%);
 }
 
 :is(.dark *).blog-header {
-  background: linear-gradient(
-    180deg,
-    rgba(var(--skin-light-rgb), 0.03) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg, rgba(var(--skin-light-rgb), 0.03) 0%, transparent 100%);
 }
 
 .header-content {

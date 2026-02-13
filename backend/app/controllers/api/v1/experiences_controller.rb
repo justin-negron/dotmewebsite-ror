@@ -4,6 +4,10 @@ module Api
       def index
         @experiences = Experience.ordered
         
+        # Filter by type if requested
+        @experiences = @experiences.work if params[:type] == 'work'
+        @experiences = @experiences.education if params[:type] == 'education'
+
         # Filter by current/past if requested
         @experiences = @experiences.current if params[:current] == 'true'
         @experiences = @experiences.past if params[:past] == 'true'

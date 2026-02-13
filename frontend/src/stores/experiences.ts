@@ -23,6 +23,14 @@ export const useExperiencesStore = defineStore('experiences', () => {
     )
   )
 
+  const workExperiences = computed(() =>
+    chronologicalExperiences.value.filter((e) => e.experience_type === 'work')
+  )
+
+  const educationExperiences = computed(() =>
+    chronologicalExperiences.value.filter((e) => e.experience_type === 'education')
+  )
+
   const hasExperiences = computed(() => experiences.value.length > 0)
 
   // Actions
@@ -103,6 +111,8 @@ export const useExperiencesStore = defineStore('experiences', () => {
     // Getters
     sortedExperiences,
     chronologicalExperiences,
+    workExperiences,
+    educationExperiences,
     hasExperiences,
 
     // Actions

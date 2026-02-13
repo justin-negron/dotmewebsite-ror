@@ -1,7 +1,7 @@
 class ExperienceResource
   include Alba::Resource
 
-  attributes :id, :company, :position, :description, :technologies, :display_order
+  attributes :id, :company, :position, :description, :technologies, :display_order, :experience_type
 
   attribute :current do |experience|
     experience.current?

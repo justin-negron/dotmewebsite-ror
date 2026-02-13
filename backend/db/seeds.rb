@@ -99,10 +99,11 @@ experiences_data = [
     company: "Bank of America",
     position: "Software Engineer",
     start_date: Date.new(2024, 2, 26),
-    end_date: nil, # Current job
+    end_date: nil,
     description: "Efforts are focused in Performance, Observability, and Site Reliability.",
     technologies: ["Java", "C", "Python", "Vugen", "BitBucket", "Splunk", "Dynatrace"],
-    display_order: 1
+    display_order: 1,
+    experience_type: "work"
   },
   {
     company: "Bank of America",
@@ -111,7 +112,8 @@ experiences_data = [
     end_date: Date.new(2023, 8, 10),
     description: "Simulated user behavior using VuGen scripts for system-wide performance testing on LoadRunner Enterprise. Maintained test environments to accurately replicate production workloads and ensure reliable performance. Enhanced Python scripts to integrate Dynatrace API analytics, increasing observability and test accuracy.",
     technologies: ["C", "Python", "Vugen", "Dynatrace"],
-    display_order: 2
+    display_order: 2,
+    experience_type: "work"
   },
   {
     company: "Fire by Design",
@@ -120,7 +122,8 @@ experiences_data = [
     end_date: Date.new(2023, 1, 10),
     description: "Developed a Ruby on Rails web application to replace manual Excel inventory management. Added a CSV import to upload existing Excel spreadsheets to populate DB tables. Implemented a binary search algorithm to search all Products and relative Parts.",
     technologies: ["Ruby on Rails", "Postgres", "Bootstrap"],
-    display_order: 3
+    display_order: 3,
+    experience_type: "work"
   },
   {
     company: "Westinis Inc",
@@ -129,7 +132,29 @@ experiences_data = [
     end_date: Date.new(2021, 8, 10),
     description: "Extracted geo-location data points from IoT devices and Smartphones with Blazor WebAssembly. Calibrated geo-location data points to be displayed on XAML Map Interface. Evaluated if existing Razor pages could be upgraded to Blazor pages.",
     technologies: ["C#", ".NET", "Blazor", "Azure"],
-    display_order: 4
+    display_order: 4,
+    experience_type: "work"
+  },
+  # Education
+  {
+    company: "Florida Atlantic University",
+    position: "B.S. Computer Engineering",
+    start_date: Date.new(2020, 8, 1),
+    end_date: Date.new(2023, 12, 15),
+    description: "Concentrated in embedded systems and digital design. Completed capstone project on autonomous mobile robot swarm using STM32 microcontrollers and RTOS. Active member of the Engineering Society.",
+    technologies: ["C/C++", "SystemVerilog", "MATLAB", "ARM", "RTOS", "Python"],
+    display_order: 5,
+    experience_type: "education"
+  },
+  {
+    company: "Broward College",
+    position: "A.A. General Studies",
+    start_date: Date.new(2018, 8, 1),
+    end_date: Date.new(2020, 5, 15),
+    description: "Completed core coursework with a focus on mathematics and sciences. Dean's List recipient. Transferred to Florida Atlantic University for Computer Engineering.",
+    technologies: ["Calculus", "Physics", "Chemistry", "Programming Fundamentals"],
+    display_order: 6,
+    experience_type: "education"
   }
 ]
 

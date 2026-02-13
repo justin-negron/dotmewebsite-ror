@@ -19,6 +19,7 @@ const { register, unregister } = useTerminalBridge()
 const isDocked = ref(true)
 const isMinimized = ref(false)
 const isDragging = ref(false)
+const isTransitioning = ref(false)
 
 // Page-coordinate position (relative to #app which has position: relative)
 const pagePos = ref({ x: 0, y: 0 })
@@ -133,7 +134,7 @@ const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   },
   about: {
     response: 'scrolling to about...',
-    nav: { label: 'About', href: '/#about', isRoute: false },
+    nav: NAV_ITEMS.find((n) => n.href === '/#about'),
   },
   github: {
     response: 'opening github...',
@@ -195,7 +196,10 @@ function executeCommand(cmd: string) {
     history.value.push({ command: trimmed, response: match.response })
     scrollTerminal()
     if (match.nav) {
-      setTimeout(() => navigateTo(match.nav as NavItem), 400)
+      setTimeout(() => {
+        navigateTo(match.nav as NavItem)
+        followNavigation(match.nav as NavItem)
+      }, 400)
     }
     if (LINK_ACTIONS[trimmed]) {
       setTimeout(() => {
@@ -211,6 +215,98 @@ function executeCommand(cmd: string) {
     isError: true,
   })
   scrollTerminal()
+}
+
+/* ========================================================================
+   Follow navigation — move terminal to the target section
+   ======================================================================== */
+
+function followNavigation(nav: NavItem) {
+  const termWidth = lockedWidth.value || 380
+
+  // "home" command: re-dock to hero slot
+  if (nav.href === '/') {
+    // If already on home and docked, slot polling is handled by the route watcher.
+    // If on home and undocked, animate back to hero slot.
+    if (isOnHomePage.value && !isDocked.value && !isMinimized.value) {
+      nextTick(() => {
+        let attempts = 0
+        function pollAndDock() {
+          const slot = document.getElementById('hero-terminal-slot')
+          if (slot && slot.offsetParent !== null) {
+            const rect = slot.getBoundingClientRect()
+            isTransitioning.value = true
+            pagePos.value = {
+              x: rect.left + window.scrollX,
+              y: rect.top + window.scrollY,
+            }
+            setTimeout(() => {
+              isDocked.value = true
+              slotFound.value = true
+              isTransitioning.value = false
+            }, 500)
+            return
+          }
+          attempts++
+          if (attempts < 60) requestAnimationFrame(pollAndDock)
+        }
+        pollAndDock()
+      })
+    }
+    // If navigating from another page, the route watcher handles re-docking
+    return
+  }
+
+  // Route-based pages (like /blog): undock and animate to top-right
+  if (nav.isRoute) {
+    if (isDocked.value) {
+      measureSlot()
+      undock()
+    }
+    // Wait for route change to settle, then position at top-right of viewport
+    nextTick(() => {
+      setTimeout(() => {
+        isTransitioning.value = true
+        pagePos.value = {
+          x: Math.max(0, window.innerWidth - termWidth - 24),
+          y: window.scrollY + 100,
+        }
+        setTimeout(() => {
+          isTransitioning.value = false
+        }, 500)
+      }, 300)
+    })
+    return
+  }
+
+  // Hash sections on home page (/#projects, /#experience, /#contact, /#about)
+  const hash = nav.href.includes('#') ? nav.href.split('#')[1] : ''
+  if (!hash) return
+
+  // Undock if still docked
+  if (isDocked.value) {
+    measureSlot()
+    undock()
+  }
+
+  // Wait for scroll to start, then find the section and position next to it
+  nextTick(() => {
+    // Small delay so smooth scroll has begun and section is in a predictable position
+    setTimeout(() => {
+      const section = document.getElementById(hash)
+      if (!section) return
+
+      const rect = section.getBoundingClientRect()
+      isTransitioning.value = true
+      pagePos.value = {
+        x: Math.max(0, window.innerWidth - termWidth - 24),
+        y: rect.top + window.scrollY + 20, // 20px below the section top
+      }
+      setTimeout(() => {
+        isTransitioning.value = false
+      }, 500)
+    }, 300)
+  })
 }
 
 function handleSkinCommand(full: string, arg: string) {
@@ -519,17 +615,64 @@ onUnmounted(() => {
   unregister()
 })
 
-// When navigating away from home while docked, auto-undock with a default position
+// When navigating away from home while docked, animate to top-right and undock
 watch(isOnHomePage, async (onHome) => {
   if (!onHome && isDocked.value) {
-    // Capture current position before undocking
-    measureSlot()
+    // Undock first so terminal becomes visible, then animate to top-right
+    const termWidth = lockedWidth.value || 380
+    measureSlot() // capture current slot position
     undock()
+    // Animate to top-right after a tick so the browser sees the starting position
+    await nextTick()
+    isTransitioning.value = true
+    pagePos.value = {
+      x: Math.max(0, window.innerWidth - termWidth - 24),
+      y: window.scrollY + 100,
+    }
+    setTimeout(() => {
+      isTransitioning.value = false
+    }, 500)
   }
   if (onHome && isDocked.value) {
-    // Re-measure slot when navigating back to home
+    // Re-poll for slot since HomeView is lazy-loaded
     await nextTick()
-    measureSlot()
+    let attempts = 0
+    function pollSlot() {
+      if (measureSlot()) return
+      attempts++
+      if (attempts < 60) {
+        requestAnimationFrame(pollSlot)
+      }
+    }
+    pollSlot()
+  }
+  if (onHome && !isDocked.value && !isMinimized.value) {
+    // Re-dock: animate terminal back to hero slot
+    await nextTick()
+    let attempts = 0
+    function pollAndDock() {
+      const slot = document.getElementById('hero-terminal-slot')
+      if (slot && slot.offsetParent !== null) {
+        const rect = slot.getBoundingClientRect()
+        isTransitioning.value = true
+        pagePos.value = {
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY,
+        }
+        // Re-dock after transition completes
+        setTimeout(() => {
+          isDocked.value = true
+          slotFound.value = true
+          isTransitioning.value = false
+        }, 500)
+        return
+      }
+      attempts++
+      if (attempts < 60) {
+        requestAnimationFrame(pollAndDock)
+      }
+    }
+    pollAndDock()
   }
 })
 </script>
@@ -544,7 +687,11 @@ watch(isOnHomePage, async (onHome) => {
   <div
     v-show="isVisible"
     ref="terminalWrapRef"
-    :class="['terminal-wrap', isDragging ? 'is-dragging' : '']"
+    :class="[
+      'terminal-wrap',
+      isDragging ? 'is-dragging' : '',
+      isTransitioning ? 'is-transitioning' : '',
+    ]"
     :style="terminalStyle"
   >
     <div
@@ -623,6 +770,12 @@ watch(isOnHomePage, async (onHome) => {
    =================================================================== */
 .terminal-wrap {
   will-change: left, top;
+}
+
+.terminal-wrap.is-transitioning {
+  transition:
+    left 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .terminal-wrap.is-dragging .terminal-card {

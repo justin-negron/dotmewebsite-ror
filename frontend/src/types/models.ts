@@ -25,6 +25,7 @@ export interface Experience {
   duration: string
   start_date: string
   end_date: string | null
+  experience_type: 'work' | 'education'
   created_at: string
   updated_at: string
 }

@@ -27,7 +27,7 @@ onMounted(() => {
         }
       }
     },
-    { threshold: 0.15 }
+    { threshold: 0.15, rootMargin: '0px 0px -80px 0px' }
   )
 
   if (sectionRef.value) {
@@ -89,7 +89,7 @@ onUnmounted(() => {
           v-for="(project, i) in projects"
           :key="project.id"
           :class="['project-card', hasRevealed ? 'is-revealed' : '']"
-          :style="{ animationDelay: `${i * 0.1}s` }"
+          :style="{ animationDelay: `${0.2 + i * 0.12}s` }"
         >
           <!-- Image / Placeholder -->
           <div class="card-image">

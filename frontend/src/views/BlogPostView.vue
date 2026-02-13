@@ -118,7 +118,15 @@ function handleTagClick(tag: string) {
             This post may have been removed or the URL might be incorrect.
           </p>
           <button class="back-btn mt-6" @click="goBack">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
               <polyline points="9,2 4,7 9,12" />
             </svg>
             Back to Blog
@@ -135,7 +143,15 @@ function handleTagClick(tag: string) {
             <!-- Back link -->
             <div :class="['reveal reveal-1', entered ? 'is-revealed' : '']">
               <button class="back-link" @click="goBack">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                >
                   <polyline points="9,2 4,7 9,12" />
                 </svg>
                 Blog
@@ -192,7 +208,15 @@ function handleTagClick(tag: string) {
             <!-- Back to blog -->
             <div class="post-footer mt-8">
               <button class="back-btn" @click="goBack">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                >
                   <polyline points="9,2 4,7 9,12" />
                 </svg>
                 All posts
@@ -501,12 +525,26 @@ function handleTagClick(tag: string) {
   }
 }
 
-.reveal-1.is-revealed { animation-delay: 0.1s; }
-.reveal-2.is-revealed { animation-delay: 0.25s; animation-duration: 1s; }
-.reveal-3.is-revealed { animation-delay: 0.45s; }
-.reveal-4.is-revealed { animation-delay: 0.6s; }
-.reveal-5.is-revealed { animation-delay: 0.7s; animation-duration: 1s; }
-.reveal-6.is-revealed { animation-delay: 0.85s; }
+.reveal-1.is-revealed {
+  animation-delay: 0.1s;
+}
+.reveal-2.is-revealed {
+  animation-delay: 0.25s;
+  animation-duration: 1s;
+}
+.reveal-3.is-revealed {
+  animation-delay: 0.45s;
+}
+.reveal-4.is-revealed {
+  animation-delay: 0.6s;
+}
+.reveal-5.is-revealed {
+  animation-delay: 0.7s;
+  animation-duration: 1s;
+}
+.reveal-6.is-revealed {
+  animation-delay: 0.85s;
+}
 
 /* ===================================================================
    Loading skeleton
@@ -536,8 +574,13 @@ function handleTagClick(tag: string) {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* ===================================================================

@@ -9,6 +9,8 @@ class Experience < ApplicationRecord
   scope :ordered, -> { order(start_date: :desc) }
   scope :current, -> { where(end_date: nil) }
   scope :past, -> { where.not(end_date: nil) }
+  scope :work, -> { where(experience_type: 'work') }
+  scope :education, -> { where(experience_type: 'education') }
 
   # Callbacks
   before_validation :set_display_order, on: :create
