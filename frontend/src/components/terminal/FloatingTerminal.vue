@@ -27,6 +27,7 @@ const lockedWidth = ref(0)
 const slotFound = ref(false)
 
 const isOnHomePage = computed(() => route.path === '/')
+const isBlogPage = computed(() => route.path.startsWith('/blog'))
 const { y: scrollY } = useWindowScroll()
 
 // Mirror the navbar's glass logic (AppHeader: showGlass = !isHome || scrollY > 100).
@@ -103,6 +104,11 @@ const terminalReady = ref(false)
 const isAutoTyping = ref(false)
 const terminalBodyRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
+
+// Command history — up/down arrow navigation
+const cmdHistory = ref<string[]>([])
+const historyIndex = ref(-1)
+const savedInput = ref('')
 
 /* ========================================================================
    Simple commands
@@ -267,10 +273,7 @@ function followNavigation(nav: NavItem) {
     nextTick(() => {
       setTimeout(() => {
         isTransitioning.value = true
-        pagePos.value = {
-          x: Math.max(0, window.innerWidth - termWidth - 24),
-          y: window.scrollY + 100,
-        }
+        pagePos.value = getTopRightPos()
         setTimeout(() => {
           isTransitioning.value = false
         }, 500)
@@ -375,6 +378,15 @@ function handleBgCommand(full: string, arg: string) {
 
 function handleSubmit() {
   if (isAutoTyping.value) return
+  const cmd = inputValue.value.trim()
+  if (cmd) {
+    // Avoid consecutive duplicates (same as most shells)
+    if (cmdHistory.value[cmdHistory.value.length - 1] !== cmd) {
+      cmdHistory.value.push(cmd)
+    }
+  }
+  historyIndex.value = -1
+  savedInput.value = ''
   executeCommand(inputValue.value)
   inputValue.value = ''
 }
@@ -382,6 +394,64 @@ function handleSubmit() {
 function runCommand(cmd: string) {
   executeCommand(cmd)
   inputValue.value = ''
+}
+
+/* ========================================================================
+   Tab autocomplete
+   ======================================================================== */
+
+const ALL_COMMANDS = [...Object.keys(COMMANDS), 'skin', 'bg']
+
+function handleTabComplete() {
+  if (isAutoTyping.value) return
+  const raw = inputValue.value
+  const trimmed = raw.trimStart()
+  const parts = trimmed.split(/\s+/)
+  const base = parts[0]?.toLowerCase() ?? ''
+
+  // Sub-argument completion: "skin am" → "skin amber", "bg geo" → "bg geometric-drift"
+  if (parts.length >= 2 || (parts.length === 1 && raw.endsWith(' '))) {
+    const sub = parts.length >= 2 ? parts.slice(1).join(' ').toLowerCase() : ''
+    let subOptions: string[] = []
+    if (base === 'skin') subOptions = [...SKIN_IDS, 'list']
+    else if (base === 'bg') subOptions = [...BG_IDS, 'list']
+    if (subOptions.length > 0) {
+      const matches = subOptions.filter((o) => o.startsWith(sub))
+      if (matches.length === 1) inputValue.value = `${base} ${matches[0]}`
+    }
+    return
+  }
+
+  // Base command completion: "bl" → "blog", ambiguous "b" → no-op
+  if (!base) return
+  const matches = ALL_COMMANDS.filter((cmd) => cmd.startsWith(base))
+  if (matches.length === 1) inputValue.value = matches[0]!
+}
+
+/* ========================================================================
+   Keyboard handler — Enter / ArrowUp / ArrowDown / Tab
+   ======================================================================== */
+
+function handleKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Enter') {
+    handleSubmit()
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    if (cmdHistory.value.length === 0) return
+    if (historyIndex.value === -1) savedInput.value = inputValue.value
+    const next = Math.min(historyIndex.value + 1, cmdHistory.value.length - 1)
+    historyIndex.value = next
+    inputValue.value = cmdHistory.value[cmdHistory.value.length - 1 - next] ?? ''
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    if (historyIndex.value === -1) return
+    const next = historyIndex.value - 1
+    historyIndex.value = next
+    inputValue.value = next === -1 ? savedInput.value : (cmdHistory.value[cmdHistory.value.length - 1 - next] ?? '')
+  } else if (e.key === 'Tab') {
+    e.preventDefault()
+    handleTabComplete()
+  }
 }
 
 function focusTerminal() {
@@ -474,6 +544,17 @@ let lastClient = { x: 0, y: 0 }
 function undock() {
   if (!isDocked.value) return
   isDocked.value = false
+}
+
+/** Top-right position with equal gap on both sides (right edge and navbar bottom) */
+function getTopRightPos() {
+  const GAP = 24
+  const termWidth = lockedWidth.value || 380
+  const navBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 64
+  return {
+    x: Math.max(0, window.innerWidth - termWidth - GAP),
+    y: window.scrollY + navBottom + GAP / 2,
+  }
 }
 
 /** Convert current viewport mouse position → page position for the terminal */
@@ -615,20 +696,18 @@ onUnmounted(() => {
   unregister()
 })
 
-// When navigating away from home while docked, animate to top-right and undock
+// When navigating away from home, animate terminal to top-right (docked OR undocked)
 watch(isOnHomePage, async (onHome) => {
-  if (!onHome && isDocked.value) {
-    // Undock first so terminal becomes visible, then animate to top-right
+  if (!onHome && !isMinimized.value) {
     const termWidth = lockedWidth.value || 380
-    measureSlot() // capture current slot position
-    undock()
-    // Animate to top-right after a tick so the browser sees the starting position
+    if (isDocked.value) {
+      measureSlot() // capture starting position so transition animates from hero slot
+      undock()
+    }
+    // Use a fixed y so we're not dependent on scrollY before the page resets scroll
     await nextTick()
     isTransitioning.value = true
-    pagePos.value = {
-      x: Math.max(0, window.innerWidth - termWidth - 24),
-      y: window.scrollY + 100,
-    }
+    pagePos.value = getTopRightPos()
     setTimeout(() => {
       isTransitioning.value = false
     }, 500)
@@ -674,6 +753,26 @@ watch(isOnHomePage, async (onHome) => {
     }
     pollAndDock()
   }
+})
+
+// Whenever the user lands on any blog route, snap terminal to top-right.
+// This covers: /about → /blog, direct load at /blog, and reinforces the
+// isOnHomePage watcher for the home → /blog case.
+watch(isBlogPage, async (onBlog) => {
+  if (!onBlog || isMinimized.value) return
+  const termWidth = lockedWidth.value || 380
+  if (isDocked.value) {
+    measureSlot()
+    undock()
+  }
+  await nextTick()
+  setTimeout(() => {
+    isTransitioning.value = true
+    pagePos.value = getTopRightPos()
+    setTimeout(() => {
+      isTransitioning.value = false
+    }, 500)
+  }, 150)
 })
 </script>
 
@@ -746,7 +845,7 @@ watch(isOnHomePage, async (onHome) => {
               autocorrect="off"
               autocapitalize="off"
               spellcheck="false"
-              @keydown.enter="handleSubmit"
+              @keydown="handleKeyDown"
             />
             <span v-if="terminalHint && !inputValue" class="terminal-placeholder">
               {{ terminalHint }}
