@@ -159,6 +159,16 @@ onUnmounted(() => {
    =================================================================== */
 .about-section {
   position: relative;
+  background: linear-gradient(180deg, var(--skin-hero-2) 0%, var(--skin-hero-1) 100%);
+  color: #1c1917;
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
+}
+
+:is(.dark *).about-section {
+  background: linear-gradient(180deg, var(--skin-hero-dark-3) 0%, var(--skin-hero-dark-2) 100%);
+  color: #e7e5e4;
 }
 
 .section-label {
