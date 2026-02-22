@@ -7,9 +7,11 @@ import ContactSection from '@/components/contact/ContactSection.vue'
 </script>
 
 <template>
-  <HeroDevJournal />
-  <ProjectsSection />
-  <ExperienceSection />
-  <AboutSection />
-  <ContactSection />
+  <div>
+    <HeroDevJournal />
+    <ProjectsSection />
+    <ExperienceSection />
+    <AboutSection />
+    <ContactSection />
+  </div>
 </template>

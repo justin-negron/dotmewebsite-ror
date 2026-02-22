@@ -269,11 +269,13 @@ function followNavigation(nav: NavItem) {
       measureSlot()
       undock()
     }
-    // Wait for route change to settle, then position at top-right of viewport
+    // Wait for route change to settle, then position at top-right of viewport.
+    // Pass scrollY=0: destination resets scroll to top but window.scrollY still
+    // holds the home page's offset when this fires.
     nextTick(() => {
       setTimeout(() => {
         isTransitioning.value = true
-        pagePos.value = getTopRightPos()
+        pagePos.value = getTopRightPos(0)
         setTimeout(() => {
           isTransitioning.value = false
         }, 500)
@@ -546,14 +548,16 @@ function undock() {
   isDocked.value = false
 }
 
-/** Top-right position with equal gap on both sides (right edge and navbar bottom) */
-function getTopRightPos() {
+/** Top-right position with equal gap on both sides (right edge and navbar bottom).
+ *  Pass scrollY=0 when navigating to a page that resets scroll (e.g. /blog),
+ *  so the position isn't stale from the previous page's scroll offset. */
+function getTopRightPos(scrollY = window.scrollY) {
   const GAP = 24
   const termWidth = lockedWidth.value || 380
   const navBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 64
   return {
     x: Math.max(0, window.innerWidth - termWidth - GAP),
-    y: window.scrollY + navBottom + GAP / 2,
+    y: scrollY + navBottom + GAP / 2,
   }
 }
 
@@ -704,10 +708,11 @@ watch(isOnHomePage, async (onHome) => {
       measureSlot() // capture starting position so transition animates from hero slot
       undock()
     }
-    // Use a fixed y so we're not dependent on scrollY before the page resets scroll
+    // Pass scrollY=0: the destination page resets scroll to top, but window.scrollY
+    // still holds the home page's old offset at the time this watcher fires.
     await nextTick()
     isTransitioning.value = true
-    pagePos.value = getTopRightPos()
+    pagePos.value = getTopRightPos(0)
     setTimeout(() => {
       isTransitioning.value = false
     }, 500)
@@ -768,7 +773,7 @@ watch(isBlogPage, async (onBlog) => {
   await nextTick()
   setTimeout(() => {
     isTransitioning.value = true
-    pagePos.value = getTopRightPos()
+    pagePos.value = getTopRightPos(0)
     setTimeout(() => {
       isTransitioning.value = false
     }, 500)

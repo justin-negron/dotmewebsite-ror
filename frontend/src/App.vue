@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import { onMounted } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import MobileMenu from '@/components/layout/MobileMenu.vue'
@@ -8,6 +8,8 @@ import FloatingTerminal from '@/components/terminal/FloatingTerminal.vue'
 import ToastContainer from '@/components/layout/ToastContainer.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useAppearance } from '@/composables/useAppearance'
+
+const route = useRoute()
 
 // Initialize theme globally (applies .dark class to <html>)
 useTheme()
@@ -21,12 +23,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="app" class="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
+  <div id="app" class="flex min-h-screen flex-col">
     <AppHeader />
     <MobileMenu />
 
     <main class="flex-1">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <Transition name="page" mode="out-in">
+          <component :is="Component" :key="route.path" />
+        </Transition>
+      </RouterView>
     </main>
 
     <AppFooter />
@@ -40,5 +46,10 @@ onMounted(() => {
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--skin-hero-1);
+}
+
+:is(.dark *) #app {
+  background-color: var(--skin-hero-dark-1);
 }
 </style>

@@ -18,7 +18,7 @@ module Api
             path: params[:path],
             user_agent: request.user_agent,
             ip_address: request.remote_ip,
-            referrer: request.referer
+            referrer: params[:referrer]
           }
         end
       end

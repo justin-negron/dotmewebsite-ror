@@ -69,17 +69,22 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 
-  scrollBehavior(to, _from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     }
 
     if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: 'smooth' as const,
-        top: 80,
+      // Cross-route hash nav: delay scroll until the page transition finishes
+      // (mode="out-in": 200ms leave + 350ms enter = 550ms; 650ms gives a safe buffer)
+      if (from.path !== to.path) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ el: to.hash, behavior: 'smooth' as const, top: 80 })
+          }, 650)
+        })
       }
+      return { el: to.hash, behavior: 'smooth' as const, top: 80 }
     }
 
     return { top: 0, behavior: 'smooth' as const }
@@ -106,7 +111,7 @@ router.afterEach((to, from) => {
   if (import.meta.env.VITE_ENABLE_ANALYTICS === 'true' && !to.meta.noAnalytics) {
     trackPageView({
       path: to.path,
-      referrer: from.path !== to.path ? from.path : null,
+      referrer: from.matched.length > 0 && from.path !== to.path ? from.path : null,
     })
   }
 })
