@@ -1,11 +1,13 @@
-import api, { handleApiError, extractData } from './api'
-import type { ApiSuccessResponse, AnalyticsStats, PageView, PageViewData } from '@/types'
+import api from './api'
+import type { ApiSuccessResponse, PageView, PageViewData } from '@/types'
 
 const ENDPOINTS = {
-  base: '/api/v1/analytics',
-  pageViews: '/api/v1/analytics/page_views',
-  stats: '/api/v1/analytics/stats',
+  track: '/api/v1/analytics/track',
 }
+
+// ---------------------------------------------------------------------------
+// Public tracking — works now
+// ---------------------------------------------------------------------------
 
 export async function trackPageView(data: PageViewData) {
   try {
@@ -15,10 +17,10 @@ export async function trackPageView(data: PageViewData) {
       user_agent: data.user_agent || navigator.userAgent || null,
     }
 
-    const response = await api.post<ApiSuccessResponse<PageView>>(ENDPOINTS.pageViews, pageViewData)
-    return extractData(response)
+    const response = await api.post<ApiSuccessResponse<PageView>>(ENDPOINTS.track, pageViewData)
+    return response.data
   } catch (error) {
-    // Silently fail for analytics - don't break user experience
+    // Silently fail — analytics should never break the user experience
     if (import.meta.env.DEV) {
       console.warn('Analytics tracking failed:', error)
     }
@@ -26,53 +28,18 @@ export async function trackPageView(data: PageViewData) {
   }
 }
 
-export async function getStats(params: Record<string, unknown> = {}) {
-  try {
-    const response = await api.get<ApiSuccessResponse<AnalyticsStats>>(ENDPOINTS.stats, { params })
-    return extractData(response)
-  } catch (error) {
-    throw handleApiError(error as import('axios').AxiosError)
-  }
-}
-
-export async function getPageViews(path: string, params: Record<string, unknown> = {}) {
-  try {
-    const response = await api.get<ApiSuccessResponse<PageView[]>>(ENDPOINTS.pageViews, {
-      params: { ...params, path },
-    })
-    return extractData(response)
-  } catch (error) {
-    throw handleApiError(error as import('axios').AxiosError)
-  }
-}
-
-export async function getTotalPageViews() {
-  try {
-    const stats = await getStats()
-    return stats.data.total_page_views || 0
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn('Failed to get total page views:', error)
-    }
-    return 0
-  }
-}
-
-export async function getPopularPages(limit: number = 10) {
-  try {
-    const response = await api.get<ApiSuccessResponse<PageView[]>>(ENDPOINTS.pageViews, {
-      params: { limit, sort: 'views' },
-    })
-    return extractData(response)
-  } catch (error) {
-    throw handleApiError(error as import('axios').AxiosError)
-  }
-}
+// ---------------------------------------------------------------------------
+// Admin analytics reads — implement in Step 27 (admin dashboard)
+//
+// These endpoints don't exist yet and will require:
+//   - JWT auth headers (admin-only routes)
+//   - Backend routes: GET /api/v1/admin/analytics/stats
+//                     GET /api/v1/admin/analytics/page_views
+//                     GET /api/v1/admin/analytics/popular
+//   - Functions: getStats(), getPageViews(path), getPopularPages(limit),
+//                getTotalPageViews()
+// ---------------------------------------------------------------------------
 
 export default {
   trackPageView,
-  getStats,
-  getPageViews,
-  getTotalPageViews,
-  getPopularPages,
 }

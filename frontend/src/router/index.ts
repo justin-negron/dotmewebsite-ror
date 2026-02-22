@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { trackPageView } from '@/services/analytics'
 
 declare module 'vue-router' {
   interface RouteMeta {
     title?: string
     description?: string
     requiresAuth?: boolean
+    noAnalytics?: boolean
   }
 }
 
@@ -58,6 +60,7 @@ const routes: RouteRecordRaw[] = [
       title: '404 - Not Found',
       description: 'Page not found',
       requiresAuth: false,
+      noAnalytics: true,
     },
   },
 ]
@@ -98,6 +101,13 @@ router.beforeEach((to, _from, next) => {
 router.afterEach((to, from) => {
   if (import.meta.env.DEV) {
     console.log(`Navigation: ${from.path} → ${to.path}`)
+  }
+
+  if (import.meta.env.VITE_ENABLE_ANALYTICS === 'true' && !to.meta.noAnalytics) {
+    trackPageView({
+      path: to.path,
+      referrer: from.path !== to.path ? from.path : null,
+    })
   }
 })
 

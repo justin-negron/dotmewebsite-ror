@@ -38,7 +38,7 @@ export async function getFeaturedProjects() {
 export async function getProjectsByTechnology(technology: string) {
   try {
     const response = await api.get<ApiSuccessResponse<Project[]>>(ENDPOINTS.base, {
-      params: { technology },
+      params: { tech: technology },
     })
     return extractData(response)
   } catch (error) {

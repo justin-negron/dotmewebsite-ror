@@ -80,6 +80,7 @@ export interface ExperienceInput {
   position: string
   description: string
   technologies: string[]
+  experience_type: 'work' | 'education'
   display_order?: number
   start_date: string
   end_date?: string

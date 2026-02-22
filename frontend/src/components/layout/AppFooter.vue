@@ -99,7 +99,7 @@ function handleLeave() {
         <!-- Right side: tagline + copyright -->
         <div class="flex flex-col items-center gap-1 sm:items-end">
           <p class="text-xs font-mono text-gray-400 dark:text-gray-500">
-            Built with Rails &amp; Vue
+            
           </p>
           <p class="text-sm text-gray-500 dark:text-gray-400">
             &copy; {{ currentYear }} Justin Negron

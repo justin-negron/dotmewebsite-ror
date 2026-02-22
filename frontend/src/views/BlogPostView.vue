@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useWindowScroll } from '@vueuse/core'
 import { useBlogStore } from '@/stores'
+import { marked } from 'marked'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,9 +28,9 @@ const formattedDate = computed(() => {
   })
 })
 
-const contentParagraphs = computed(() => {
-  if (!post.value?.content) return []
-  return post.value.content.split(/\n\n+/).filter((p) => p.trim())
+const renderedContent = computed(() => {
+  if (!post.value?.content) return ''
+  return marked.parse(post.value.content) as string
 })
 
 /* ========================================================================
@@ -178,11 +179,10 @@ function handleTagClick(tag: string) {
             <div :class="['post-divider mt-8', 'reveal reveal-4', entered ? 'is-revealed' : '']" />
 
             <!-- Content -->
-            <div :class="['post-body mt-8', 'reveal reveal-5', entered ? 'is-revealed' : '']">
-              <p v-for="(paragraph, i) in contentParagraphs" :key="i" class="body-paragraph">
-                {{ paragraph }}
-              </p>
-            </div>
+            <div
+              :class="['post-body mt-8', 'reveal reveal-5', entered ? 'is-revealed' : '']"
+              v-html="renderedContent"
+            />
 
             <!-- Tags -->
             <div
@@ -389,7 +389,7 @@ function handleTagClick(tag: string) {
 }
 
 /* ===================================================================
-   Body content
+   Body content — markdown rendered via v-html
    =================================================================== */
 .post-body {
   font-size: 1.05rem;
@@ -397,16 +397,148 @@ function handleTagClick(tag: string) {
   color: #44403c;
 }
 
-:is(.dark *).post-body {
+:is(.dark *) .post-body {
   color: #d6d3d1;
 }
 
-.body-paragraph {
+/* Paragraphs */
+.post-body :deep(p) {
   margin-bottom: 1.5em;
 }
-
-.body-paragraph:last-child {
+.post-body :deep(p:last-child) {
   margin-bottom: 0;
+}
+
+/* Headings */
+.post-body :deep(h2) {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  color: #1c1917;
+  margin: 2.25rem 0 0.75rem;
+}
+.post-body :deep(h3) {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #1c1917;
+  margin: 1.75rem 0 0.5rem;
+}
+.post-body :deep(h4) {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+  margin: 1.5rem 0 0.4rem;
+}
+
+:is(.dark *) .post-body :deep(h2),
+:is(.dark *) .post-body :deep(h3),
+:is(.dark *) .post-body :deep(h4) {
+  color: #fafaf9;
+}
+
+/* Lists */
+.post-body :deep(ul),
+.post-body :deep(ol) {
+  margin: 0.5rem 0 1.5rem 1.5rem;
+}
+.post-body :deep(li) {
+  margin-bottom: 0.35em;
+}
+.post-body :deep(ul) {
+  list-style-type: disc;
+}
+.post-body :deep(ol) {
+  list-style-type: decimal;
+}
+
+/* Inline code */
+.post-body :deep(code) {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(var(--skin-rgb), 0.08);
+  color: var(--skin-700);
+}
+
+:is(.dark *) .post-body :deep(code) {
+  background: rgba(var(--skin-light-rgb), 0.1);
+  color: var(--skin-400);
+}
+
+/* Code blocks */
+.post-body :deep(pre) {
+  background: #f4f3f1;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+.post-body :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  font-size: 0.875rem;
+  color: #44403c;
+}
+
+:is(.dark *) .post-body :deep(pre) {
+  background: #1c1a18;
+}
+:is(.dark *) .post-body :deep(pre code) {
+  color: #d6d3d1;
+}
+
+/* Blockquote */
+.post-body :deep(blockquote) {
+  border-left: 3px solid var(--skin-400);
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1.5rem 0;
+  color: #78716c;
+  font-style: italic;
+}
+
+:is(.dark *) .post-body :deep(blockquote) {
+  border-left-color: var(--skin-500);
+  color: #a8a29e;
+}
+
+/* Links */
+.post-body :deep(a) {
+  color: var(--skin-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+.post-body :deep(a:hover) {
+  color: var(--skin-700);
+}
+
+:is(.dark *) .post-body :deep(a) {
+  color: var(--skin-400);
+}
+:is(.dark *) .post-body :deep(a:hover) {
+  color: var(--skin-300, var(--skin-400));
+}
+
+/* Strong / em */
+.post-body :deep(strong) {
+  font-weight: 600;
+  color: #1c1917;
+}
+:is(.dark *) .post-body :deep(strong) {
+  color: #fafaf9;
+}
+
+/* Horizontal rule */
+.post-body :deep(hr) {
+  border: none;
+  border-top: 1px solid #e7e5e4;
+  margin: 2rem 0;
+}
+:is(.dark *) .post-body :deep(hr) {
+  border-top-color: #292524;
 }
 
 /* ===================================================================
