@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { trackPageView } from '@/services/analytics'
+import { updateHead } from '@/composables/useHead'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -17,8 +18,9 @@ const routes: RouteRecordRaw[] = [
     name: 'home',
     component: () => import('@/views/HomeView.vue'),
     meta: {
-      title: 'Home',
-      description: 'Welcome to my portfolio',
+      title: 'Portfolio',
+      description:
+        'Justin Negron is a full-stack software engineer specializing in Ruby on Rails and Vue.js. Explore my projects, work experience, technical blog, and get in touch.',
       requiresAuth: false,
     },
   },
@@ -28,7 +30,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/AboutView.vue'),
     meta: {
       title: 'About',
-      description: 'Learn more about me',
+      description: 'Learn more about Justin Negron — background, skills, and what I love building.',
       requiresAuth: false,
     },
   },
@@ -38,7 +40,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/BlogView.vue'),
     meta: {
       title: 'Blog',
-      description: 'Thoughts on software engineering and technology',
+      description: 'Thoughts on software engineering, deep-dives, and lessons from building real systems.',
       requiresAuth: false,
     },
   },
@@ -92,13 +94,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, _from, next) => {
-  const baseTitle = import.meta.env.VITE_APP_TITLE || 'Portfolio'
-  document.title = to.meta.title ? `${to.meta.title} | ${baseTitle}` : baseTitle
-
-  const metaDescription = document.querySelector('meta[name="description"]')
-  if (metaDescription && to.meta.description) {
-    metaDescription.setAttribute('content', to.meta.description)
-  }
+  // Blog posts get generic head here; BlogPostView overrides once the post loads.
+  updateHead({
+    title: (to.meta.title as string) || '',
+    description: (to.meta.description as string) || '',
+    path: to.path,
+    type: to.name === 'blog-post' ? 'article' : 'website',
+  })
 
   next()
 })

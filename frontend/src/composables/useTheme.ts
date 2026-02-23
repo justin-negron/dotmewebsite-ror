@@ -25,6 +25,12 @@ function applyTheme(t: Theme) {
   } else {
     document.documentElement.classList.remove('dark')
   }
+  // Keep the browser chrome (status bar / Dynamic Island area on iPhone) in sync
+  // with the app theme so it doesn't show a jarring white bar in dark mode.
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+  if (metaThemeColor) {
+    metaThemeColor.setAttribute('content', t === 'dark' ? '#0f0f0f' : '#ffffff')
+  }
 }
 
 // Apply immediately on module load

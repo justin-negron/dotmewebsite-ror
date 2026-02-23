@@ -47,7 +47,7 @@ function handleLeave() {
             :href="link.href"
             :target="link.external ? '_blank' : undefined"
             :rel="link.external ? 'noopener noreferrer' : undefined"
-            class="social-link group flex items-center gap-2"
+            class="social-link group flex items-center gap-2 py-2"
             :aria-label="link.label"
             @mouseenter="handleHover(link.command)"
             @mouseleave="handleLeave()"

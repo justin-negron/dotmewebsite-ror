@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useWindowScroll } from '@vueuse/core'
+import { useRoute, useRouter } from 'vue-router'
+import { useWindowScroll, useWindowSize } from '@vueuse/core'
 import { useScrollTo, NAV_ITEMS, type NavItem } from '@/composables/useScrollTo'
 import { useAppearance, SKINS, BACKGROUNDS, SKIN_IDS, BG_IDS } from '@/composables/useAppearance'
 import type { SkinId, BgId } from '@/composables/useAppearance'
 import { useTerminalBridge } from '@/composables/useTerminalBridge'
 
 const route = useRoute()
+const router = useRouter()
 const { navigateTo } = useScrollTo()
 const { skin, background, setSkin, setBackground } = useAppearance()
 const { register, unregister } = useTerminalBridge()
@@ -29,33 +30,92 @@ const slotFound = ref(false)
 const isOnHomePage = computed(() => route.path === '/')
 const isBlogPage = computed(() => route.path.startsWith('/blog'))
 const { y: scrollY } = useWindowScroll()
+const { width: viewportWidth, height: viewportHeight } = useWindowSize()
 
 // Mirror the navbar's glass logic (AppHeader: showGlass = !isHome || scrollY > 100).
-// When glass is active the terminal drops behind the navbar so it blurs through;
-// when the navbar is fully transparent the terminal renders on top.
 const navbarHasGlass = computed(() => !isOnHomePage.value || scrollY.value > 100)
 
-// Terminal is visible when:
-// - Docked on home page AND the slot was found, OR
-// - Undocked (on any page)
+// Terminal is visible when docked+slot-found on home, or undocked anywhere.
+// During a page transition (navTransitioning) the docked terminal stays visible
+// even when leaving the home page, so it can slide to its new position instead
+// of disappearing and reappearing.
 const isVisible = computed(() => {
   if (isMinimized.value) return false
-  if (isDocked.value) return slotFound.value && isOnHomePage.value
+  if (isDocked.value) {
+    if (navTransitioning.value) return slotFound.value
+    return slotFound.value && isOnHomePage.value
+  }
   return true
 })
 
-const terminalZIndex = computed(() => {
-  if (isDragging.value) return 1070
-  return navbarHasGlass.value ? 1010 : 1060
+// Mobile (< 640px): show bottom-right pill when minimized.
+const showMobilePill = computed(() => viewportWidth.value < 640 && isMinimized.value)
+// Desktop: show bottom-right pill when minimized.
+const showDesktopPill = computed(() => viewportWidth.value >= 640 && isMinimized.value)
+
+// Always below the navbar (z-index 1020).
+const terminalZIndex = computed(() => (isDragging.value ? 1015 : 1010))
+
+// Mobile open: terminal is a freely draggable fixed panel.
+const isMobileOpen = computed(
+  () => viewportWidth.value < 640 && !isMinimized.value && !isDocked.value,
+)
+
+/* Mobile panel dimensions — shared across style + touch handlers.
+   Height is capped at 360px / 42% viewport so the input at the bottom
+   stays above the soft keyboard (which consumes ~280-340px on most phones). */
+function getMobileDims() {
+  const w = Math.min(360, Math.round(viewportWidth.value * 0.9))
+  const h = Math.min(360, Math.round(viewportHeight.value * 0.42))
+  return { w, h }
+}
+
+/* Default opening position: centered horizontally, upper portion of screen
+   (top ~10% of viewport, min 80px to clear the navbar).
+   Positioning in the top half keeps the terminal visible when the soft
+   keyboard opens — the keyboard pushes up from the bottom. */
+function getDefaultMobilePos() {
+  const { w } = getMobileDims()
+  return {
+    x: Math.round((viewportWidth.value - w) / 2),
+    y: Math.max(80, Math.round(viewportHeight.value * 0.1)),
+  }
+}
+
+const terminalStyle = computed(() => {
+  if (isMobileOpen.value) {
+    const { w, h } = getMobileDims()
+    return {
+      position: 'fixed' as const,
+      left: `${mobilePanelPos.value.x}px`,
+      top: `${mobilePanelPos.value.y}px`,
+      width: `${w}px`,
+      height: `${h}px`,
+      zIndex: 1011,
+    }
+  }
+
+  const maxW = Math.max(280, viewportWidth.value - 48) // 24px gap each side
+  const w = Math.min(lockedWidth.value > 0 ? lockedWidth.value : 380, maxW)
+  return {
+    position: 'absolute' as const,
+    left: `${pagePos.value.x}px`,
+    top: `${pagePos.value.y}px`,
+    width: `${w}px`,
+    zIndex: terminalZIndex.value,
+  }
 })
 
-const terminalStyle = computed(() => ({
-  position: 'absolute' as const,
-  left: `${pagePos.value.x}px`,
-  top: `${pagePos.value.y}px`,
-  width: lockedWidth.value > 0 ? `${lockedWidth.value}px` : '380px',
-  zIndex: terminalZIndex.value,
-}))
+// Mobile minimized pill — draggable up/down along the right edge.
+const mobilePillStyle = computed(() => {
+  const PILL_H = 48
+  const clampedY = Math.max(60, Math.min(viewportHeight.value - PILL_H - 16, mobilePillY.value))
+  return {
+    top: `${clampedY}px`,
+    right: '0px',
+    transition: isDraggingMobilePill.value ? 'none' : 'top 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+  }
+})
 
 /* ========================================================================
    Slot measurement — positions terminal over #hero-terminal-slot
@@ -87,6 +147,30 @@ function onResize() {
    ======================================================================== */
 
 const entered = ref(false)
+// Once the entry animation completes, lock in opacity: 1 so v-show cycling
+// (display:none → block) never replays the 2-second delay.
+const revealDone = ref(false)
+// Briefly true after expand() — drives the expand fade-in animation.
+const isExpanding = ref(false)
+// Briefly true during minimize() — drives the fade-out animation before hiding.
+const isMinimizing = ref(false)
+let minimizeTimer: ReturnType<typeof setTimeout> | null = null
+
+// Mobile minimized pill — Y from top of viewport (set in onMounted)
+const mobilePillY = ref(0)
+const isDraggingMobilePill = ref(false)
+
+// Mobile open panel — viewport-coordinate position (position: fixed)
+const mobilePanelPos = ref({ x: 0, y: 0 })
+
+// Track whether terminal was docked before minimizing, so expand() can re-dock
+// when appropriate (home page, hero visible) instead of scrolling there.
+const wasDocked = ref(false)
+
+// True between router.beforeEach and the next tick after router.afterEach.
+// isVisible uses this to keep a docked terminal visible during the one-tick
+// gap when isOnHomePage is already false but the watcher hasn't undocked yet.
+const navTransitioning = ref(false)
 
 /* ========================================================================
    Terminal state
@@ -116,7 +200,7 @@ const savedInput = ref('')
 
 const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   help: {
-    response: 'commands: home, projects, experience, blog, contact, about, skin, bg, clear',
+    response: 'commands: home, projects, experience, blog, contact, about, skin, bg, clear, exit',
   },
   home: {
     response: 'navigating home...',
@@ -180,6 +264,13 @@ function executeCommand(cmd: string) {
 
   if (trimmed === 'clear') {
     history.value = []
+    return
+  }
+
+  if (trimmed === 'exit') {
+    history.value.push({ command: 'exit', response: 'session closed. tap >_ to reconnect.' })
+    scrollTerminal()
+    setTimeout(() => minimize(), 600)
     return
   }
 
@@ -402,7 +493,7 @@ function runCommand(cmd: string) {
    Tab autocomplete
    ======================================================================== */
 
-const ALL_COMMANDS = [...Object.keys(COMMANDS), 'skin', 'bg']
+const ALL_COMMANDS = [...Object.keys(COMMANDS), 'skin', 'bg', 'exit']
 
 function handleTabComplete() {
   if (isAutoTyping.value) return
@@ -553,7 +644,7 @@ function undock() {
  *  so the position isn't stale from the previous page's scroll offset. */
 function getTopRightPos(scrollY = window.scrollY) {
   const GAP = 24
-  const termWidth = lockedWidth.value || 380
+  const termWidth = Math.min(lockedWidth.value || 380, window.innerWidth - 2 * GAP)
   const navBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 64
   return {
     x: Math.max(0, window.innerWidth - termWidth - GAP),
@@ -612,11 +703,15 @@ function onTouchStart(e: TouchEvent) {
   const touch = e.touches[0]
   if (!touch) return
 
+  // Mobile: terminal is a static panel — no drag to avoid buggy interactions.
+  // Users close it by tapping the backdrop.
+  if (viewportWidth.value < 640) return
+
+  // Desktop: panel is position:absolute — track page coords
   if (isDocked.value) {
     measureSlot()
     undock()
   }
-
   isDragging.value = true
   lastClient = { x: touch.clientX, y: touch.clientY }
   grabOffset = {
@@ -629,18 +724,18 @@ function onTouchStart(e: TouchEvent) {
 }
 
 function onTouchMove(e: TouchEvent) {
-  if (!isDragging.value) return
   const touch = e.touches[0]
   if (!touch) return
   e.preventDefault()
+  if (!isDragging.value) return
   lastClient = { x: touch.clientX, y: touch.clientY }
   updateDragPos()
 }
 
 function onTouchEnd() {
-  isDragging.value = false
   document.removeEventListener('touchmove', onTouchMove)
   document.removeEventListener('touchend', onTouchEnd)
+  isDragging.value = false
   window.removeEventListener('scroll', onDragScroll, true)
 }
 
@@ -649,16 +744,115 @@ function onTouchEnd() {
    ======================================================================== */
 
 function minimize() {
+  if (isMinimizing.value) return
+  // Ensure re-expand is instant — no replay of the 2s entry animation delay.
+  revealDone.value = true
   if (isDocked.value) {
     measureSlot()
+    wasDocked.value = true
     undock()
+  } else {
+    wasDocked.value = false
   }
-  isMinimized.value = true
+  isMinimizing.value = true
+  minimizeTimer = setTimeout(() => {
+    isMinimized.value = true
+    isMinimizing.value = false
+    minimizeTimer = null
+  }, 150)
+}
+
+/** Called only when the terminal-card's own animation ends (not bubbled from children). */
+function onTerminalCardAnimEnd(e: AnimationEvent) {
+  if (e.animationName === 'terminalReveal') {
+    revealDone.value = true
+  }
 }
 
 function expand() {
+  if (minimizeTimer !== null) {
+    clearTimeout(minimizeTimer)
+    minimizeTimer = null
+    isMinimizing.value = false
+  }
+  isExpanding.value = true
+  setTimeout(() => { isExpanding.value = false }, 200)
   isMinimized.value = false
-  nextTick(() => focusTerminal())
+
+  if (viewportWidth.value < 640) {
+    // Mobile: always open as a fixed floating panel at the bottom of screen.
+    isDocked.value = false
+    wasDocked.value = false
+    mobilePanelPos.value = getDefaultMobilePos()
+    nextTick(() => focusTerminal())
+    return
+  }
+
+  // Desktop: decide where to show based on context.
+  if (wasDocked.value && isOnHomePage.value && scrollY.value < window.innerHeight * 0.5) {
+    // Hero is visible on home page — re-dock to the slot.
+    isDocked.value = true
+    wasDocked.value = false
+    nextTick(() => {
+      measureSlot()
+      focusTerminal()
+    })
+  } else {
+    // Anywhere else (or scrolled past hero on home) — show at top-right, no scroll.
+    pagePos.value = getTopRightPos()
+    isDocked.value = false
+    wasDocked.value = false
+    nextTick(() => focusTerminal())
+  }
+}
+
+/* ========================================================================
+   Mobile minimized pill — draggable up/down along the right edge
+   ======================================================================== */
+
+let pillDragStartCY = 0
+let pillDragStartPillY = 0
+let pillTapHandled = false
+
+function onMobilePillTouchStart(e: TouchEvent) {
+  const touch = e.touches[0]
+  if (!touch) return
+  pillDragStartCY = touch.clientY
+  pillDragStartPillY = mobilePillY.value
+  pillTapHandled = false
+  isDraggingMobilePill.value = true
+  document.addEventListener('touchmove', onMobilePillTouchMove, { passive: false })
+  document.addEventListener('touchend', onMobilePillTouchEnd)
+}
+
+function onMobilePillTouchMove(e: TouchEvent) {
+  if (!isDraggingMobilePill.value) return
+  const touch = e.touches[0]
+  if (!touch) return
+  const dy = touch.clientY - pillDragStartCY
+  if (Math.abs(dy) > 6) {
+    e.preventDefault()
+    pillTapHandled = true // suppress click after drag
+  }
+  const PILL_H = 48
+  mobilePillY.value = Math.max(
+    60,
+    Math.min(viewportHeight.value - PILL_H - 16, pillDragStartPillY + dy),
+  )
+}
+
+function onMobilePillTouchEnd() {
+  isDraggingMobilePill.value = false
+  document.removeEventListener('touchmove', onMobilePillTouchMove)
+  document.removeEventListener('touchend', onMobilePillTouchEnd)
+}
+
+function onMobilePillClick() {
+  if (pillTapHandled) {
+    pillTapHandled = false
+    return
+  }
+  expand()
 }
 
 /* ========================================================================
@@ -667,23 +861,33 @@ function expand() {
 
 onMounted(() => {
   register(autoType, clearAutoType, runCommand)
+  // Default mobile pill position: 70% down the right edge
+  mobilePillY.value = Math.round(window.innerHeight * 0.7)
 
-  // HomeView is lazy-loaded, so #hero-terminal-slot may not exist yet.
-  // Poll with rAF until the slot appears (typically 1-3 frames).
-  let attempts = 0
-  function pollForSlot() {
-    if (measureSlot()) {
-      requestAnimationFrame(() => {
-        entered.value = true
-      })
-      return
+  if (window.innerWidth >= 640) {
+    // Desktop: poll for hero slot and play the entry animation on first load.
+    // HomeView is lazy-loaded, so #hero-terminal-slot may not exist yet.
+    // Poll with rAF until the slot appears (typically 1-3 frames).
+    let attempts = 0
+    function pollForSlot() {
+      if (measureSlot()) {
+        requestAnimationFrame(() => {
+          entered.value = true
+        })
+        return
+      }
+      attempts++
+      if (attempts < 120) {
+        requestAnimationFrame(pollForSlot)
+      }
     }
-    attempts++
-    if (attempts < 120) {
-      requestAnimationFrame(pollForSlot)
-    }
+    pollForSlot()
+  } else {
+    // Mobile: start minimized and skip entry animation entirely.
+    // The hero shows centered content; the pill lets the user open the terminal.
+    isMinimized.value = true
+    revealDone.value = true
   }
-  pollForSlot()
 
   runBoot()
   window.addEventListener('resize', onResize)
@@ -691,103 +895,170 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearTimeout(autoTypeTimeout)
+  if (minimizeTimer !== null) clearTimeout(minimizeTimer)
   document.removeEventListener('mousemove', onDragMove)
   document.removeEventListener('mouseup', onDragEnd)
   document.removeEventListener('touchmove', onTouchMove)
   document.removeEventListener('touchend', onTouchEnd)
+  document.removeEventListener('touchmove', onMobilePillTouchMove)
+  document.removeEventListener('touchend', onMobilePillTouchEnd)
   window.removeEventListener('scroll', onDragScroll, true)
   window.removeEventListener('resize', onResize)
   unregister()
 })
 
-// When navigating away from home, animate terminal to top-right (docked OR undocked)
-watch(isOnHomePage, async (onHome) => {
+/* ========================================================================
+   Route watchers — terminal follows navigation
+   Position changes are DEFERRED when a page transition is active, so the
+   terminal stays stationary during the animation and repositions after.
+   ======================================================================== */
+
+function applyHomePageChange(onHome: boolean) {
   if (!onHome && !isMinimized.value) {
-    const termWidth = lockedWidth.value || 380
     if (isDocked.value) {
-      measureSlot() // capture starting position so transition animates from hero slot
+      pagePos.value = getTopRightPos(0)
       undock()
+    } else {
+      isTransitioning.value = true
+      pagePos.value = getTopRightPos(0)
+      setTimeout(() => { isTransitioning.value = false }, 500)
     }
-    // Pass scrollY=0: the destination page resets scroll to top, but window.scrollY
-    // still holds the home page's old offset at the time this watcher fires.
-    await nextTick()
-    isTransitioning.value = true
-    pagePos.value = getTopRightPos(0)
-    setTimeout(() => {
-      isTransitioning.value = false
-    }, 500)
   }
   if (onHome && isDocked.value) {
-    // Re-poll for slot since HomeView is lazy-loaded
-    await nextTick()
     let attempts = 0
     function pollSlot() {
       if (measureSlot()) return
-      attempts++
-      if (attempts < 60) {
-        requestAnimationFrame(pollSlot)
-      }
+      if (++attempts < 60) requestAnimationFrame(pollSlot)
     }
-    pollSlot()
+    nextTick(pollSlot)
   }
   if (onHome && !isDocked.value && !isMinimized.value) {
-    // Re-dock: animate terminal back to hero slot
-    await nextTick()
-    let attempts = 0
-    function pollAndDock() {
-      const slot = document.getElementById('hero-terminal-slot')
-      if (slot && slot.offsetParent !== null) {
-        const rect = slot.getBoundingClientRect()
-        isTransitioning.value = true
-        pagePos.value = {
-          x: rect.left + window.scrollX,
-          y: rect.top + window.scrollY,
+    if (route.hash) {
+      // Has a section hash (e.g. /#projects): slide terminal to sit beside that
+      // section using the same page-coordinate formula as followNavigation().
+      // Poll in case the section element isn't in the DOM yet (lazy-loaded home).
+      const sectionId = route.hash.slice(1)
+      nextTick(() => {
+        let attempts = 0
+        function pollAndPosition() {
+          const section = document.getElementById(sectionId)
+          if (section && section.offsetParent !== null) {
+            const rect = section.getBoundingClientRect()
+            const termW = lockedWidth.value > 0 ? lockedWidth.value : 380
+            isTransitioning.value = true
+            pagePos.value = {
+              x: Math.max(0, window.innerWidth - termW - 24),
+              y: rect.top + window.scrollY + 20,
+            }
+            setTimeout(() => { isTransitioning.value = false }, 500)
+            return
+          }
+          if (++attempts < 60) requestAnimationFrame(pollAndPosition)
         }
-        // Re-dock after transition completes
-        setTimeout(() => {
-          isDocked.value = true
-          slotFound.value = true
-          isTransitioning.value = false
-        }, 500)
-        return
-      }
-      attempts++
-      if (attempts < 60) {
-        requestAnimationFrame(pollAndDock)
-      }
+        pollAndPosition()
+      })
+    } else {
+      // No hash: animate terminal back to hero slot (original load position).
+      nextTick(() => {
+        let attempts = 0
+        function pollAndDock() {
+          const slot = document.getElementById('hero-terminal-slot')
+          if (slot && slot.offsetParent !== null) {
+            const rect = slot.getBoundingClientRect()
+            isTransitioning.value = true
+            pagePos.value = { x: rect.left + window.scrollX, y: rect.top + window.scrollY }
+            setTimeout(() => {
+              isDocked.value = true
+              slotFound.value = true
+              isTransitioning.value = false
+            }, 500)
+            return
+          }
+          if (++attempts < 60) requestAnimationFrame(pollAndDock)
+        }
+        pollAndDock()
+      })
     }
-    pollAndDock()
   }
+}
+
+watch(isOnHomePage, (onHome) => {
+  applyHomePageChange(onHome)
 })
 
-// Whenever the user lands on any blog route, snap terminal to top-right.
-// This covers: /about → /blog, direct load at /blog, and reinforces the
-// isOnHomePage watcher for the home → /blog case.
-watch(isBlogPage, async (onBlog) => {
+function applyBlogPageChange(onBlog: boolean) {
   if (!onBlog || isMinimized.value) return
-  const termWidth = lockedWidth.value || 380
-  if (isDocked.value) {
-    measureSlot()
-    undock()
-  }
-  await nextTick()
-  setTimeout(() => {
-    isTransitioning.value = true
-    pagePos.value = getTopRightPos(0)
-    setTimeout(() => {
-      isTransitioning.value = false
-    }, 500)
-  }, 150)
+  // Mobile: minimize — fixed panel doesn't fit the reading experience
+  if (viewportWidth.value < 640) { minimize(); return }
+  // Animate to top-right regardless of docked/undocked state so the transition
+  // mirrors the blog→home re-dock animation (smooth slide, not an instant jump).
+  measureSlot()
+  isTransitioning.value = true
+  undock()
+  pagePos.value = getTopRightPos(0)
+  setTimeout(() => { isTransitioning.value = false }, 500)
+}
+
+watch(isBlogPage, (onBlog) => {
+  applyBlogPageChange(onBlog)
+})
+
+// Mobile: close the terminal panel when the user scrolls.
+// A fixed overlay blocking content while the user tries to read is poor UX.
+watch(scrollY, () => {
+  if (viewportWidth.value >= 640) return
+  if (isMobileOpen.value) minimize()
+})
+
+// navTransitioning bridges the one-tick gap between a route change and the
+// watcher that calls undock() — prevents a brief isVisible=false flash.
+router.beforeEach(() => {
+  navTransitioning.value = true
+})
+
+router.afterEach(() => {
+  nextTick(() => { navTransitioning.value = false })
 })
 </script>
 
 <template>
-  <!-- Minimize pill -->
-  <button v-if="isMinimized" class="terminal-pill" aria-label="Expand terminal" @click="expand">
-    <span class="font-mono text-xs">&gt;_</span>
-  </button>
+  <!-- Desktop + mobile: bottom-right expand pill (shown when minimized on desktop) -->
+  <Transition name="pill-fade">
+    <button
+      v-if="showDesktopPill"
+      class="terminal-pill"
+      aria-label="Expand terminal"
+      @click="expand"
+    >
+      <span class="font-mono text-xs">&gt;_</span>
+    </button>
+  </Transition>
 
-  <!-- Terminal — always in App.vue DOM, absolutely positioned over hero slot when docked -->
+  <!-- Mobile: minimized pill — bottom-right edge, draggable up/down -->
+  <Transition name="pill-fade">
+    <button
+      v-if="showMobilePill"
+      class="mobile-pill"
+      :style="mobilePillStyle"
+      aria-label="Open terminal"
+      @touchstart="onMobilePillTouchStart"
+      @click="onMobilePillClick"
+    >
+      <span class="mobile-pill-icon">&gt;_</span>
+    </button>
+  </Transition>
+
+  <!-- Mobile backdrop — dims page when terminal panel is open; tap to close -->
+  <Transition name="panel-fade">
+    <div
+      v-if="isMobileOpen"
+      class="mobile-panel-backdrop"
+      aria-hidden="true"
+      @click="minimize()"
+    />
+  </Transition>
+
+  <!-- Terminal — absolute on desktop, fixed panel on mobile -->
   <div
     v-show="isVisible"
     ref="terminalWrapRef"
@@ -795,15 +1066,22 @@ watch(isBlogPage, async (onBlog) => {
       'terminal-wrap',
       isDragging ? 'is-dragging' : '',
       isTransitioning ? 'is-transitioning' : '',
+      isMobileOpen ? 'is-mobile-open' : '',
     ]"
     :style="terminalStyle"
   >
     <div
-      :class="['terminal-card', entered ? 'reveal reveal-terminal is-revealed' : 'reveal']"
+      :class="[
+        'terminal-card',
+        revealDone ? 'reveal-done' : entered ? 'reveal reveal-terminal is-revealed' : 'reveal',
+        isExpanding ? 'is-expanding' : '',
+        isMinimizing ? 'is-minimizing' : '',
+      ]"
+      @animationend.self="onTerminalCardAnimEnd"
       @click="focusTerminal"
     >
-      <!-- Title bar (drag handle — hidden feature) -->
-      <div class="terminal-bar" @mousedown="onDragStart" @touchstart.passive="onTouchStart">
+      <!-- Title bar: mouse drag on desktop, touch drag (+ swipe-down/right to dismiss) on mobile -->
+      <div class="terminal-bar" @mousedown="onDragStart" @touchstart.prevent="onTouchStart">
         <div class="flex items-center gap-1.5">
           <span class="dot dot-red" />
           <button class="dot dot-yellow" title="Minimize" @click.stop="minimize()" />
@@ -882,6 +1160,11 @@ watch(isBlogPage, async (onBlog) => {
     top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Mobile open: no left/top transitions — position is set directly from drag */
+.terminal-wrap.is-mobile-open.is-transitioning {
+  transition: none;
+}
+
 .terminal-wrap.is-dragging .terminal-card {
   box-shadow:
     0 0 60px rgba(0, 0, 0, 0.12),
@@ -944,6 +1227,45 @@ watch(isBlogPage, async (onBlog) => {
     filter: blur(0px);
     transform: translateY(0) scale(1);
   }
+}
+
+/* Stable state after entry animation — v-show cycles won't replay the delay */
+.reveal-done {
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+
+/* Expand fade-in — plays when opening from minimized state */
+.terminal-card.is-expanding {
+  animation: expandFadeIn 0.15s ease forwards;
+}
+
+/* Minimize fade-out — plays before the terminal is hidden */
+.terminal-card.is-minimizing {
+  animation: expandFadeIn 0.15s ease reverse forwards;
+  pointer-events: none;
+}
+
+@keyframes expandFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pill fade — enter and leave */
+.pill-fade-enter-active {
+  animation: expandFadeIn 0.15s ease forwards;
+}
+
+.pill-fade-leave-active {
+  animation: expandFadeIn 0.15s ease reverse forwards;
+  pointer-events: none;
 }
 
 /* ===================================================================
@@ -1171,13 +1493,13 @@ watch(isBlogPage, async (onBlog) => {
 }
 
 /* ===================================================================
-   Minimize pill
+   Desktop + Mobile: minimize pill
    =================================================================== */
 .terminal-pill {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 1060;
+  z-index: 1010;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1206,5 +1528,100 @@ watch(isBlogPage, async (onBlog) => {
 
 :is(.dark *).terminal-pill:hover {
   box-shadow: 0 6px 20px rgba(var(--skin-light-rgb), 0.4);
+}
+
+/* ===================================================================
+   Mobile: minimized pill — right edge, draggable up/down
+   'top' and transition are set via mobilePillStyle computed.
+   =================================================================== */
+.mobile-pill {
+  position: fixed;
+  z-index: 1010;
+  width: 36px;
+  height: 48px;
+  border-radius: 8px 0 0 8px;
+  background: var(--skin-600);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+  box-shadow: -2px 4px 16px rgba(var(--skin-rgb), 0.35);
+  transition: width 0.15s ease, box-shadow 0.2s ease;
+}
+
+.mobile-pill:active {
+  width: 44px;
+}
+
+.mobile-pill-icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+:is(.dark *) .mobile-pill {
+  background: var(--skin-500);
+  box-shadow: -2px 4px 16px rgba(var(--skin-light-rgb), 0.3);
+}
+
+/* ===================================================================
+   Mobile: floating panel backdrop — dims page, tap to close
+   =================================================================== */
+.mobile-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1010;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.panel-fade-enter-active,
+.panel-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.panel-fade-enter-from,
+.panel-fade-leave-to {
+  opacity: 0;
+}
+
+/* ===================================================================
+   Mobile: open floating panel
+   =================================================================== */
+.terminal-wrap.is-mobile-open {
+  /* Fade-in on open — kept very short so it feels instant */
+  animation: mobilePanel 0.15s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes mobilePanel {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Card fills the full panel height so the body scrolls within it */
+.terminal-wrap.is-mobile-open .terminal-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-wrap.is-mobile-open .terminal-body {
+  max-height: none;
+  flex: 1;
+  overflow-y: auto;
 }
 </style>

@@ -49,8 +49,8 @@ onMounted(() => {
 
     <div class="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-12">
       <div class="grid items-center gap-10 lg:grid-cols-5">
-        <!-- Left: main content -->
-        <div class="lg:col-span-3">
+        <!-- Left: main content — centered on mobile, left-aligned on desktop -->
+        <div class="text-center lg:col-span-3 lg:text-left">
           <p :class="['reveal reveal-1 greeting', entered ? 'is-revealed' : '']">Hey, I'm</p>
 
           <h1 :class="['reveal reveal-2 hero-name', entered ? 'is-revealed' : '']">
@@ -70,7 +70,9 @@ onMounted(() => {
           </p>
 
           <!-- CTAs with hover-to-type (via terminal bridge) -->
-          <div :class="['reveal reveal-5 mt-8 flex flex-wrap gap-4', entered ? 'is-revealed' : '']">
+          <div
+            :class="['reveal reveal-5 mt-8 flex flex-wrap justify-center gap-4 lg:justify-start', entered ? 'is-revealed' : '']"
+          >
             <a
               href="/#projects"
               class="cta-primary"
@@ -104,9 +106,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Right: terminal position reference (FloatingTerminal overlays this) -->
-        <div class="hidden lg:block lg:col-span-2">
-          <div id="hero-terminal-slot" class="min-h-[320px]" />
+        <!-- Right: terminal position reference (FloatingTerminal overlays this).
+             Hidden on mobile — terminal starts minimized there; hero is centered. -->
+        <div class="hidden lg:col-span-2 lg:block">
+          <div id="hero-terminal-slot" class="min-h-[300px] sm:min-h-[320px]" />
         </div>
       </div>
     </div>

@@ -568,7 +568,9 @@
 
 /* ── Page transitions ─────────────────────────────────────────── */
 .page-enter-active {
-  animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 'backwards' applies the 'from' keyframe (opacity:0) immediately on mount,
+     eliminating the one-frame flash before the animation starts. */
+  animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 .page-leave-active {

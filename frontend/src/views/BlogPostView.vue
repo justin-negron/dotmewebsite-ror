@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useWindowScroll } from '@vueuse/core'
 import { useBlogStore } from '@/stores'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
+import { updateHead } from '@/composables/useHead'
 
 const route = useRoute()
 const router = useRouter()
@@ -30,7 +32,7 @@ const formattedDate = computed(() => {
 
 const renderedContent = computed(() => {
   if (!post.value?.content) return ''
-  return marked.parse(post.value.content) as string
+  return DOMPurify.sanitize(marked.parse(post.value.content) as string)
 })
 
 /* ========================================================================
@@ -46,16 +48,21 @@ const readingProgress = computed(() => {
 /* ========================================================================
    Lifecycle
    ======================================================================== */
-function updateDocumentTitle() {
-  if (post.value) {
-    const baseTitle = import.meta.env.VITE_APP_TITLE || 'Portfolio'
-    document.title = `${post.value.title} | ${baseTitle}`
-  }
+function updatePostHead() {
+  if (!post.value) return
+  updateHead({
+    title: post.value.title,
+    description: post.value.excerpt,
+    path: `/blog/${post.value.slug}`,
+    type: 'article',
+    publishedAt: post.value.published_at,
+    tags: post.value.tags,
+  })
 }
 
 onMounted(async () => {
   await blogStore.fetchPost(slug.value)
-  updateDocumentTitle()
+  updatePostHead()
   requestAnimationFrame(() => {
     entered.value = true
   })
@@ -67,7 +74,7 @@ watch(slug, async (newSlug) => {
     entered.value = false
     window.scrollTo({ top: 0 })
     await blogStore.fetchPost(newSlug)
-    updateDocumentTitle()
+    updatePostHead()
     requestAnimationFrame(() => {
       entered.value = true
     })

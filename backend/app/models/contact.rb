@@ -16,7 +16,7 @@ class Contact < ApplicationRecord
   scope :unread, -> { where(status: 'new') }
 
   # Callbacks
-  after_create :send_notification
+  after_commit :send_notification, on: :create
 
   # Instance methods
   def mark_as_read!

@@ -98,8 +98,7 @@ onMounted(() => {
         <!-- Brand -->
         <a href="/" class="brand" @click.prevent="navigateTo(homeItem)">
           <span class="brand-prompt">~$</span>
-          <span class="brand-name sm:hidden">JN</span>
-          <span class="brand-name hidden sm:inline">justin-negron</span>
+          <span class="brand-name">justin-negron</span>
           <span class="brand-cursor" />
         </a>
 
@@ -136,22 +135,10 @@ onMounted(() => {
             aria-label="Toggle navigation menu"
             @click="uiStore.toggleMobileMenu()"
           >
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                v-if="!uiStore.isMobileMenuOpen"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-              <path
-                v-else
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <span class="hamburger-icon" aria-hidden="true">
+              <span v-if="!uiStore.isMobileMenuOpen">&gt;_</span>
+              <span v-else>&times;</span>
+            </span>
           </button>
         </div>
       </nav>
@@ -169,6 +156,11 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 1020;
+  /* Extend the header background behind the Dynamic Island / notch safe area.
+     viewport-fit=cover (set in index.html) makes position:fixed top:0 reach
+     the very top of the device screen; this padding pushes nav content below
+     the status bar while the header background fills the cutout area. */
+  padding-top: env(safe-area-inset-top, 0px);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -344,7 +336,7 @@ onMounted(() => {
    Hamburger button
    =================================================================== */
 .hamburger {
-  padding: 8px;
+  padding: 12px;
   border-radius: 10px;
   color: #78716c;
   transition:
@@ -369,5 +361,18 @@ onMounted(() => {
 .hamburger:focus-visible {
   outline: 2px solid var(--skin-500);
   outline-offset: 2px;
+}
+
+.hamburger-icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
 }
 </style>
