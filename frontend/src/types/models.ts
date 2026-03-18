@@ -62,6 +62,24 @@ export interface PageView {
   created_at: string
 }
 
+// Admin / Auth types
+
+export interface AdminUser {
+  id: number
+  email: string
+  created_at: string
+}
+
+export interface LoginCredentials {
+  email: string
+  password: string
+}
+
+export interface AuthResponse {
+  access_token: string
+  admin: AdminUser
+}
+
 // Input types for mutations
 
 export interface ProjectInput {
@@ -113,4 +131,20 @@ export interface AnalyticsStats {
   unique_visitors?: number
   views_by_page?: Record<string, number>
   views_by_date?: Record<string, number>
+}
+
+export interface AdminDashboardData {
+  total_views: number
+  unique_visitors: number
+  views_by_date: Record<string, number>
+  popular_pages: Array<{ path: string; count: number }>
+  recent_views: PageView[]
+  summary: {
+    total_projects: number
+    total_blog_posts: number
+    published_blog_posts: number
+    draft_blog_posts: number
+    total_contacts: number
+    unread_contacts: number
+  }
 }

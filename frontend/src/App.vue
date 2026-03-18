@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import MobileMenu from '@/components/layout/MobileMenu.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
@@ -10,6 +10,7 @@ import { useTheme } from '@/composables/useTheme'
 import { useAppearance } from '@/composables/useAppearance'
 
 const route = useRoute()
+const isAdminRoute = computed(() => route.path.startsWith('/admin'))
 
 // Initialize theme globally (applies .dark class to <html>)
 useTheme()
@@ -56,12 +57,14 @@ function onPageLeave(el: Element, done: () => void) {
 
 <template>
   <div id="app" class="flex min-h-screen flex-col">
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a v-if="!isAdminRoute" href="#main-content" class="skip-link">Skip to main content</a>
 
-    <AppHeader />
-    <MobileMenu />
+    <template v-if="!isAdminRoute">
+      <AppHeader />
+      <MobileMenu />
+    </template>
 
-    <main id="main-content" class="flex-1">
+    <main id="main-content" :class="isAdminRoute ? '' : 'flex-1'">
       <RouterView v-slot="{ Component }">
         <Transition :css="false" mode="out-in" @enter="onPageEnter" @leave="onPageLeave">
           <component :is="Component" :key="route.path" />
@@ -69,8 +72,10 @@ function onPageLeave(el: Element, done: () => void) {
       </RouterView>
     </main>
 
-    <AppFooter />
-    <FloatingTerminal />
+    <template v-if="!isAdminRoute">
+      <AppFooter />
+      <FloatingTerminal />
+    </template>
     <ToastContainer />
   </div>
 </template>

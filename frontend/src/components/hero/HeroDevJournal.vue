@@ -103,6 +103,30 @@ onMounted(() => {
             >
               Get in Touch
             </a>
+            <a
+              href="/Justin_Negron_resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="cta-resume"
+              @mouseenter="triggerAutoType('resume')"
+              @mouseleave="triggerClearAutoType()"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="8" y1="2" x2="8" y2="11" />
+                <polyline points="4,7 8,11 12,7" />
+                <line x1="3" y1="14" x2="13" y2="14" />
+              </svg>
+              Resume
+            </a>
           </div>
         </div>
 
@@ -315,5 +339,35 @@ onMounted(() => {
 :is(.dark *).cta-secondary:hover {
   border-color: rgba(var(--skin-lighter-rgb), 0.5);
   background: rgba(var(--skin-lighter-rgb), 0.08);
+}
+
+.cta-resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  color: var(--skin-700);
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-family: 'JetBrains Mono', monospace;
+  border: 1.5px dashed rgba(var(--skin-rgb), 0.35);
+  border-radius: 14px;
+  transition: all 0.2s ease;
+}
+
+.cta-resume:hover {
+  border-color: rgba(var(--skin-rgb), 0.55);
+  background: rgba(var(--skin-rgb), 0.05);
+  transform: translateY(-2px);
+}
+
+:is(.dark *).cta-resume {
+  color: var(--skin-400);
+  border-color: rgba(var(--skin-light-rgb), 0.25);
+}
+
+:is(.dark *).cta-resume:hover {
+  border-color: rgba(var(--skin-light-rgb), 0.45);
+  background: rgba(var(--skin-light-rgb), 0.06);
 }
 </style>

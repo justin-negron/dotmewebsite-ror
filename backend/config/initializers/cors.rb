@@ -20,7 +20,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     resource '*',
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
-      credentials: false,  # Changed to false for now (simpler)
+      credentials: true,  # Required for httpOnly refresh token cookie
       max_age: 86400
   end
 end

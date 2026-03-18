@@ -73,6 +73,9 @@ RSpec.configure do |config|
   # Include request spec helpers
   config.include RequestSpecHelper, type: :request
 
+  # Include auth helpers for admin endpoint specs
+  config.include AuthHelper, type: :request
+
   # Configure Database Cleaner
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

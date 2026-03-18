@@ -55,6 +55,99 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/admin/login',
+    name: 'admin-login',
+    component: () => import('@/views/admin/AdminLoginView.vue'),
+    meta: {
+      title: 'Admin Login',
+      description: 'Admin login',
+      requiresAuth: false,
+      noAnalytics: true,
+    },
+  },
+  {
+    path: '/admin',
+    component: () => import('@/layouts/AdminLayout.vue'),
+    meta: {
+      requiresAuth: true,
+      noAnalytics: true,
+    },
+    children: [
+      {
+        path: '',
+        name: 'admin-dashboard',
+        component: () => import('@/views/admin/AdminDashboardView.vue'),
+        meta: { title: 'Admin Dashboard' },
+      },
+      {
+        path: 'projects',
+        name: 'admin-projects',
+        component: () => import('@/views/admin/AdminProjectsView.vue'),
+        meta: { title: 'Admin Projects' },
+      },
+      {
+        path: 'projects/new',
+        name: 'admin-project-new',
+        component: () => import('@/views/admin/AdminProjectFormView.vue'),
+        meta: { title: 'New Project' },
+      },
+      {
+        path: 'projects/:id/edit',
+        name: 'admin-project-edit',
+        component: () => import('@/views/admin/AdminProjectFormView.vue'),
+        meta: { title: 'Edit Project' },
+      },
+      {
+        path: 'experiences',
+        name: 'admin-experiences',
+        component: () => import('@/views/admin/AdminExperiencesView.vue'),
+        meta: { title: 'Admin Experiences' },
+      },
+      {
+        path: 'experiences/new',
+        name: 'admin-experience-new',
+        component: () => import('@/views/admin/AdminExperienceFormView.vue'),
+        meta: { title: 'New Experience' },
+      },
+      {
+        path: 'experiences/:id/edit',
+        name: 'admin-experience-edit',
+        component: () => import('@/views/admin/AdminExperienceFormView.vue'),
+        meta: { title: 'Edit Experience' },
+      },
+      {
+        path: 'blog',
+        name: 'admin-blog',
+        component: () => import('@/views/admin/AdminBlogPostsView.vue'),
+        meta: { title: 'Admin Blog Posts' },
+      },
+      {
+        path: 'blog/new',
+        name: 'admin-blog-new',
+        component: () => import('@/views/admin/AdminBlogPostFormView.vue'),
+        meta: { title: 'New Blog Post' },
+      },
+      {
+        path: 'blog/:id/edit',
+        name: 'admin-blog-edit',
+        component: () => import('@/views/admin/AdminBlogPostFormView.vue'),
+        meta: { title: 'Edit Blog Post' },
+      },
+      {
+        path: 'contacts',
+        name: 'admin-contacts',
+        component: () => import('@/views/admin/AdminContactsView.vue'),
+        meta: { title: 'Admin Inbox' },
+      },
+      {
+        path: 'contacts/:id',
+        name: 'admin-contact-detail',
+        component: () => import('@/views/admin/AdminContactDetailView.vue'),
+        meta: { title: 'Contact Detail' },
+      },
+    ],
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFoundView.vue'),
@@ -93,7 +186,7 @@ const router = createRouter({
   },
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   // Blog posts get generic head here; BlogPostView overrides once the post loads.
   updateHead({
     title: (to.meta.title as string) || '',
@@ -101,6 +194,18 @@ router.beforeEach((to, _from, next) => {
     path: to.path,
     type: to.name === 'blog-post' ? 'article' : 'website',
   })
+
+  if (to.matched.some((r) => r.meta.requiresAuth)) {
+    const { useAuthStore } = await import('@/stores/auth')
+    const authStore = useAuthStore()
+
+    // Ensure auth is initialized (silent refresh attempt on first load)
+    await authStore.initialize()
+
+    if (!authStore.isAuthenticated) {
+      return next({ name: 'admin-login', query: { redirect: to.fullPath } })
+    }
+  }
 
   next()
 })

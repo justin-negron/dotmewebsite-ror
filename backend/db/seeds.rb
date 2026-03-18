@@ -12,6 +12,21 @@ end
 puts "\n=== Seeding Database ==="
 
 # ============================
+# ADMIN USER
+# ============================
+puts "\nCreating admin user..."
+
+if Admin.count.zero?
+  Admin.create!(
+    email: ENV.fetch('ADMIN_EMAIL', 'admin@justinnegron.dev'),
+    password: ENV.fetch('ADMIN_PASSWORD', 'changeme_in_prod')
+  )
+  puts "  ✓ Admin created (email: #{Admin.first.email})"
+else
+  puts "  ○ Admin already exists, skipping"
+end
+
+# ============================
 # PROJECTS
 # ============================
 puts "\nCreating projects..."

@@ -200,7 +200,7 @@ const savedInput = ref('')
 
 const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   help: {
-    response: 'commands: home, projects, experience, blog, contact, about, skin, bg, clear, exit',
+    response: 'commands: home, projects, experience, blog, contact, about, resume, skin, bg, clear, exit',
   },
   home: {
     response: 'navigating home...',
@@ -235,6 +235,9 @@ const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   email: {
     response: 'composing email...',
   },
+  resume: {
+    response: 'opening resume...',
+  },
   clear: {
     response: '',
   },
@@ -244,6 +247,7 @@ const LINK_ACTIONS: Record<string, string> = {
   github: 'https://github.com/justin-negron',
   linkedin: 'https://www.linkedin.com/in/justin-negron/',
   email: 'mailto:justinnegron174@gmail.com',
+  resume: '/Justin_Negron_resume.pdf',
 }
 
 function scrollTerminal() {

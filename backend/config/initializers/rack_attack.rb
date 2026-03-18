@@ -16,6 +16,11 @@ class Rack::Attack
     req.ip if req.path == "/api/v1/contacts" && req.post?
   end
 
+  # Throttle admin login attempts (5 per 15 minutes per IP)
+  throttle("admin_login/ip", limit: 5, period: 15.minutes) do |req|
+    req.ip if req.path == "/api/v1/admin/auth/login" && req.post?
+  end
+
   # Throttle analytics tracking (60 per minute per IP)
   throttle("analytics/ip", limit: 60, period: 1.minute) do |req|
     req.ip if req.path.start_with?("/api/v1/analytics") && req.post?

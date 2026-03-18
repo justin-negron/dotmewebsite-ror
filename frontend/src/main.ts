@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { setAuthTokenGetter } from './services/api'
 
 import './assets/styles/main.css'
 
@@ -12,6 +13,11 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
+
+// Wire auth token getter for API interceptor (must be after Pinia is installed)
+import { useAuthStore } from './stores/auth'
+const authStore = useAuthStore()
+setAuthTokenGetter(() => authStore.accessToken)
 
 app.config.errorHandler = (err, instance, info) => {
   if (import.meta.env.DEV) {

@@ -41,6 +41,9 @@ module Backend
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Enable cookie middleware for httpOnly refresh token auth
+    config.middleware.use ActionDispatch::Cookies
+
     # Active Job adapter
     config.active_job.queue_adapter = :sidekiq
   end

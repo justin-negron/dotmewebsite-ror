@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_13_020433) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_17_031043) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "admins", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.string "refresh_token_jti"
+    t.datetime "refresh_token_exp"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_admins_on_email", unique: true
+  end
 
   create_table "blog_posts", force: :cascade do |t|
     t.string "title", null: false

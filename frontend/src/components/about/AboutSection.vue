@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useUiStore } from '@/stores'
+import { useTerminalBridge } from '@/composables/useTerminalBridge'
 
 const uiStore = useUiStore()
+const { triggerAutoType, triggerClearAutoType } = useTerminalBridge()
 const sectionRef = ref<HTMLElement | null>(null)
 const hasRevealed = ref(false)
 let observer: IntersectionObserver | null = null
@@ -147,6 +149,32 @@ onUnmounted(() => {
             I like sunsets over the ocean, spontaneous road trips, and getting lost in cities I've
             never been to. This section will fill up as I collect more moments worth sharing.
           </p>
+          <div class="mt-6">
+            <a
+              href="/Justin_Negron_resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="resume-btn"
+              @mouseenter="triggerAutoType('resume')"
+              @mouseleave="triggerClearAutoType()"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="8" y1="2" x2="8" y2="11" />
+                <polyline points="4,7 8,11 12,7" />
+                <line x1="3" y1="14" x2="13" y2="14" />
+              </svg>
+              Download Resume
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -425,5 +453,41 @@ onUnmounted(() => {
 
 :is(.dark *).bio-line strong {
   color: var(--skin-400);
+}
+
+/* ===================================================================
+   Resume download button
+   =================================================================== */
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--skin-700);
+  background: rgba(var(--skin-rgb), 0.05);
+  border: 1.5px dashed rgba(var(--skin-rgb), 0.3);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.resume-btn:hover {
+  background: rgba(var(--skin-rgb), 0.09);
+  border-color: rgba(var(--skin-rgb), 0.5);
+  transform: translateY(-1px);
+}
+
+:is(.dark *).resume-btn {
+  color: var(--skin-400);
+  background: rgba(var(--skin-light-rgb), 0.04);
+  border-color: rgba(var(--skin-light-rgb), 0.2);
+}
+
+:is(.dark *).resume-btn:hover {
+  background: rgba(var(--skin-light-rgb), 0.08);
+  border-color: rgba(var(--skin-light-rgb), 0.38);
 }
 </style>

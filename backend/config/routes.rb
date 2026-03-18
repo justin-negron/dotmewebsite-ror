@@ -16,8 +16,15 @@ Rails.application.routes.draw do
         post :track, to: 'analytics#track'
       end
 
-      # Admin endpoints (will add authentication later)
+      # Admin endpoints (JWT authenticated)
       namespace :admin do
+        # Auth endpoints
+        scope :auth, controller: :auth do
+          post :login
+          post :refresh
+          delete :logout
+        end
+
         resources :projects
         resources :experiences
         resources :blog_posts do
