@@ -18,5 +18,9 @@ FactoryBot.define do
       published { false }
       published_at { nil }
     end
+
+    trait :with_cover_image do
+      cover_image_url { "https://cdn.example.com/blog/test-cover.jpg" }
+    end
   end
 end

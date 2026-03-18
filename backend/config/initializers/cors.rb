@@ -9,9 +9,8 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     # In development, allow localhost origins
     if Rails.env.development?
-      origins 'http://localhost:5173', 
-              'http://127.0.0.1:5173',
-              'localhost:5173'
+      origins 'http://localhost:5173',
+              'http://127.0.0.1:5173'
     else
       # In production, only allow your frontend domain
       origins ENV.fetch('FRONTEND_URL', 'https://justinnegron.dev')
@@ -21,6 +20,6 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
       credentials: true,  # Required for httpOnly refresh token cookie
-      max_age: 86400
+      max_age: 3600
   end
 end

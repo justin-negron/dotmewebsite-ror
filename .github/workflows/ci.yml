@@ -54,6 +54,14 @@ jobs:
       - name: Run tests
         run: bundle exec rspec --format documentation
 
+      - name: Security audit (dependencies)
+        run: bundle exec bundler-audit check --update
+        continue-on-error: true
+
+      - name: Security scan (static analysis)
+        run: bundle exec brakeman --no-pager -q
+        continue-on-error: true
+
   test_frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -84,6 +92,10 @@ jobs:
 
       - name: Run tests
         run: npx vitest run --passWithNoTests
+
+      - name: Security audit (dependencies)
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
       - name: Build
         run: npx vite build

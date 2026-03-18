@@ -5,13 +5,13 @@ require "rails"
 require "active_model/railtie"
 require "active_job/railtie"
 require "active_record/railtie"
-require "active_storage/engine"
+# require "active_storage/engine"  # Not used — API-only, no file uploads yet
 require "action_controller/railtie"
 require "action_mailer/railtie"
-require "action_mailbox/engine"
-require "action_text/engine"
+# require "action_mailbox/engine"  # Not used
+# require "action_text/engine"     # Not used
 require "action_view/railtie"
-require "action_cable/engine"
+# require "action_cable/engine"    # Not used — no WebSockets
 # require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems

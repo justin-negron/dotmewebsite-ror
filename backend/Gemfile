@@ -56,6 +56,10 @@ group :development do
   gem "rubocop-rails", require: false
   gem "annotate"
   gem "bullet"
+
+  # Security scanning
+  gem "bundler-audit", require: false
+  gem "brakeman", require: false
 end
 
 group :test do

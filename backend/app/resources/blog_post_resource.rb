@@ -1,7 +1,7 @@
 class BlogPostResource
   include Alba::Resource
 
-  attributes :id, :title, :slug, :content, :published, :tags, :view_count
+  attributes :id, :title, :slug, :content, :published, :tags, :view_count, :cover_image_url
 
   attribute :reading_time do |post|
     post.reading_time

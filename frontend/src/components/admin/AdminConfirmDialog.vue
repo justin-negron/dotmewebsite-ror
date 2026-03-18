@@ -1,5 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+import { ref, watch, nextTick, onUnmounted } from 'vue'
+
+const props = defineProps<{
   open: boolean
   title?: string
   message?: string
@@ -11,13 +13,68 @@ const emit = defineEmits<{
   confirm: []
   cancel: []
 }>()
+
+const cancelBtnRef = ref<HTMLButtonElement | null>(null)
+const dialogRef = ref<HTMLDivElement | null>(null)
+
+// Focus the cancel button when dialog opens
+watch(
+  () => props.open,
+  async (isOpen) => {
+    if (isOpen) {
+      await nextTick()
+      cancelBtnRef.value?.focus()
+      document.addEventListener('keydown', handleKeydown)
+    } else {
+      document.removeEventListener('keydown', handleKeydown)
+    }
+  },
+)
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
+
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    emit('cancel')
+    return
+  }
+
+  // Focus trap — keep Tab within the dialog
+  if (e.key === 'Tab' && dialogRef.value) {
+    const focusable = dialogRef.value.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )
+    if (focusable.length === 0) return
+
+    const first = focusable[0] as HTMLElement | undefined
+    const last = focusable[focusable.length - 1] as HTMLElement | undefined
+    if (!first || !last) return
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
 </script>
 
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="open" class="dialog-overlay" @click.self="emit('cancel')">
-        <div class="dialog-card">
+      <div
+        v-if="open"
+        class="dialog-overlay"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="title || 'confirm'"
+        @click.self="emit('cancel')"
+      >
+        <div ref="dialogRef" class="dialog-card">
           <div class="card-header">
             <div class="dots">
               <span class="dot dot-red" />
@@ -29,7 +86,7 @@ const emit = defineEmits<{
           <div class="card-body">
             <p class="dialog-message">{{ message || 'Are you sure?' }}</p>
             <div class="dialog-actions">
-              <button class="btn-cancel" @click="emit('cancel')">
+              <button ref="cancelBtnRef" class="btn-cancel" @click="emit('cancel')">
                 <span class="btn-prompt">$</span> cancel
               </button>
               <button class="btn-confirm" :disabled="loading" @click="emit('confirm')">

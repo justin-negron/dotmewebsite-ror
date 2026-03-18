@@ -21,6 +21,11 @@ class Rack::Attack
     req.ip if req.path == "/api/v1/admin/auth/login" && req.post?
   end
 
+  # Throttle token refresh attempts (10 per minute per IP)
+  throttle("admin_refresh/ip", limit: 10, period: 1.minute) do |req|
+    req.ip if req.path == "/api/v1/admin/auth/refresh" && req.post?
+  end
+
   # Throttle analytics tracking (60 per minute per IP)
   throttle("analytics/ip", limit: 60, period: 1.minute) do |req|
     req.ip if req.path.start_with?("/api/v1/analytics") && req.post?

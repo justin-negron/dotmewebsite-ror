@@ -3,6 +3,7 @@ class BlogPost < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
   validates :content, presence: true
+  validates :cover_image_url, format: { with: /\Ahttps?:\/\/.+/i }, allow_blank: true
 
   # Scopes
   scope :published, -> { where(published: true).where.not(published_at: nil) }

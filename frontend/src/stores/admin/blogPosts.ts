@@ -7,6 +7,7 @@ export const useAdminBlogPostsStore = defineStore('admin-blog-posts', () => {
   const blogPosts = ref<BlogPost[]>([])
   const currentPost = ref<BlogPost | null>(null)
   const loading = ref(false)
+  const publishing = ref<Set<number>>(new Set())
   const error = ref<ApiError | null>(null)
   const pagination = ref<PaginationMeta | null>(null)
 
@@ -94,7 +95,14 @@ export const useAdminBlogPostsStore = defineStore('admin-blog-posts', () => {
     }
   }
 
+  function isPublishing(id: number): boolean {
+    return publishing.value.has(id)
+  }
+
   async function publish(id: number | string): Promise<boolean> {
+    const numId = Number(id)
+    if (publishing.value.has(numId)) return false
+    publishing.value.add(numId)
     error.value = null
     try {
       const response = await api.publish(id)
@@ -106,10 +114,15 @@ export const useAdminBlogPostsStore = defineStore('admin-blog-posts', () => {
     } catch (err) {
       error.value = err as ApiError
       return false
+    } finally {
+      publishing.value.delete(numId)
     }
   }
 
   async function unpublish(id: number | string): Promise<boolean> {
+    const numId = Number(id)
+    if (publishing.value.has(numId)) return false
+    publishing.value.add(numId)
     error.value = null
     try {
       const response = await api.unpublish(id)
@@ -121,6 +134,8 @@ export const useAdminBlogPostsStore = defineStore('admin-blog-posts', () => {
     } catch (err) {
       error.value = err as ApiError
       return false
+    } finally {
+      publishing.value.delete(numId)
     }
   }
 
@@ -132,6 +147,7 @@ export const useAdminBlogPostsStore = defineStore('admin-blog-posts', () => {
     blogPosts.value = []
     currentPost.value = null
     loading.value = false
+    publishing.value = new Set()
     error.value = null
     pagination.value = null
   }
@@ -145,6 +161,7 @@ export const useAdminBlogPostsStore = defineStore('admin-blog-posts', () => {
     postCount,
     publishedCount,
     draftCount,
+    isPublishing,
     fetchAll,
     fetchOne,
     create,

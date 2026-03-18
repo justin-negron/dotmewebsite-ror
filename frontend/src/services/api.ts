@@ -80,14 +80,19 @@ api.interceptors.response.use(
       // Deduplicate concurrent refresh calls
       if (!isRefreshing) {
         isRefreshing = true
-        refreshPromise = import('@/stores/auth').then(({ useAuthStore }) => {
-          const authStore = useAuthStore()
-          return authStore.refresh()
-        })
-        refreshPromise.finally(() => {
-          isRefreshing = false
-          refreshPromise = null
-        })
+        refreshPromise = import('@/stores/auth')
+          .then(({ useAuthStore }) => {
+            const authStore = useAuthStore()
+            return authStore.refresh()
+          })
+          .finally(() => {
+            isRefreshing = false
+            // Keep refreshPromise alive until all queued requests read it;
+            // clear it on next tick so late arrivals start a fresh cycle.
+            setTimeout(() => {
+              refreshPromise = null
+            }, 0)
+          })
       }
 
       try {

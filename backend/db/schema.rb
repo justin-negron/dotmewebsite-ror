@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_17_031043) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_18_013817) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -35,6 +35,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_17_031043) do
     t.integer "view_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cover_image_url"
     t.index ["published", "published_at"], name: "index_blog_posts_on_published_and_published_at"
     t.index ["slug"], name: "index_blog_posts_on_slug", unique: true
     t.index ["tags"], name: "index_blog_posts_on_tags", using: :gin

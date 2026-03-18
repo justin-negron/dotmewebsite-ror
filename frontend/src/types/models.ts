@@ -40,6 +40,7 @@ export interface BlogPost {
   view_count: number
   reading_time: number
   excerpt: string
+  cover_image_url: string | null
   published_at: string | null
   created_at: string
   updated_at: string
@@ -51,7 +52,7 @@ export interface Contact {
   email: string
   subject: string
   message: string
-  status: string
+  status: 'new' | 'read' | 'archived'
   created_at: string
 }
 
@@ -109,8 +110,15 @@ export interface BlogPostInput {
   title: string
   content: string
   published?: boolean
-  tags?: string[]
+  tags: string[]
   slug?: string
+  cover_image_url?: string
+}
+
+export interface PresignedUrlResponse {
+  presigned_url: string
+  public_url: string
+  key: string
 }
 
 export interface ContactFormData {

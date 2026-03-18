@@ -56,6 +56,20 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       accessToken.value = null
       admin.value = null
+
+      // Reset all admin stores to prevent stale data across sessions
+      const {
+        useAdminProjectsStore,
+        useAdminExperiencesStore,
+        useAdminBlogPostsStore,
+        useAdminContactsStore,
+        useAdminDashboardStore,
+      } = await import('@/stores/admin')
+      useAdminProjectsStore().$reset()
+      useAdminExperiencesStore().$reset()
+      useAdminBlogPostsStore().$reset()
+      useAdminContactsStore().$reset()
+      useAdminDashboardStore().$reset()
     }
   }
 

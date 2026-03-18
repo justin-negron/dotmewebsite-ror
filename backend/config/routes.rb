@@ -35,6 +35,9 @@ Rails.application.routes.draw do
         end
         resources :contacts, only: [:index, :show, :update, :destroy]
         
+        # Image uploads
+        post 'uploads/presign', to: 'uploads#presign'
+
         # Analytics dashboard
         get 'analytics/dashboard', to: 'analytics#dashboard'
       end

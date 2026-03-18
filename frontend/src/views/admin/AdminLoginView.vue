@@ -21,7 +21,9 @@ onMounted(() => {
 async function handleLogin() {
   try {
     await authStore.login(email.value, password.value)
-    const redirect = (route.query.redirect as string) || '/admin'
+    const raw = (route.query.redirect as string) || '/admin'
+    // Prevent open redirect — only allow paths under /admin
+    const redirect = raw.startsWith('/admin') && !raw.startsWith('//') ? raw : '/admin'
     router.push(redirect)
   } catch {
     // Error is in authStore.error — displayed in template

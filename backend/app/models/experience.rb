@@ -2,6 +2,7 @@ class Experience < ApplicationRecord
   # Validations
   validates :company, presence: true, length: { maximum: 255 }
   validates :position, presence: true, length: { maximum: 255 }
+  validates :experience_type, presence: true, inclusion: { in: %w[work education] }
   validates :start_date, presence: true
   validate :end_date_after_start_date
 

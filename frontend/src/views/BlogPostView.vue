@@ -55,6 +55,7 @@ function updatePostHead() {
     description: post.value.excerpt,
     path: `/blog/${post.value.slug}`,
     type: 'article',
+    image: post.value.cover_image_url || undefined,
     publishedAt: post.value.published_at,
     tags: post.value.tags,
   })
@@ -182,19 +183,32 @@ function handleTagClick(tag: string) {
               </template>
             </div>
 
+            <!-- Cover image -->
+            <div
+              v-if="post.cover_image_url"
+              :class="['cover-image-wrapper mt-8', 'reveal reveal-4', entered ? 'is-revealed' : '']"
+            >
+              <img
+                :src="post.cover_image_url"
+                :alt="post.title"
+                class="cover-image"
+                loading="eager"
+              />
+            </div>
+
             <!-- Divider -->
-            <div :class="['post-divider mt-8', 'reveal reveal-4', entered ? 'is-revealed' : '']" />
+            <div :class="['post-divider mt-8', 'reveal reveal-5', entered ? 'is-revealed' : '']" />
 
             <!-- Content -->
             <div
-              :class="['post-body mt-8', 'reveal reveal-5', entered ? 'is-revealed' : '']"
+              :class="['post-body mt-8', 'reveal reveal-6', entered ? 'is-revealed' : '']"
               v-html="renderedContent"
             />
 
             <!-- Tags -->
             <div
               v-if="post.tags.length"
-              :class="['post-tags mt-10', 'reveal reveal-6', entered ? 'is-revealed' : '']"
+              :class="['post-tags mt-10', 'reveal reveal-7', entered ? 'is-revealed' : '']"
             >
               <span class="tags-label">Tagged</span>
               <div class="tags-list">
@@ -679,10 +693,29 @@ function handleTagClick(tag: string) {
 }
 .reveal-5.is-revealed {
   animation-delay: 0.7s;
-  animation-duration: 1s;
 }
 .reveal-6.is-revealed {
-  animation-delay: 0.85s;
+  animation-delay: 0.8s;
+  animation-duration: 1s;
+}
+.reveal-7.is-revealed {
+  animation-delay: 0.95s;
+}
+
+/* ===================================================================
+   Cover image
+   =================================================================== */
+.cover-image-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  display: block;
 }
 
 /* ===================================================================

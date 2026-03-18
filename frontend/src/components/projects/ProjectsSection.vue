@@ -390,11 +390,6 @@ onUnmounted(() => {
   padding-top: 1rem;
   display: flex;
   gap: 0.75rem;
-  border-top: 1px solid #f5f5f4;
-}
-
-:is(.dark *).card-links {
-  border-top-color: #292524;
 }
 
 .project-link {

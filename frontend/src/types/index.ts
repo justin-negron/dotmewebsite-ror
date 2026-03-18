@@ -14,6 +14,7 @@ export type {
   PageViewData,
   AnalyticsStats,
   AdminDashboardData,
+  PresignedUrlResponse,
 } from './models'
 
 export type { ApiSuccessResponse, ApiErrorResponse, PaginationMeta, ApiError } from './api'

@@ -71,9 +71,10 @@ function formatDate(dateStr: string | null): string {
         <template #cell-published="{ row, value }">
           <button
             :class="['status-toggle', value ? 'is-published' : 'is-draft']"
+            :disabled="store.isPublishing(row.id as number)"
             @click.stop="togglePublish(row.id as number, value as boolean)"
           >
-            {{ value ? 'published' : 'draft' }}
+            {{ store.isPublishing(row.id as number) ? '...' : value ? 'published' : 'draft' }}
           </button>
         </template>
         <template #cell-tags="{ value }">

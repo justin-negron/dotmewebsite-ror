@@ -215,7 +215,8 @@ router.afterEach((to, from) => {
     console.log(`Navigation: ${from.path} → ${to.path}`)
   }
 
-  if (import.meta.env.VITE_ENABLE_ANALYTICS === 'true' && !to.meta.noAnalytics) {
+  const skipAnalytics = to.matched.some((r) => r.meta.noAnalytics)
+  if (import.meta.env.VITE_ENABLE_ANALYTICS === 'true' && !skipAnalytics) {
     trackPageView({
       path: to.path,
       referrer: from.matched.length > 0 && from.path !== to.path ? from.path : null,

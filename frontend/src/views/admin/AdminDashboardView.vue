@@ -78,8 +78,8 @@ const chartEntries = computed(() => {
       </div>
     </template>
 
-    <!-- Error -->
-    <div v-if="dashboardStore.error" class="error-block">
+    <!-- Error (only when no data loaded) -->
+    <div v-else-if="dashboardStore.error" class="error-block">
       <span class="error-prefix">error:</span> {{ dashboardStore.error.message }}
     </div>
   </div>

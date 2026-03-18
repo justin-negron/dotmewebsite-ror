@@ -1,7 +1,8 @@
 class Contact < ApplicationRecord
   # Validations
   validates :name, presence: true, length: { maximum: 255 }
-  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :email, presence: true, length: { maximum: 255 }, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :subject, length: { maximum: 255 }
   validates :message, presence: true, length: { minimum: 10 }
 
   # Enums

@@ -47,7 +47,7 @@ module Api
 
         def blog_post_params
           params.require(:blog_post).permit(
-            :title, :slug, :content, :excerpt, :published, tags: []
+            :title, :slug, :content, :excerpt, :published, :cover_image_url, tags: []
           )
         end
       end

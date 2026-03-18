@@ -79,6 +79,15 @@ RSpec.describe 'Api::V1::Admin::BlogPosts', type: :request do
 
       expect(response).to have_http_status(:unprocessable_content)
     end
+
+    it 'creates a blog post with cover_image_url' do
+      post '/api/v1/admin/blog_posts',
+           params: valid_params.deep_merge(blog_post: { cover_image_url: 'https://cdn.example.com/cover.jpg' }),
+           headers: headers, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(json_data[:cover_image_url]).to eq('https://cdn.example.com/cover.jpg')
+    end
   end
 
   describe 'PATCH /api/v1/admin/blog_posts/:id' do
@@ -91,6 +100,15 @@ RSpec.describe 'Api::V1::Admin::BlogPosts', type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(json_data[:title]).to eq('Updated Title')
+    end
+
+    it 'updates cover_image_url' do
+      patch "/api/v1/admin/blog_posts/#{blog_post.id}",
+            params: { blog_post: { cover_image_url: 'https://cdn.example.com/new-cover.jpg' } },
+            headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_data[:cover_image_url]).to eq('https://cdn.example.com/new-cover.jpg')
     end
   end
 
