@@ -1,0 +1,5 @@
+aws_region         = "us-east-1"
+domain_name        = "justinnegron.dev"
+site_bucket_name   = "justinnegron-dev-site"
+assets_bucket_name = "justinnegron-dev-assets"
+environment        = "production"
