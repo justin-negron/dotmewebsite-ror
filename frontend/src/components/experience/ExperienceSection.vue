@@ -18,6 +18,14 @@ const experiences = computed(() =>
     : experiencesStore.educationExperiences
 )
 
+// Single computed state eliminates v-if/v-else chain issues
+const viewState = computed<'loading' | 'error' | 'empty' | 'ready'>(() => {
+  if (experiencesStore.loading) return 'loading'
+  if (experiencesStore.error) return 'error'
+  if (experiences.value.length === 0) return 'empty'
+  return 'ready'
+})
+
 // Reset reveal state and re-observe cards when switching tabs
 const tabSwitchKey = ref(0)
 watch(activeTab, () => {
@@ -155,8 +163,7 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Loading skeleton -->
-      <div v-if="experiencesStore.loading" class="timeline">
+      <div v-if="viewState === 'loading'" class="timeline">
         <div class="timeline-line" />
         <div v-for="i in 3" :key="i" class="timeline-entry entry-left is-revealed">
           <div class="timeline-dot" />
@@ -174,17 +181,13 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-
-      <!-- Error state -->
-      <div v-else-if="experiencesStore.error" class="text-center py-12">
+      <div v-if="viewState === 'error'" class="text-center py-12">
         <p class="text-red-500 dark:text-red-400 mb-4">Failed to load experience.</p>
         <button class="retry-btn" @click="experiencesStore.fetchExperiences(true)">
           Try Again
         </button>
       </div>
-
-      <!-- Empty state -->
-      <div v-else-if="experiences.length === 0" class="text-center py-12">
+      <div v-if="viewState === 'empty'" class="text-center py-12">
         <p class="empty-text">
           {{
             activeTab === 'work'
@@ -193,9 +196,7 @@ onUnmounted(() => {
           }}
         </p>
       </div>
-
-      <!-- Timeline -->
-      <div v-else :key="tabSwitchKey" class="timeline">
+      <div v-if="viewState === 'ready'" :key="tabSwitchKey" class="timeline">
         <div class="timeline-line" />
 
         <div

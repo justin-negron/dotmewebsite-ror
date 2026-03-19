@@ -4,6 +4,11 @@
 # Private S3 bucket → CloudFront OAC → justinnegron.dev
 # SPA routing: all 404/403 errors return /index.html (Vue Router handles paths)
 
+# --- AWS Managed Cache Policy: CachingDisabled (for API proxy)
+data "aws_cloudfront_cache_policy" "disabled" {
+  name = "Managed-CachingDisabled"
+}
+
 # --- S3 Bucket (private — no public access)
 resource "aws_s3_bucket" "site" {
   bucket = var.site_bucket_name
@@ -120,23 +125,74 @@ resource "aws_cloudfront_function" "www_redirect" {
   EOF
 }
 
-# --- CloudFront Distribution (main site)
+# --- CloudFront Origin Request Policy for API
+# Forwards all viewer headers (except Host), cookies, and query strings to EC2.
+# Required for auth tokens, session cookies, and API query parameters.
+resource "aws_cloudfront_origin_request_policy" "api" {
+  name    = "api-origin-request-policy"
+  comment = "Forward all cookies, query strings, and headers to API origin"
+
+  cookies_config {
+    cookie_behavior = "all"
+  }
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+      items = [
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "Origin",
+        "X-Requested-With",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers",
+      ]
+    }
+  }
+  query_strings_config {
+    query_string_behavior = "all"
+  }
+}
+
+# --- CloudFront Distribution (main site + API proxy)
 resource "aws_cloudfront_distribution" "site" {
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "justinnegron.dev frontend SPA"
+  comment             = "justinnegron.dev frontend SPA + API proxy"
   default_root_object = "index.html"
   aliases             = [var.domain_name, "www.${var.domain_name}"]
   price_class         = "PriceClass_100" # US, Canada, Europe — cheapest tier
   http_version        = "http2and3"
 
+  # Origin 1: S3 for SPA static files
   origin {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
     origin_id                = "s3-site"
     origin_access_control_id = aws_cloudfront_origin_access_control.site.id
   }
 
-  # Default behavior — serves all SPA assets
+  # Origin 2: EC2 for API requests
+  # CloudFront requires a domain name, not an IP. Use the EIP's reverse DNS.
+  # Format: ec2-{ip-dashed}.compute-1.amazonaws.com
+  origin {
+    domain_name = "ec2-${replace(aws_eip.app.public_ip, ".", "-")}.compute-1.amazonaws.com"
+    origin_id   = "ec2-api"
+
+    custom_origin_config {
+      http_port              = 3000
+      https_port             = 443
+      origin_protocol_policy = "http-only" # EC2 runs HTTP, CloudFront terminates HTTPS
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+
+    # Secret header — Rails verifies this to block direct EC2 access
+    custom_header {
+      name  = "X-CloudFront-Secret"
+      value = random_password.cloudfront_secret.result
+    }
+  }
+
+  # Default behavior — serves SPA assets from S3
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
@@ -149,6 +205,32 @@ resource "aws_cloudfront_distribution" "site" {
       event_type   = "viewer-request"
       function_arn = aws_cloudfront_function.www_redirect.arn
     }
+  }
+
+  # API behavior — forwards /api/* to EC2, no caching
+  ordered_cache_behavior {
+    path_pattern           = "/api/*"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "ec2-api"
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+
+    # No caching for API responses
+    cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.api.id
+  }
+
+  # Health check behavior — forwards /health to EC2
+  ordered_cache_behavior {
+    path_pattern           = "/health"
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "ec2-api"
+    viewer_protocol_policy = "redirect-to-https"
+
+    cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.api.id
   }
 
   # SPA routing — return index.html for paths that don't match S3 objects.
