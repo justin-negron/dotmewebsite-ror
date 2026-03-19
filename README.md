@@ -225,7 +225,7 @@ A production-grade portfolio and blog platform built as a monorepo. The Rails 7 
 │   └── templates/user-data.sh  # EC2 bootstrap script
 │
 ├── scripts/                    # Deploy scripts (local only, not tracked)
-├── docs/                       # CLAUDE.md, PROGRESS.md, CONTENT.md
+├── docs/                       # PROGRESS.md, CONTENT.md
 └── .circleci/config.yml        # CI pipeline
 ```
 
