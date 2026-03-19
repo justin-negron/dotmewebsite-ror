@@ -57,17 +57,6 @@ export async function getRecentPosts(limit: number = 5) {
   }
 }
 
-export async function incrementViewCount(slug: string) {
-  try {
-    const response = await api.post<ApiSuccessResponse<BlogPost>>(
-      `${ENDPOINTS.detail(slug)}/increment_views`
-    )
-    return extractData(response)
-  } catch (error) {
-    throw handleApiError(error as import('axios').AxiosError)
-  }
-}
-
 export async function createBlogPost(postData: BlogPostInput) {
   try {
     const response = await api.post<ApiSuccessResponse<BlogPost>>(ENDPOINTS.base, postData)
@@ -100,7 +89,6 @@ export default {
   getPublishedPosts,
   getPostsByTag,
   getRecentPosts,
-  incrementViewCount,
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,

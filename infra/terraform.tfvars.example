@@ -1,0 +1,22 @@
+aws_region         = "us-east-1"
+domain_name        = "justinnegron.dev"
+site_bucket_name   = "justinnegron-dev-site"
+assets_bucket_name = "justinnegron-dev-assets"
+environment        = "production"
+
+# EC2
+ssh_public_key = "ssh-ed25519 AAAA..."
+ssh_allowed_ip = "YOUR_PUBLIC_IP"
+
+# Database
+db_username = "portfolio"
+
+# Application AWS credentials (for S3 presigned uploads)
+app_aws_access_key_id     = ""
+app_aws_secret_access_key = ""
+
+# SMTP
+smtp_address  = ""
+smtp_port     = "587"
+smtp_username = ""
+smtp_password = ""

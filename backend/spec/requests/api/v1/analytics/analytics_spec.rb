@@ -42,9 +42,8 @@ RSpec.describe 'Api::V1::Analytics::Analytics', type: :request do
     
     it 'captures referrer' do
       post '/api/v1/analytics/track',
-           params: valid_params,
-           headers: { 'Referer' => 'https://google.com' }
-      
+           params: valid_params.merge(referrer: 'https://google.com')
+
       page_view = PageView.last
       expect(page_view.referrer).to eq('https://google.com')
     end

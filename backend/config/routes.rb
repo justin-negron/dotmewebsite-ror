@@ -16,8 +16,15 @@ Rails.application.routes.draw do
         post :track, to: 'analytics#track'
       end
 
-      # Admin endpoints (will add authentication later)
+      # Admin endpoints (JWT authenticated)
       namespace :admin do
+        # Auth endpoints
+        scope :auth, controller: :auth do
+          post :login
+          post :refresh
+          delete :logout
+        end
+
         resources :projects
         resources :experiences
         resources :blog_posts do
@@ -28,6 +35,9 @@ Rails.application.routes.draw do
         end
         resources :contacts, only: [:index, :show, :update, :destroy]
         
+        # Image uploads
+        post 'uploads/presign', to: 'uploads#presign'
+
         # Analytics dashboard
         get 'analytics/dashboard', to: 'analytics#dashboard'
       end

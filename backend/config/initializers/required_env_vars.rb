@@ -11,11 +11,15 @@ REQUIRED_ENV_VARS = %w[
 REQUIRED_PRODUCTION_ENV_VARS = %w[
   JWT_SECRET
   SECRET_KEY_BASE
+  FRONTEND_URL
+].freeze
+
+# Optional — app boots without these but email delivery will be disabled
+OPTIONAL_PRODUCTION_ENV_VARS = %w[
   SMTP_ADDRESS
   SMTP_USERNAME
   SMTP_PASSWORD
   FROM_EMAIL
-  FRONTEND_URL
 ].freeze
 
 # Check required variables

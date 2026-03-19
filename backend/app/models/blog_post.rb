@@ -3,6 +3,7 @@ class BlogPost < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
   validates :content, presence: true
+  validates :cover_image_url, format: { with: /\Ahttps?:\/\/.+/i }, allow_blank: true
 
   # Scopes
   scope :published, -> { where(published: true).where.not(published_at: nil) }
@@ -54,6 +55,6 @@ class BlogPost < ApplicationRecord
   end
 
   def set_published_at
-    self.published_at = Time.current # if published? (redundant)
+    self.published_at ||= Time.current
   end
 end

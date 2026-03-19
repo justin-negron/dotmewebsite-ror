@@ -1,0 +1,107 @@
+version: 2.1
+
+orbs:
+  ruby: circleci/ruby@2.2
+  node: circleci/node@6.1
+
+executors:
+  backend:
+    docker:
+      - image: cimg/ruby:3.4.8
+        environment:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/portfolio_test
+          REDIS_URL: redis://localhost:6379/1
+      - image: cimg/postgres:15.0
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: portfolio_test
+      - image: cimg/redis:7.0
+
+  frontend:
+    docker:
+      - image: cimg/node:20.0
+
+jobs:
+  test_backend:
+    executor: backend
+    working_directory: ~/project/backend
+    steps:
+      - checkout:
+          path: ~/project
+
+      - ruby/install-deps:
+          key: gems-v1
+
+      - run:
+          name: Wait for PostgreSQL
+          command: dockerize -wait tcp://localhost:5432 -timeout 30s
+
+      - run:
+          name: Wait for Redis
+          command: dockerize -wait tcp://localhost:6379 -timeout 30s
+
+      - run:
+          name: Set up database
+          command: bin/rails db:schema:load
+
+      - run:
+          name: Run tests
+          command: bundle exec rspec --format documentation
+
+      - store_test_results:
+          path: ~/project/backend/tmp/test-results
+
+      - run:
+          name: Security audit (dependencies)
+          command: bundle exec bundler-audit check --update || true
+
+      - run:
+          name: Security scan (static analysis)
+          command: bundle exec brakeman --no-pager -q || true
+
+  test_frontend:
+    executor: frontend
+    working_directory: ~/project/frontend
+    steps:
+      - checkout:
+          path: ~/project
+
+      - node/install-packages:
+          pkg-manager: npm
+
+      - run:
+          name: Type check
+          command: npx vue-tsc --build --force
+
+      - run:
+          name: Lint
+          command: npx eslint .
+
+      - run:
+          name: Check formatting
+          command: npx prettier --check src/
+
+      - run:
+          name: Run tests
+          command: npx vitest run --passWithNoTests
+
+      - run:
+          name: Security audit (dependencies)
+          command: npm audit --audit-level=high || true
+
+      - run:
+          name: Build
+          command: npx vite build
+
+      - persist_to_workspace:
+          root: ~/project/frontend
+          paths:
+            - dist
+
+workflows:
+  ci:
+    jobs:
+      - test_backend
+      - test_frontend

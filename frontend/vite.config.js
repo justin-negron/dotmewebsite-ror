@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => {
       host: true,
       open: false,
       cors: true,
-      
+
       // Proxy API requests to Rails backend
       proxy: {
         '/api': {
@@ -67,7 +67,7 @@ export default defineConfig(({ mode }) => {
           secure: false,
         },
       },
-      
+
       // Vite 7: Improved HMR
       hmr: {
         overlay: true,
@@ -102,7 +102,7 @@ export default defineConfig(({ mode }) => {
       target: 'baseline-widely-available',
 
       // Chunk size warning limit (500kb)
-      chunkSizeWarningLimit: 500,
+      chunkSizeWarningLimit: 600,
 
       // Rollup options
       rollupOptions: {
@@ -117,6 +117,16 @@ export default defineConfig(({ mode }) => {
 
             // Form validation
             'vendor-forms': ['vee-validate', 'yup'],
+
+            // CodeMirror (admin-only, lazy-loaded)
+            'vendor-codemirror': [
+              '@codemirror/state',
+              '@codemirror/view',
+              '@codemirror/language',
+              '@codemirror/commands',
+              '@codemirror/lang-markdown',
+              '@codemirror/language-data',
+            ],
           },
 
           // Asset file naming
@@ -165,15 +175,7 @@ export default defineConfig(({ mode }) => {
     // Dependency Optimization
     // ========================================================================
     optimizeDeps: {
-      include: [
-        'vue',
-        'vue-router',
-        'pinia',
-        'axios',
-        '@vueuse/core',
-        'vee-validate',
-        'yup',
-      ],
+      include: ['vue', 'vue-router', 'pinia', 'axios', '@vueuse/core', 'vee-validate', 'yup'],
       exclude: [],
     },
 

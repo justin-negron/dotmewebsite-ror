@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_25_214942) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_18_013817) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "admins", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.string "refresh_token_jti"
+    t.datetime "refresh_token_exp"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_admins_on_email", unique: true
+  end
 
   create_table "blog_posts", force: :cascade do |t|
     t.string "title", null: false
@@ -25,6 +35,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_25_214942) do
     t.integer "view_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cover_image_url"
     t.index ["published", "published_at"], name: "index_blog_posts_on_published_and_published_at"
     t.index ["slug"], name: "index_blog_posts_on_slug", unique: true
     t.index ["tags"], name: "index_blog_posts_on_tags", using: :gin
@@ -52,7 +63,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_25_214942) do
     t.integer "display_order"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "experience_type", default: "work", null: false
     t.index ["display_order"], name: "index_experiences_on_display_order"
+    t.index ["experience_type"], name: "index_experiences_on_experience_type"
     t.index ["start_date"], name: "index_experiences_on_start_date"
   end
 

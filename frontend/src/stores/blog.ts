@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { getPublishedPosts, getBlogPost, getRecentPosts, incrementViewCount } from '@/services/blog'
+import { getPublishedPosts, getBlogPost, getRecentPosts } from '@/services/blog'
 import type { BlogPost, ApiError, PaginationMeta } from '@/types'
 
 export const useBlogStore = defineStore('blog', () => {
@@ -65,8 +65,6 @@ export const useBlogStore = defineStore('blog', () => {
 
     if (cached) {
       currentPost.value = cached
-      // Fire-and-forget: track the view without blocking
-      incrementViewCount(slug).catch(() => {})
       return
     }
 
@@ -76,8 +74,6 @@ export const useBlogStore = defineStore('blog', () => {
     try {
       const response = await getBlogPost(slug)
       currentPost.value = response.data
-      // Fire-and-forget: track the view without blocking
-      incrementViewCount(slug).catch(() => {})
     } catch (err) {
       error.value = err as ApiError
     } finally {

@@ -2,6 +2,7 @@ class Experience < ApplicationRecord
   # Validations
   validates :company, presence: true, length: { maximum: 255 }
   validates :position, presence: true, length: { maximum: 255 }
+  validates :experience_type, presence: true, inclusion: { in: %w[work education] }
   validates :start_date, presence: true
   validate :end_date_after_start_date
 
@@ -9,6 +10,8 @@ class Experience < ApplicationRecord
   scope :ordered, -> { order(start_date: :desc) }
   scope :current, -> { where(end_date: nil) }
   scope :past, -> { where.not(end_date: nil) }
+  scope :work, -> { where(experience_type: 'work') }
+  scope :education, -> { where(experience_type: 'education') }
 
   # Callbacks
   before_validation :set_display_order, on: :create
@@ -24,7 +27,7 @@ class Experience < ApplicationRecord
     start_year = start_date.year
     end_year = end_date&.year || Date.current.year
     
-    if start_year == end_year
+    if start_year == end_year && start_date.month == end_date&.month
       start_date.strftime("%B %Y")
     else
       end_str = current? ? "Present" : end_date.strftime("%B %Y")

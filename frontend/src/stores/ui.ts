@@ -15,6 +15,7 @@ export const useUiStore = defineStore('ui', () => {
   const activeSection = ref('')
   const toasts = ref<Toast[]>([])
   const nextToastId = ref(0)
+  const toastTimers = new Map<number, ReturnType<typeof setTimeout>>()
 
   // Getters
   const hasToasts = computed(() => toasts.value.length > 0)
@@ -42,15 +43,22 @@ export const useUiStore = defineStore('ui', () => {
     toasts.value.push({ id, message, type, duration })
 
     if (duration > 0) {
-      setTimeout(() => removeToast(id), duration)
+      toastTimers.set(id, setTimeout(() => removeToast(id), duration))
     }
   }
 
   function removeToast(id: number) {
+    const timer = toastTimers.get(id)
+    if (timer !== undefined) {
+      clearTimeout(timer)
+      toastTimers.delete(id)
+    }
     toasts.value = toasts.value.filter((t) => t.id !== id)
   }
 
   function clearToasts() {
+    toastTimers.forEach(clearTimeout)
+    toastTimers.clear()
     toasts.value = []
   }
 
@@ -58,7 +66,7 @@ export const useUiStore = defineStore('ui', () => {
     isMobileMenuOpen.value = false
     isPageLoading.value = false
     activeSection.value = ''
-    toasts.value = []
+    clearToasts()
     nextToastId.value = 0
   }
 

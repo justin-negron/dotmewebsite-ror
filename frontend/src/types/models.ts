@@ -25,6 +25,7 @@ export interface Experience {
   duration: string
   start_date: string
   end_date: string | null
+  experience_type: 'work' | 'education'
   created_at: string
   updated_at: string
 }
@@ -39,6 +40,7 @@ export interface BlogPost {
   view_count: number
   reading_time: number
   excerpt: string
+  cover_image_url: string | null
   published_at: string | null
   created_at: string
   updated_at: string
@@ -50,7 +52,7 @@ export interface Contact {
   email: string
   subject: string
   message: string
-  status: string
+  status: 'new' | 'read' | 'archived'
   created_at: string
 }
 
@@ -59,6 +61,24 @@ export interface PageView {
   path: string
   browser_name: string
   created_at: string
+}
+
+// Admin / Auth types
+
+export interface AdminUser {
+  id: number
+  email: string
+  created_at: string
+}
+
+export interface LoginCredentials {
+  email: string
+  password: string
+}
+
+export interface AuthResponse {
+  access_token: string
+  admin: AdminUser
 }
 
 // Input types for mutations
@@ -79,6 +99,7 @@ export interface ExperienceInput {
   position: string
   description: string
   technologies: string[]
+  experience_type: 'work' | 'education'
   display_order?: number
   start_date: string
   end_date?: string
@@ -89,8 +110,15 @@ export interface BlogPostInput {
   title: string
   content: string
   published?: boolean
-  tags?: string[]
+  tags: string[]
   slug?: string
+  cover_image_url?: string
+}
+
+export interface PresignedUrlResponse {
+  presigned_url: string
+  public_url: string
+  key: string
 }
 
 export interface ContactFormData {
@@ -111,4 +139,20 @@ export interface AnalyticsStats {
   unique_visitors?: number
   views_by_page?: Record<string, number>
   views_by_date?: Record<string, number>
+}
+
+export interface AdminDashboardData {
+  total_views: number
+  unique_visitors: number
+  views_by_date: Record<string, number>
+  popular_pages: Array<{ path: string; count: number }>
+  recent_views: PageView[]
+  summary: {
+    total_projects: number
+    total_blog_posts: number
+    published_blog_posts: number
+    draft_blog_posts: number
+    total_contacts: number
+    unread_contacts: number
+  }
 }

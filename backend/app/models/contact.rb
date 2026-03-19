@@ -1,7 +1,8 @@
 class Contact < ApplicationRecord
   # Validations
   validates :name, presence: true, length: { maximum: 255 }
-  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :email, presence: true, length: { maximum: 255 }, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :subject, length: { maximum: 255 }
   validates :message, presence: true, length: { minimum: 10 }
 
   # Enums
@@ -16,7 +17,7 @@ class Contact < ApplicationRecord
   scope :unread, -> { where(status: 'new') }
 
   # Callbacks
-  after_create :send_notification
+  after_commit :send_notification, on: :create
 
   # Instance methods
   def mark_as_read!
