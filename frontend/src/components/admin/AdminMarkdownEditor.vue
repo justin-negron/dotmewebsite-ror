@@ -302,7 +302,7 @@ function insertLink() {
 function triggerImageUpload() {
   const input = document.createElement('input')
   input.type = 'file'
-  input.accept = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml'
+  input.accept = 'image/jpeg,image/png,image/gif,image/webp'
   input.onchange = () => {
     const file = input.files?.[0]
     if (file) uploadAndInsertImage(file)

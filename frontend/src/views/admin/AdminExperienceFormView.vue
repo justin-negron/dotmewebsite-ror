@@ -85,7 +85,7 @@ async function handleSubmit() {
         </div>
         <div class="field">
           <label class="field-label">position:</label>
-          <input v-model="form.position" type="text" class="field-input" required />
+          <textarea v-model="form.position" class="field-textarea" rows="2" required />
         </div>
       </div>
 

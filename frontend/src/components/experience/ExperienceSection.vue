@@ -117,9 +117,12 @@ onUnmounted(() => {
 
       <!-- Tab switcher -->
       <div class="tab-container mb-12">
-        <div class="tab-track">
+        <div class="tab-track" role="tablist" aria-label="Experience type">
           <button
             :class="['tab-btn', activeTab === 'work' ? 'is-active' : '']"
+            role="tab"
+            :aria-selected="activeTab === 'work'"
+            aria-controls="experience-tabpanel"
             @click="switchTab('work')"
           >
             <svg
@@ -139,6 +142,9 @@ onUnmounted(() => {
           </button>
           <button
             :class="['tab-btn', activeTab === 'education' ? 'is-active' : '']"
+            role="tab"
+            :aria-selected="activeTab === 'education'"
+            aria-controls="experience-tabpanel"
             @click="switchTab('education')"
           >
             <svg
@@ -163,6 +169,7 @@ onUnmounted(() => {
         </div>
       </div>
 
+      <div id="experience-tabpanel" role="tabpanel" :aria-label="`${activeTab} experience`">
       <div v-if="viewState === 'loading'" class="timeline">
         <div class="timeline-line" />
         <div v-for="i in 3" :key="i" class="timeline-entry entry-left is-revealed">
@@ -231,6 +238,7 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </section>
@@ -627,6 +635,7 @@ onUnmounted(() => {
   font-weight: 600;
   color: var(--skin-700);
   margin-top: 0.15rem;
+  white-space: pre-line;
 }
 
 :is(.dark *).entry-position {
@@ -638,6 +647,7 @@ onUnmounted(() => {
   font-size: 0.9rem;
   line-height: 1.65;
   color: #78716c;
+  white-space: pre-line;
 }
 
 :is(.dark *).entry-desc {

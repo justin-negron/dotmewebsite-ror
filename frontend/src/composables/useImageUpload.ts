@@ -1,13 +1,7 @@
 import { ref } from 'vue'
 import { adminUploadsApi } from '@/services/admin'
 
-const ALLOWED_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-]
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 
 export function useImageUpload() {
