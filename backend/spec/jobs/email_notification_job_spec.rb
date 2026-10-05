@@ -12,27 +12,15 @@ RSpec.describe EmailNotificationJob, type: :job do
       described_class.new.perform(contact.id)
     end
     
-    it 'sends confirmation email to visitor' do
-      expect(ContactMailer).to receive(:submission_confirmation)
-        .with(contact.id)
-        .and_call_original
-      
+    it 'sends only the owner notification' do
+      delivery = double('MessageDelivery', deliver_now: true)
+      allow(ContactMailer).to receive(:new_contact_notification).and_return(delivery)
+
       described_class.new.perform(contact.id)
+
+      expect(delivery).to have_received(:deliver_now).once
     end
-    
-    it 'sends both emails' do
-      mailer_double = double('ContactMailer')
-      allow(ContactMailer).to receive(:new_contact_notification)
-        .and_return(mailer_double)
-      allow(ContactMailer).to receive(:submission_confirmation)
-        .and_return(mailer_double)
-      allow(mailer_double).to receive(:deliver_now)
-      
-      described_class.new.perform(contact.id)
-      
-      expect(mailer_double).to have_received(:deliver_now).twice
-    end
-    
+
     it 'raises error on transient failure to trigger retry' do
       allow(ContactMailer).to receive(:new_contact_notification)
         .and_raise(Net::ReadTimeout.new('Timeout'))
@@ -60,6 +48,15 @@ RSpec.describe EmailNotificationJob, type: :job do
     it 're-enqueues the job on a transient SMTP error' do
       allow(ContactMailer).to receive(:new_contact_notification)
         .and_raise(Net::ReadTimeout)
+
+      expect {
+        described_class.perform_now(contact.id)
+      }.to have_enqueued_job(described_class).with(contact.id)
+    end
+
+    it 're-enqueues the job when SES throttles' do
+      allow(ContactMailer).to receive(:new_contact_notification)
+        .and_raise(Aws::SESV2::Errors::TooManyRequestsException.new(nil, 'Slow down'))
 
       expect {
         described_class.perform_now(contact.id)

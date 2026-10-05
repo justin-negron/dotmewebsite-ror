@@ -1,4 +1,5 @@
 require 'net/smtp'
+require 'aws-sdk-sesv2'
 
 class EmailNotificationJob < ApplicationJob
   queue_as :mailers
@@ -13,13 +14,10 @@ class EmailNotificationJob < ApplicationJob
   end
 
   retry_on Net::SMTPServerBusy, Net::OpenTimeout, Net::ReadTimeout,
+           Seahorse::Client::NetworkingError, Aws::SESV2::Errors::TooManyRequestsException,
            wait: :polynomially_longer, attempts: 3
 
   def perform(contact_id)
-    # Send notification to site owner
     ContactMailer.new_contact_notification(contact_id).deliver_now
-
-    # Send confirmation to visitor
-    ContactMailer.submission_confirmation(contact_id).deliver_now
   end
 end
