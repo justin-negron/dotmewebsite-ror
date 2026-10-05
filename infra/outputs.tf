@@ -51,30 +51,6 @@ output "assets_url" {
   value       = "https://assets.${var.domain_name}"
 }
 
-# --- Backend (EC2) ---
-
-output "ec2_public_ip" {
-  description = "Elastic IP of the EC2 app server"
-  value       = aws_eip.app.public_ip
-}
-
-output "ec2_ssh_command" {
-  description = "SSH command to connect to EC2"
-  value       = "ssh ec2-user@${aws_eip.app.public_ip}"
-}
-
-# --- Database ---
-
-output "rds_endpoint" {
-  description = "RDS PostgreSQL endpoint (host:port)"
-  value       = aws_db_instance.main.endpoint
-}
-
-output "rds_database_name" {
-  description = "RDS database name"
-  value       = aws_db_instance.main.db_name
-}
-
 # --- ECR ---
 
 output "ecr_repository_url" {
@@ -94,13 +70,6 @@ output "nameservers" {
   value       = data.aws_route53_zone.main.name_servers
 }
 
-# --- Secrets ---
-
-output "secrets_arn" {
-  description = "Secrets Manager ARN (for deploy scripts)"
-  value       = aws_secretsmanager_secret.app.arn
-}
-
 # --- Lightsail origin ---
 
 output "origin_host" {
@@ -111,11 +80,6 @@ output "origin_host" {
 output "origin_ip" {
   description = "Lightsail static IP"
   value       = aws_lightsail_static_ip.app.ip_address
-}
-
-output "api_origin" {
-  description = "Origin currently serving /api/* and /health"
-  value       = var.api_origin
 }
 
 output "backups_bucket" {
