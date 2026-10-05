@@ -2,6 +2,8 @@
 require 'spec_helper'
 
 ENV['RAILS_ENV'] ||= 'test'
+# Specs sign real JWTs; don't depend on a developer's shell env or CI config.
+ENV['JWT_SECRET'] ||= 'test-only-jwt-secret-0123456789abcdef0123456789abcdef'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?

@@ -19,7 +19,7 @@ executors:
 
   frontend:
     docker:
-      - image: cimg/node:20.0
+      - image: cimg/node:22.23.3
 
 jobs:
   test_backend:
