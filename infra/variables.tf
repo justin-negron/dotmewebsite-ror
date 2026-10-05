@@ -92,7 +92,7 @@ variable "smtp_password" {
 variable "api_origin" {
   description = "Which origin serves /api/* and /health: \"ec2\" (legacy) or \"lightsail\""
   type        = string
-  default     = "ec2"
+  default     = "lightsail"
 
   validation {
     condition     = contains(["ec2", "lightsail"], var.api_origin)
