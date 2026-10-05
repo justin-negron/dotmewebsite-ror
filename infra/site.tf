@@ -146,6 +146,7 @@ resource "aws_cloudfront_origin_request_policy" "api" {
         "X-Requested-With",
         "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "User-Agent",
       ]
     }
   }
@@ -155,6 +156,10 @@ resource "aws_cloudfront_origin_request_policy" "api" {
 }
 
 # --- CloudFront Distribution (main site + API proxy)
+locals {
+  api_origin_id = var.api_origin == "lightsail" ? "lightsail-api" : "ec2-api"
+}
+
 resource "aws_cloudfront_distribution" "site" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -192,6 +197,23 @@ resource "aws_cloudfront_distribution" "site" {
     }
   }
 
+  origin {
+    domain_name = aws_route53_record.origin.fqdn
+    origin_id   = "lightsail-api"
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only" # Caddy terminates TLS on the instance
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+
+    custom_header {
+      name  = "X-CloudFront-Secret"
+      value = random_password.cloudfront_secret.result
+    }
+  }
+
   # Default behavior — serves SPA assets from S3
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
@@ -212,7 +234,7 @@ resource "aws_cloudfront_distribution" "site" {
     path_pattern           = "/api/*"
     allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "ec2-api"
+    target_origin_id       = local.api_origin_id
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
@@ -226,7 +248,7 @@ resource "aws_cloudfront_distribution" "site" {
     path_pattern           = "/health"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "ec2-api"
+    target_origin_id       = local.api_origin_id
     viewer_protocol_policy = "redirect-to-https"
 
     cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id

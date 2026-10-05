@@ -100,3 +100,36 @@ output "secrets_arn" {
   description = "Secrets Manager ARN (for deploy scripts)"
   value       = aws_secretsmanager_secret.app.arn
 }
+
+# --- Lightsail origin ---
+
+output "origin_host" {
+  description = "Origin hostname (SSH: ubuntu@<this>)"
+  value       = aws_route53_record.origin.fqdn
+}
+
+output "origin_ip" {
+  description = "Lightsail static IP"
+  value       = aws_lightsail_static_ip.app.ip_address
+}
+
+output "api_origin" {
+  description = "Origin currently serving /api/* and /health"
+  value       = var.api_origin
+}
+
+output "backups_bucket" {
+  description = "S3 bucket for database backups"
+  value       = aws_s3_bucket.backups.bucket
+}
+
+output "app_aws_access_key_id" {
+  description = "Access key ID for the instance's IAM user"
+  value       = aws_iam_access_key.app.id
+}
+
+output "app_aws_secret_access_key" {
+  description = "Secret for the instance's IAM user (read with: terraform output -raw)"
+  value       = aws_iam_access_key.app.secret
+  sensitive   = true
+}

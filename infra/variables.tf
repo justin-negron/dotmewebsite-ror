@@ -86,3 +86,32 @@ variable "smtp_password" {
   default     = ""
   sensitive   = true
 }
+
+# --- Lightsail origin (replaces EC2 + RDS) ---
+
+variable "api_origin" {
+  description = "Which origin serves /api/* and /health: \"ec2\" (legacy) or \"lightsail\""
+  type        = string
+  default     = "ec2"
+
+  validation {
+    condition     = contains(["ec2", "lightsail"], var.api_origin)
+    error_message = "api_origin must be \"ec2\" or \"lightsail\"."
+  }
+}
+
+variable "lightsail_bundle_id" {
+  description = "Lightsail plan. Changing it replaces the instance (and its local database)."
+  type        = string
+  default     = "micro_3_0"
+}
+
+variable "admin_ssh_public_key" {
+  description = "SSH public key installed on the Lightsail instance"
+  type        = string
+}
+
+variable "contact_notify_to" {
+  description = "Address that receives contact form notifications (verified in SES)"
+  type        = string
+}
