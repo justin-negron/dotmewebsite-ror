@@ -20,8 +20,9 @@ resource "random_password" "cloudfront_secret" {
 }
 
 resource "aws_secretsmanager_secret" "app" {
-  name        = "justinnegron/production/app"
-  description = "Rails application environment variables"
+  name                    = "justinnegron/production/app"
+  description             = "Rails application environment variables"
+  recovery_window_in_days = 7
 
   tags = {
     Environment = var.environment

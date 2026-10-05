@@ -46,9 +46,9 @@ resource "aws_db_instance" "main" {
   backup_window           = "04:00-05:00" # UTC — late night EST
   maintenance_window      = "sun:06:00-sun:07:00"
 
-  deletion_protection       = true
+  deletion_protection       = false
   skip_final_snapshot       = false
-  final_snapshot_identifier = "justinnegron-db-final-${formatdate("YYYY-MM-DD", timestamp())}"
+  final_snapshot_identifier = "justinnegron-db-final-2026-10-05"
 
   # Performance Insights (free tier for db.t4g.micro)
   performance_insights_enabled = true
@@ -57,9 +57,5 @@ resource "aws_db_instance" "main" {
     Name        = "justinnegron-db"
     Environment = var.environment
     Project     = "justinnegron-dev"
-  }
-
-  lifecycle {
-    ignore_changes = [final_snapshot_identifier]
   }
 }
