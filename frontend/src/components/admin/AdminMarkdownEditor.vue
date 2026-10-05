@@ -22,7 +22,7 @@ const props = withDefaults(
   {
     placeholder: 'Write your post content...',
     minHeight: '400px',
-  },
+  }
 )
 
 const emit = defineEmits<{
@@ -70,14 +70,10 @@ function buildTheme() {
         borderLeftColor: dark ? 'var(--skin-400)' : 'var(--skin-600)',
       },
       '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-        backgroundColor: dark
-          ? 'rgba(var(--skin-light-rgb), 0.15)'
-          : 'rgba(var(--skin-rgb), 0.12)',
+        backgroundColor: dark ? 'rgba(var(--skin-light-rgb), 0.15)' : 'rgba(var(--skin-rgb), 0.12)',
       },
       '.cm-activeLine': {
-        backgroundColor: dark
-          ? 'rgba(var(--skin-light-rgb), 0.04)'
-          : 'rgba(var(--skin-rgb), 0.03)',
+        backgroundColor: dark ? 'rgba(var(--skin-light-rgb), 0.04)' : 'rgba(var(--skin-rgb), 0.03)',
       },
       '.cm-gutters': {
         display: 'none',
@@ -93,7 +89,7 @@ function buildTheme() {
         fontStyle: 'italic',
       },
     },
-    { dark },
+    { dark }
   )
 }
 
@@ -182,7 +178,7 @@ watch(
       })
       isUpdatingFromProp = false
     }
-  },
+  }
 )
 
 /* ======================================================================
@@ -302,7 +298,7 @@ function insertLink() {
 function triggerImageUpload() {
   const input = document.createElement('input')
   input.type = 'file'
-  input.accept = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml'
+  input.accept = 'image/jpeg,image/png,image/gif,image/webp'
   input.onchange = () => {
     const file = input.files?.[0]
     if (file) uploadAndInsertImage(file)
@@ -387,7 +383,12 @@ const toolbarGroups = [
     id: 'format',
     actions: [
       { label: 'B', title: 'Bold', action: () => wrapSelection('**', '**', 'bold') },
-      { label: 'I', title: 'Italic', action: () => wrapSelection('*', '*', 'italic'), italic: true },
+      {
+        label: 'I',
+        title: 'Italic',
+        action: () => wrapSelection('*', '*', 'italic'),
+        italic: true,
+      },
     ],
   },
   {
@@ -440,7 +441,7 @@ const toolbarGroups = [
 
       <div class="mode-switcher">
         <button
-          v-for="mode in (['editor', 'split', 'preview'] as const)"
+          v-for="mode in ['editor', 'split', 'preview'] as const"
           :key="mode"
           type="button"
           class="mode-btn"

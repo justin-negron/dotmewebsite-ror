@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import type { BlogPost } from '@/types'
 
 const props = withDefaults(
@@ -11,8 +11,6 @@ const props = withDefaults(
   { featured: false }
 )
 
-const router = useRouter()
-
 const formattedDate = computed(() => {
   const raw = props.post.published_at || props.post.created_at
   return new Date(raw).toLocaleDateString('en-US', {
@@ -21,20 +19,15 @@ const formattedDate = computed(() => {
     year: 'numeric',
   })
 })
-
-function navigateToPost() {
-  router.push({ name: 'blog-post', params: { slug: props.post.slug } })
-}
 </script>
 
 <template>
-  <article
-    :class="['blog-card', { 'blog-card--featured': featured }]"
-    tabindex="0"
-    role="link"
-    @click="navigateToPost"
-    @keydown.enter="navigateToPost"
-  >
+  <article :class="['blog-card', { 'blog-card--featured': featured }]">
+    <RouterLink
+      :to="{ name: 'blog-post', params: { slug: post.slug } }"
+      class="card-link"
+      :aria-label="`Read ${post.title}`"
+    />
     <!-- Gradient accent -->
     <div class="card-accent" aria-hidden="true" />
 
@@ -84,6 +77,14 @@ function navigateToPost() {
 /* ===================================================================
    Blog card — text-forward with gradient left accent
    =================================================================== */
+/* Invisible overlay link — enables right-click, middle-click, screen readers */
+.card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+}
+
 .blog-card {
   position: relative;
   padding: 1.5rem 1.5rem 1.5rem 1.75rem;

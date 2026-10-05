@@ -64,9 +64,7 @@ async function handleSubmit() {
       <h2 class="form-title">
         <span class="prompt">$</span> {{ isEdit ? 'edit' : 'new' }} project
       </h2>
-      <RouterLink :to="{ name: 'admin-projects' }" class="back-link">
-        &larr; back
-      </RouterLink>
+      <RouterLink :to="{ name: 'admin-projects' }" class="back-link"> &larr; back </RouterLink>
     </div>
 
     <div v-if="store.error" class="error-block" @click="store.clearError()">

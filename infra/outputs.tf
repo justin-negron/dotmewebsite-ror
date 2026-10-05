@@ -51,30 +51,6 @@ output "assets_url" {
   value       = "https://assets.${var.domain_name}"
 }
 
-# --- Backend (EC2) ---
-
-output "ec2_public_ip" {
-  description = "Elastic IP of the EC2 app server"
-  value       = aws_eip.app.public_ip
-}
-
-output "ec2_ssh_command" {
-  description = "SSH command to connect to EC2"
-  value       = "ssh ec2-user@${aws_eip.app.public_ip}"
-}
-
-# --- Database ---
-
-output "rds_endpoint" {
-  description = "RDS PostgreSQL endpoint (host:port)"
-  value       = aws_db_instance.main.endpoint
-}
-
-output "rds_database_name" {
-  description = "RDS database name"
-  value       = aws_db_instance.main.db_name
-}
-
 # --- ECR ---
 
 output "ecr_repository_url" {
@@ -94,9 +70,30 @@ output "nameservers" {
   value       = data.aws_route53_zone.main.name_servers
 }
 
-# --- Secrets ---
+# --- Lightsail origin ---
 
-output "secrets_arn" {
-  description = "Secrets Manager ARN (for deploy scripts)"
-  value       = aws_secretsmanager_secret.app.arn
+output "origin_host" {
+  description = "Origin hostname (SSH: ubuntu@<this>)"
+  value       = aws_route53_record.origin.fqdn
+}
+
+output "origin_ip" {
+  description = "Lightsail static IP"
+  value       = aws_lightsail_static_ip.app.ip_address
+}
+
+output "backups_bucket" {
+  description = "S3 bucket for database backups"
+  value       = aws_s3_bucket.backups.bucket
+}
+
+output "app_aws_access_key_id" {
+  description = "Access key ID for the instance's IAM user"
+  value       = aws_iam_access_key.app.id
+}
+
+output "app_aws_secret_access_key" {
+  description = "Secret for the instance's IAM user (read with: terraform output -raw)"
+  value       = aws_iam_access_key.app.secret
+  sensitive   = true
 }

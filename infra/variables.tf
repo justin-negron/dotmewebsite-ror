@@ -25,64 +25,25 @@ variable "environment" {
   default     = "production"
 }
 
-# --- EC2 / SSH ---
-
-variable "ssh_public_key" {
-  description = "SSH public key for EC2 access"
-  type        = string
-}
+# --- Lightsail origin ---
 
 variable "ssh_allowed_ip" {
-  description = "IP address allowed to SSH into EC2 (your public IP)"
+  description = "Your public IP; allowed to SSH to the Lightsail instance"
   type        = string
 }
 
-# --- Database ---
-
-variable "db_username" {
-  description = "RDS PostgreSQL master username"
+variable "lightsail_bundle_id" {
+  description = "Lightsail plan. Changing it replaces the instance (and its local database)."
   type        = string
-  default     = "portfolio"
+  default     = "micro_3_0"
 }
 
-# --- Application AWS credentials (for S3 presigned uploads) ---
-
-variable "app_aws_access_key_id" {
-  description = "AWS access key for the Rails app (S3 uploads)"
+variable "admin_ssh_public_key" {
+  description = "SSH public key installed on the Lightsail instance"
   type        = string
-  sensitive   = true
 }
 
-variable "app_aws_secret_access_key" {
-  description = "AWS secret key for the Rails app (S3 uploads)"
+variable "contact_notify_to" {
+  description = "Address that receives contact form notifications (verified in SES)"
   type        = string
-  sensitive   = true
-}
-
-# --- SMTP (email) ---
-
-variable "smtp_address" {
-  description = "SMTP server address"
-  type        = string
-  default     = ""
-}
-
-variable "smtp_port" {
-  description = "SMTP server port"
-  type        = string
-  default     = "587"
-}
-
-variable "smtp_username" {
-  description = "SMTP username"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "smtp_password" {
-  description = "SMTP password"
-  type        = string
-  default     = ""
-  sensitive   = true
 }

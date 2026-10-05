@@ -20,7 +20,7 @@ const navItems = [
 const currentPageTitle = computed(() => {
   const matched = navItems.find(
     (item) =>
-      item.path === route.path || (item.path !== '/admin' && route.path.startsWith(item.path)),
+      item.path === route.path || (item.path !== '/admin' && route.path.startsWith(item.path))
   )
   return matched?.name ?? 'Admin'
 })

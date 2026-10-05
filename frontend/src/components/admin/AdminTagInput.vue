@@ -48,7 +48,7 @@ function handleKeydown(e: KeyboardEvent) {
         v-model="input"
         type="text"
         class="tag-input"
-        :placeholder="modelValue.length === 0 ? (placeholder || 'Type + Enter') : ''"
+        :placeholder="modelValue.length === 0 ? placeholder || 'Type + Enter' : ''"
         @keydown="handleKeydown"
       />
     </div>

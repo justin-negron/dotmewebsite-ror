@@ -86,7 +86,7 @@ function formatDate(dateStr: string): string {
     <div class="table-card">
       <AdminDataTable
         :columns="columns"
-        :rows="(store.contacts as unknown as Record<string, unknown>[])"
+        :rows="store.contacts as unknown as Record<string, unknown>[]"
         :loading="store.loading"
         :pagination="store.pagination"
         empty-message="No messages yet."

@@ -48,12 +48,8 @@ function formatDate(dateStr: string): string {
 <template>
   <div class="detail-view">
     <div class="detail-header">
-      <h2 class="detail-title">
-        <span class="prompt">$</span> cat message.txt
-      </h2>
-      <RouterLink :to="{ name: 'admin-contacts' }" class="back-link">
-        &larr; inbox
-      </RouterLink>
+      <h2 class="detail-title"><span class="prompt">$</span> cat message.txt</h2>
+      <RouterLink :to="{ name: 'admin-contacts' }" class="back-link"> &larr; inbox </RouterLink>
     </div>
 
     <!-- Loading -->
@@ -78,7 +74,9 @@ function formatDate(dateStr: string): string {
         <div class="card-body">
           <div class="meta-row">
             <span class="meta-label">from:</span>
-            <span class="meta-value">{{ store.currentContact.name }} &lt;{{ store.currentContact.email }}&gt;</span>
+            <span class="meta-value"
+              >{{ store.currentContact.name }} &lt;{{ store.currentContact.email }}&gt;</span
+            >
           </div>
           <div v-if="store.currentContact.subject" class="meta-row">
             <span class="meta-label">subject:</span>

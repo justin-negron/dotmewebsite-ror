@@ -22,4 +22,5 @@ test:
 production:
   <<: *default
   url: <%= ENV['DATABASE_URL'] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # Puma threads plus Solid Queue's in-process workers, dispatcher, and scheduler
+  pool: <%= ENV.fetch("DB_POOL") { 10 } %>

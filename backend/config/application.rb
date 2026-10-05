@@ -47,8 +47,5 @@ module Backend
     # Verify requests come through CloudFront (production only)
     require_relative "../app/middleware/cloudfront_secret_middleware"
     config.middleware.insert_before ActionDispatch::Cookies, CloudfrontSecretMiddleware
-
-    # Active Job adapter
-    config.active_job.queue_adapter = :sidekiq
   end
 end

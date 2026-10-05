@@ -141,13 +141,13 @@ onUnmounted(() => {
                 <span class="info-prompt">$</span>
                 <span class="info-cmd">echo $STATUS</span>
               </div>
-              <div class="info-response">open to opportunities</div>
+              <div class="info-response">always up for a good conversation</div>
 
               <div class="info-line mt-4">
                 <span class="info-prompt">$</span>
                 <span class="info-cmd">echo $LOCATION</span>
               </div>
-              <div class="info-response">remote / anywhere</div>
+              <div class="info-response">Texas, mostly</div>
 
               <div class="info-line mt-4">
                 <span class="info-prompt">$</span>

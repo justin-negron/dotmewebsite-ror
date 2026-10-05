@@ -1,0 +1,63 @@
+# Production stack on the Lightsail instance (/opt/app/compose.yaml).
+# .env is rendered from SSM Parameter Store by deploy.sh on every deploy.
+name: justinnegron
+
+services:
+  caddy:
+    image: caddy:2.11
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+  web:
+    image: ${APP_IMAGE:?APP_IMAGE is not set}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://portfolio:${DB_PASSWORD}@db:5432/portfolio_production
+      SOLID_QUEUE_IN_PUMA: "1"
+      RAILS_MAX_THREADS: "3"
+      DB_POOL: "10"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is not set}
+      POSTGRES_DB: portfolio_production
+    # Sized for a 1 GB instance shared with Puma
+    command: >
+      postgres
+      -c shared_buffers=64MB
+      -c effective_cache_size=256MB
+      -c work_mem=4MB
+      -c maintenance_work_mem=32MB
+      -c max_connections=20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  caddy_data:
+  caddy_config:
+  pgdata:

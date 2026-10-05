@@ -89,7 +89,7 @@ A production-grade portfolio and blog platform built as a monorepo. The Rails 7 
 | Redis | 7 | Job queue and cache |
 | Sidekiq | 7.3 | Background job processor |
 | Puma | 6.x | Application server |
-| Alba | 3.3 | JSON serialization |
+| Alba | 3.10 | JSON serialization |
 | Kaminari | 1.2 | Pagination |
 | JWT | 3.1 | Authentication tokens |
 | Rack::Attack | — | Rate limiting |
@@ -140,7 +140,7 @@ A production-grade portfolio and blog platform built as a monorepo. The Rails 7 
 - **About** — Photo viewer with bio and resume download
 
 ### Interactive Terminal
-- Floating, draggable terminal component (~1250 lines)
+- Floating, draggable terminal component (~1600 lines)
 - Docks into hero slot or floats freely anywhere on the page
 - Commands: navigation, links, theming (`skin`, `bg`), `clear`, `help`
 - Tab autocomplete, ArrowUp/Down history traversal

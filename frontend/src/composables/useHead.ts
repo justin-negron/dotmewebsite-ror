@@ -80,7 +80,7 @@ export function updateHead(options: HeadOptions): void {
     setMeta(
       'name',
       'twitter:site',
-      TWITTER_HANDLE.startsWith('@') ? TWITTER_HANDLE : `@${TWITTER_HANDLE}`,
+      TWITTER_HANDLE.startsWith('@') ? TWITTER_HANDLE : `@${TWITTER_HANDLE}`
     )
   }
 

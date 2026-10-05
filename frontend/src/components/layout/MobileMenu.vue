@@ -61,7 +61,11 @@ function handleNavClick(event: Event, item: NavItem) {
             <span class="brand-name">justin-negron</span>
             <span class="brand-cursor" aria-hidden="true" />
           </span>
-          <button class="overlay-close" aria-label="Close navigation menu" @click="uiStore.closeMobileMenu()">
+          <button
+            class="overlay-close"
+            aria-label="Close navigation menu"
+            @click="uiStore.closeMobileMenu()"
+          >
             exit
           </button>
         </div>

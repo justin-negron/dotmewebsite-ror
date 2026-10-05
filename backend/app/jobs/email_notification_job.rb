@@ -1,25 +1,23 @@
+require 'net/smtp'
+require 'aws-sdk-sesv2'
+
 class EmailNotificationJob < ApplicationJob
   queue_as :mailers
-  
-  # Retry with exponential backoff, then discard and alert after all retries fail
-  retry_on StandardError, wait: :polynomially_longer, attempts: 3
 
+  # ActiveJob checks handlers bottom-up, so this catch-all must be declared
+  # before retry_on or it would swallow the transient errors below.
   discard_on StandardError do |job, exception|
     Rails.logger.error(
-      "[EmailNotificationJob] Discarding after 3 failed attempts. " \
+      "[EmailNotificationJob] Discarding job. " \
       "contact_id=#{job.arguments.first} error=#{exception.class}: #{exception.message}"
     )
   end
 
+  retry_on Net::SMTPServerBusy, Net::OpenTimeout, Net::ReadTimeout,
+           Seahorse::Client::NetworkingError, Aws::SESV2::Errors::TooManyRequestsException,
+           wait: :polynomially_longer, attempts: 3
+
   def perform(contact_id)
-    # Send notification to site owner
     ContactMailer.new_contact_notification(contact_id).deliver_now
-    
-    # Send confirmation to visitor
-    ContactMailer.submission_confirmation(contact_id).deliver_now
-  rescue StandardError => e
-    # Log error but don't fail the job
-    Rails.logger.error "Failed to send email for contact #{contact_id}: #{e.message}"
-    raise e  # Re-raise to trigger retry
   end
 end

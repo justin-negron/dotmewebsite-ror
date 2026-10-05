@@ -19,7 +19,7 @@ puts "\nCreating admin user..."
 if Admin.count.zero?
   Admin.create!(
     email: ENV.fetch('ADMIN_EMAIL', 'admin@justinnegron.dev'),
-    password: ENV.fetch('ADMIN_PASSWORD', 'changeme_in_prod')
+    password: ENV.fetch('ADMIN_PASSWORD') { abort 'Set ADMIN_PASSWORD (min 12 chars) to seed the admin user.' }
   )
   puts "  ✓ Admin created (email: #{Admin.first.email})"
 else

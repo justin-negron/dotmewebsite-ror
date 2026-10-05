@@ -68,9 +68,7 @@ async function handleSubmit() {
       <h2 class="form-title">
         <span class="prompt">$</span> {{ isEdit ? 'edit' : 'new' }} experience
       </h2>
-      <RouterLink :to="{ name: 'admin-experiences' }" class="back-link">
-        &larr; back
-      </RouterLink>
+      <RouterLink :to="{ name: 'admin-experiences' }" class="back-link"> &larr; back </RouterLink>
     </div>
 
     <div v-if="store.error" class="error-block" @click="store.clearError()">
@@ -85,7 +83,7 @@ async function handleSubmit() {
         </div>
         <div class="field">
           <label class="field-label">position:</label>
-          <input v-model="form.position" type="text" class="field-input" required />
+          <textarea v-model="form.position" class="field-textarea" rows="2" required />
         </div>
       </div>
 
@@ -120,12 +118,7 @@ async function handleSubmit() {
         </div>
         <div class="field">
           <label class="field-label">end_date:</label>
-          <input
-            v-model="form.end_date"
-            type="date"
-            class="field-input"
-            :disabled="form.current"
-          />
+          <input v-model="form.end_date" type="date" class="field-input" :disabled="form.current" />
         </div>
       </div>
 

@@ -43,10 +43,7 @@ const chartEntries = computed(() => {
         <AdminStatCard label="Total Page Views" :value="dashboardStore.data.total_views" accent />
         <AdminStatCard label="Unique Visitors" :value="dashboardStore.data.unique_visitors" />
         <AdminStatCard label="Projects" :value="summary?.total_projects ?? 0" />
-        <AdminStatCard
-          label="Published Posts"
-          :value="summary?.published_blog_posts ?? 0"
-        />
+        <AdminStatCard label="Published Posts" :value="summary?.published_blog_posts ?? 0" />
         <AdminStatCard label="Draft Posts" :value="summary?.draft_blog_posts ?? 0" />
         <AdminStatCard label="Unread Messages" :value="summary?.unread_contacts ?? 0" accent />
       </div>

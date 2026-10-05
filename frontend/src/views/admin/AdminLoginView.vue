@@ -107,9 +107,7 @@ function handleKeydown(e: KeyboardEvent) {
             @click="handleLogin"
           >
             <span v-if="authStore.loading" class="loading-dots">authenticating...</span>
-            <span v-else>
-              <span class="btn-prompt">~$</span> login
-            </span>
+            <span v-else> <span class="btn-prompt">~$</span> login </span>
           </button>
         </div>
 

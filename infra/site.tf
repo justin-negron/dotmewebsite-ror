@@ -4,6 +4,12 @@
 # Private S3 bucket → CloudFront OAC → justinnegron.dev
 # SPA routing: all 404/403 errors return /index.html (Vue Router handles paths)
 
+# --- Shared secret CloudFront sends to the API origin (checked by CloudfrontSecretMiddleware)
+resource "random_password" "cloudfront_secret" {
+  length  = 48
+  special = false
+}
+
 # --- AWS Managed Cache Policy: CachingDisabled (for API proxy)
 data "aws_cloudfront_cache_policy" "disabled" {
   name = "Managed-CachingDisabled"
@@ -126,7 +132,7 @@ resource "aws_cloudfront_function" "www_redirect" {
 }
 
 # --- CloudFront Origin Request Policy for API
-# Forwards all viewer headers (except Host), cookies, and query strings to EC2.
+# Forwards whitelisted headers, all cookies, and query strings to the API origin.
 # Required for auth tokens, session cookies, and API query parameters.
 resource "aws_cloudfront_origin_request_policy" "api" {
   name    = "api-origin-request-policy"
@@ -146,6 +152,7 @@ resource "aws_cloudfront_origin_request_policy" "api" {
         "X-Requested-With",
         "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "User-Agent",
       ]
     }
   }
@@ -155,6 +162,7 @@ resource "aws_cloudfront_origin_request_policy" "api" {
 }
 
 # --- CloudFront Distribution (main site + API proxy)
+
 resource "aws_cloudfront_distribution" "site" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -171,21 +179,18 @@ resource "aws_cloudfront_distribution" "site" {
     origin_access_control_id = aws_cloudfront_origin_access_control.site.id
   }
 
-  # Origin 2: EC2 for API requests
-  # CloudFront requires a domain name, not an IP. Use the EIP's reverse DNS.
-  # Format: ec2-{ip-dashed}.compute-1.amazonaws.com
+  # Origin 2: Lightsail instance (Caddy → Rails) for API requests
   origin {
-    domain_name = "ec2-${replace(aws_eip.app.public_ip, ".", "-")}.compute-1.amazonaws.com"
-    origin_id   = "ec2-api"
+    domain_name = aws_route53_record.origin.fqdn
+    origin_id   = "lightsail-api"
 
     custom_origin_config {
-      http_port              = 3000
+      http_port              = 80
       https_port             = 443
-      origin_protocol_policy = "http-only" # EC2 runs HTTP, CloudFront terminates HTTPS
+      origin_protocol_policy = "https-only" # Caddy terminates TLS on the instance
       origin_ssl_protocols   = ["TLSv1.2"]
     }
 
-    # Secret header — Rails verifies this to block direct EC2 access
     custom_header {
       name  = "X-CloudFront-Secret"
       value = random_password.cloudfront_secret.result
@@ -207,12 +212,12 @@ resource "aws_cloudfront_distribution" "site" {
     }
   }
 
-  # API behavior — forwards /api/* to EC2, no caching
+  # API behavior — forwards /api/* to the Lightsail origin, no caching
   ordered_cache_behavior {
     path_pattern           = "/api/*"
     allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "ec2-api"
+    target_origin_id       = "lightsail-api"
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
@@ -221,12 +226,12 @@ resource "aws_cloudfront_distribution" "site" {
     origin_request_policy_id = aws_cloudfront_origin_request_policy.api.id
   }
 
-  # Health check behavior — forwards /health to EC2
+  # Health check behavior — forwards /health to the Lightsail origin
   ordered_cache_behavior {
     path_pattern           = "/health"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "ec2-api"
+    target_origin_id       = "lightsail-api"
     viewer_protocol_policy = "redirect-to-https"
 
     cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id

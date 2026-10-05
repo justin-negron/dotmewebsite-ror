@@ -4,7 +4,6 @@
 # Required for all environments
 REQUIRED_ENV_VARS = %w[
   DATABASE_URL
-  REDIS_URL
 ].freeze
 
 # Additional required for production
@@ -12,14 +11,13 @@ REQUIRED_PRODUCTION_ENV_VARS = %w[
   JWT_SECRET
   SECRET_KEY_BASE
   FRONTEND_URL
-].freeze
-
-# Optional — app boots without these but email delivery will be disabled
-OPTIONAL_PRODUCTION_ENV_VARS = %w[
-  SMTP_ADDRESS
-  SMTP_USERNAME
-  SMTP_PASSWORD
-  FROM_EMAIL
+  CLOUDFRONT_SECRET
+  AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY
+  AWS_S3_BUCKET
+  ASSETS_HOST
+  MAILER_FROM
+  CONTACT_NOTIFY_TO
 ].freeze
 
 # Check required variables

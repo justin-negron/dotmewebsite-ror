@@ -1,26 +1,15 @@
 class ContactMailer < ApplicationMailer
-  default from: ENV.fetch('FROM_EMAIL', 'justinnegron174@gmail.com')
-
-  # Send notification to site owner when someone submits contact form
+  # Notify the site owner of a new contact form submission.
+  # Visitors are never emailed: their address is unverified, so a confirmation
+  # would let anyone send mail to arbitrary addresses through this site.
   def new_contact_notification(contact_id)
     @contact = Contact.find_by(id: contact_id)
     return unless @contact
 
     mail(
-      to: ENV.fetch('FROM_EMAIL', 'justinnegron174@gmail.com'),
+      to: ENV.fetch('CONTACT_NOTIFY_TO', 'owner@example.com'),
       subject: "New Contact Form Submission: #{@contact.subject || 'No Subject'}",
       reply_to: @contact.email
-    )
-  end
-
-  # Send confirmation to person who submitted the form
-  def submission_confirmation(contact_id)
-    @contact = Contact.find_by(id: contact_id)
-    return unless @contact
-
-    mail(
-      to: @contact.email,
-      subject: 'Thanks for reaching out!'
     )
   end
 end

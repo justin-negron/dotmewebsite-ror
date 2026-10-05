@@ -75,7 +75,7 @@ async function confirmDelete() {
     <div class="table-card">
       <AdminDataTable
         :columns="columns"
-        :rows="(store.experiences as unknown as Record<string, unknown>[])"
+        :rows="store.experiences as unknown as Record<string, unknown>[]"
         :loading="store.loading"
         :pagination="store.pagination"
         empty-message="No experiences yet."

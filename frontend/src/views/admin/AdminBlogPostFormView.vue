@@ -35,7 +35,7 @@ const {
 
 // Auto-save
 const { hasDraft, draftSavedAt, saveDraft, loadDraft, clearDraft } = useDraftAutoSave(
-  isEdit.value ? (route.params.id as string) : 'new',
+  isEdit.value ? (route.params.id as string) : 'new'
 )
 
 // Auto-generate slug from title (only for new posts)
@@ -50,7 +50,7 @@ watch(
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
     }
-  },
+  }
 )
 
 // Auto-save watcher
@@ -65,7 +65,7 @@ watch(
       cover_image_url: val.cover_image_url,
     })
   },
-  { deep: true },
+  { deep: true }
 )
 
 function restoreDraft() {
@@ -170,19 +170,13 @@ const draftTimeAgo = computed(() => {
 <template>
   <div class="form-view">
     <div class="form-header">
-      <h2 class="form-title">
-        <span class="prompt">$</span> {{ isEdit ? 'edit' : 'new' }} post
-      </h2>
-      <RouterLink :to="{ name: 'admin-blog' }" class="back-link">
-        &larr; back
-      </RouterLink>
+      <h2 class="form-title"><span class="prompt">$</span> {{ isEdit ? 'edit' : 'new' }} post</h2>
+      <RouterLink :to="{ name: 'admin-blog' }" class="back-link"> &larr; back </RouterLink>
     </div>
 
     <!-- Draft restoration bar -->
     <div v-if="showDraftBar" class="draft-bar">
-      <span class="draft-text">
-        Draft found from {{ draftTimeAgo }}.
-      </span>
+      <span class="draft-text"> Draft found from {{ draftTimeAgo }}. </span>
       <div class="draft-actions">
         <button type="button" class="draft-btn restore" @click="restoreDraft">restore</button>
         <button type="button" class="draft-btn dismiss" @click="dismissDraft">dismiss</button>
@@ -199,7 +193,12 @@ const draftTimeAgo = computed(() => {
         <label class="field-label">cover image:</label>
         <div v-if="form.cover_image_url" class="cover-preview">
           <img :src="form.cover_image_url" alt="Cover image" class="cover-img" />
-          <button type="button" class="cover-remove" title="Remove cover image" @click="removeCoverImage">
+          <button
+            type="button"
+            class="cover-remove"
+            title="Remove cover image"
+            @click="removeCoverImage"
+          >
             &times;
           </button>
         </div>
