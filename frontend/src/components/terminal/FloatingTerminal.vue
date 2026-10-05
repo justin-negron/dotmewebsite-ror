@@ -32,9 +32,6 @@ const isBlogPage = computed(() => route.path.startsWith('/blog'))
 const { y: scrollY } = useWindowScroll()
 const { width: viewportWidth, height: viewportHeight } = useWindowSize()
 
-// Mirror the navbar's glass logic (AppHeader: showGlass = !isHome || scrollY > 100).
-const navbarHasGlass = computed(() => !isOnHomePage.value || scrollY.value > 100)
-
 // Terminal is visible when docked+slot-found on home, or undocked anywhere.
 // During a page transition (navTransitioning) the docked terminal stays visible
 // even when leaving the home page, so it can slide to its new position instead
@@ -200,7 +197,7 @@ const savedInput = ref('')
 
 const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   help: {
-    response: 'commands: home, projects, experience, blog, contact, about, resume, skin, bg, clear, exit',
+    response: 'commands: home, projects, experience, contact, about, resume, skin, bg, clear, exit',
   },
   home: {
     response: 'navigating home...',
@@ -213,10 +210,6 @@ const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   experience: {
     response: 'loading experience...',
     nav: NAV_ITEMS.find((n) => n.href === '/#experience'),
-  },
-  blog: {
-    response: 'opening blog...',
-    nav: NAV_ITEMS.find((n) => n.href === '/blog'),
   },
   contact: {
     response: 'opening contact...',
@@ -519,7 +512,7 @@ function handleTabComplete() {
     return
   }
 
-  // Base command completion: "bl" → "blog", ambiguous "b" → no-op
+  // Base command completion: "pr" → "projects", ambiguous "c" → no-op
   if (!base) return
   const matches = ALL_COMMANDS.filter((cmd) => cmd.startsWith(base))
   if (matches.length === 1) inputValue.value = matches[0]!
@@ -606,8 +599,8 @@ async function runBoot() {
   bootHasRun = true
 
   const sequence: { cmd: string; res: string; delay: number }[] = [
-    { cmd: 'status', res: 'available for work', delay: 300 },
-    { cmd: 'location', res: 'remote / anywhere', delay: 250 },
+    { cmd: 'status', res: 'shipping code', delay: 300 },
+    { cmd: 'stack', res: 'rails + vue + aws', delay: 250 },
   ]
 
   await new Promise((r) => setTimeout(r, 800))

@@ -11,12 +11,12 @@ let observer: IntersectionObserver | null = null
 
 // Photos — swap placeholders for real images later
 const photos = [
-  { src: '', caption: 'South Beach, Miami' },
-  { src: '', caption: 'Times Square, NYC' },
-  { src: '', caption: 'Wynwood Walls' },
-  { src: '', caption: 'Key West Sunset' },
-  { src: '', caption: 'Orlando, FL' },
-  { src: '', caption: 'Fort Lauderdale Beach' },
+  { src: '', caption: 'Henderson, Nevada' },
+  { src: '', caption: 'Las Vegas Strip' },
+  { src: '', caption: 'Red Rock Canyon' },
+  { src: '', caption: 'Dallas, Texas' },
+  { src: '', caption: 'Somewhere off I-15' },
+  { src: '', caption: 'Georgia Tech Campus' },
 ]
 
 const currentPhoto = ref(0)
@@ -141,13 +141,14 @@ onUnmounted(() => {
         <!-- Bio text -->
         <div class="about-text">
           <p class="bio-line">
-            I'm <strong>Justin</strong> — born and raised in South Florida. When I'm not at my desk,
-            I'm usually out exploring somewhere new, finding the best local food spots, or just
-            driving around with good music and no destination.
+            I'm <strong>Justin</strong> — born and raised in Henderson, Nevada, now working out of
+            the Dallas area. Off the clock, you'll usually find me somewhere new, hunting down
+            great food, or driving with good music and no real destination.
           </p>
           <p class="bio-line mt-4">
-            I like sunsets over the ocean, spontaneous road trips, and getting lost in cities I've
-            never been to. This section will fill up as I collect more moments worth sharing.
+            I work broadly across performance engineering, site reliability, and full-stack
+            software — the kind of work that lives between load tests, distributed traces, and
+            the tooling that sits in the middle.
           </p>
           <div class="mt-6">
             <a
