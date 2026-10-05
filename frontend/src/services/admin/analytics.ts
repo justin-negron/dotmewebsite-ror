@@ -6,7 +6,7 @@ export async function getDashboard(days?: number) {
     const params = days ? { days } : {}
     const response = await api.get<ApiSuccessResponse<AdminDashboardData>>(
       '/api/v1/admin/analytics/dashboard',
-      { params },
+      { params }
     )
     return extractData(response)
   } catch (error) {

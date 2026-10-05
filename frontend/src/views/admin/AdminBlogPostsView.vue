@@ -45,7 +45,11 @@ async function confirmDelete() {
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }
 </script>
 
@@ -61,7 +65,7 @@ function formatDate(dateStr: string | null): string {
     <div class="table-card">
       <AdminDataTable
         :columns="columns"
-        :rows="(store.blogPosts as unknown as Record<string, unknown>[])"
+        :rows="store.blogPosts as unknown as Record<string, unknown>[]"
         :loading="store.loading"
         :pagination="store.pagination"
         empty-message="No blog posts yet. Write your first one."
@@ -79,7 +83,7 @@ function formatDate(dateStr: string | null): string {
         </template>
         <template #cell-tags="{ value }">
           <span class="tag-list">
-            <span v-for="tag in (value as string[])" :key="tag" class="tag">{{ tag }}</span>
+            <span v-for="tag in value as string[]" :key="tag" class="tag">{{ tag }}</span>
           </span>
         </template>
         <template #cell-published_at="{ value }">

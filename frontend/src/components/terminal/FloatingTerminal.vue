@@ -55,7 +55,7 @@ const terminalZIndex = computed(() => (isDragging.value ? 1015 : 1010))
 
 // Mobile open: terminal is a freely draggable fixed panel.
 const isMobileOpen = computed(
-  () => viewportWidth.value < 640 && !isMinimized.value && !isDocked.value,
+  () => viewportWidth.value < 640 && !isMinimized.value && !isDocked.value
 )
 
 /* Mobile panel dimensions — shared across style + touch handlers.
@@ -537,7 +537,8 @@ function handleKeyDown(e: KeyboardEvent) {
     if (historyIndex.value === -1) return
     const next = historyIndex.value - 1
     historyIndex.value = next
-    inputValue.value = next === -1 ? savedInput.value : (cmdHistory.value[cmdHistory.value.length - 1 - next] ?? '')
+    inputValue.value =
+      next === -1 ? savedInput.value : (cmdHistory.value[cmdHistory.value.length - 1 - next] ?? '')
   } else if (e.key === 'Tab') {
     e.preventDefault()
     handleTabComplete()
@@ -773,7 +774,9 @@ function expand() {
     isMinimizing.value = false
   }
   isExpanding.value = true
-  setTimeout(() => { isExpanding.value = false }, 200)
+  setTimeout(() => {
+    isExpanding.value = false
+  }, 200)
   isMinimized.value = false
 
   if (viewportWidth.value < 640) {
@@ -834,7 +837,7 @@ function onMobilePillTouchMove(e: TouchEvent) {
   const PILL_H = 48
   mobilePillY.value = Math.max(
     60,
-    Math.min(viewportHeight.value - PILL_H - 16, pillDragStartPillY + dy),
+    Math.min(viewportHeight.value - PILL_H - 16, pillDragStartPillY + dy)
   )
 }
 
@@ -918,7 +921,9 @@ function applyHomePageChange(onHome: boolean) {
     } else {
       isTransitioning.value = true
       pagePos.value = getTopRightPos(0)
-      setTimeout(() => { isTransitioning.value = false }, 500)
+      setTimeout(() => {
+        isTransitioning.value = false
+      }, 500)
     }
   }
   if (onHome && isDocked.value) {
@@ -947,7 +952,9 @@ function applyHomePageChange(onHome: boolean) {
               x: Math.max(0, window.innerWidth - termW - 24),
               y: rect.top + window.scrollY + 20,
             }
-            setTimeout(() => { isTransitioning.value = false }, 500)
+            setTimeout(() => {
+              isTransitioning.value = false
+            }, 500)
             return
           }
           if (++attempts < 60) requestAnimationFrame(pollAndPosition)
@@ -986,14 +993,19 @@ watch(isOnHomePage, (onHome) => {
 function applyBlogPageChange(onBlog: boolean) {
   if (!onBlog || isMinimized.value) return
   // Mobile: minimize — fixed panel doesn't fit the reading experience
-  if (viewportWidth.value < 640) { minimize(); return }
+  if (viewportWidth.value < 640) {
+    minimize()
+    return
+  }
   // Animate to top-right regardless of docked/undocked state so the transition
   // mirrors the blog→home re-dock animation (smooth slide, not an instant jump).
   measureSlot()
   isTransitioning.value = true
   undock()
   pagePos.value = getTopRightPos(0)
-  setTimeout(() => { isTransitioning.value = false }, 500)
+  setTimeout(() => {
+    isTransitioning.value = false
+  }, 500)
 }
 
 watch(isBlogPage, (onBlog) => {
@@ -1014,7 +1026,9 @@ router.beforeEach(() => {
 })
 
 router.afterEach(() => {
-  nextTick(() => { navTransitioning.value = false })
+  nextTick(() => {
+    navTransitioning.value = false
+  })
 })
 </script>
 
@@ -1047,12 +1061,7 @@ router.afterEach(() => {
 
   <!-- Mobile backdrop — dims page when terminal panel is open; tap to close -->
   <Transition name="panel-fade">
-    <div
-      v-if="isMobileOpen"
-      class="mobile-panel-backdrop"
-      aria-hidden="true"
-      @click="minimize()"
-    />
+    <div v-if="isMobileOpen" class="mobile-panel-backdrop" aria-hidden="true" @click="minimize()" />
   </Transition>
 
   <!-- Terminal — absolute on desktop, fixed panel on mobile -->
@@ -1546,7 +1555,9 @@ router.afterEach(() => {
   cursor: pointer;
   touch-action: none;
   box-shadow: -2px 4px 16px rgba(var(--skin-rgb), 0.35);
-  transition: width 0.15s ease, box-shadow 0.2s ease;
+  transition:
+    width 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
 .mobile-pill:active {

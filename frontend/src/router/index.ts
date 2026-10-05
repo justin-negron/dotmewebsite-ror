@@ -40,7 +40,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/BlogView.vue'),
     meta: {
       title: 'Blog',
-      description: 'Thoughts on software engineering, deep-dives, and lessons from building real systems.',
+      description:
+        'Thoughts on software engineering, deep-dives, and lessons from building real systems.',
       requiresAuth: false,
     },
   },

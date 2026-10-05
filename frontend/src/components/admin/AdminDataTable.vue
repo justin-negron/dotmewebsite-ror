@@ -38,7 +38,11 @@ const emit = defineEmits<{
       <table class="data-table">
         <thead>
           <tr>
-            <th v-for="col in columns" :key="col.key" :style="col.width ? { width: col.width } : {}">
+            <th
+              v-for="col in columns"
+              :key="col.key"
+              :style="col.width ? { width: col.width } : {}"
+            >
               {{ col.label }}
             </th>
             <th class="actions-col">Actions</th>
@@ -73,9 +77,7 @@ const emit = defineEmits<{
       >
         prev
       </button>
-      <span class="page-info">
-        {{ pagination.current_page }} / {{ pagination.total_pages }}
-      </span>
+      <span class="page-info"> {{ pagination.current_page }} / {{ pagination.total_pages }} </span>
       <button
         class="page-btn"
         :disabled="pagination.current_page >= pagination.total_pages"

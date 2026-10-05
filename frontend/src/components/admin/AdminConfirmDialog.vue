@@ -28,7 +28,7 @@ watch(
     } else {
       document.removeEventListener('keydown', handleKeydown)
     }
-  },
+  }
 )
 
 onUnmounted(() => {
@@ -44,7 +44,7 @@ function handleKeydown(e: KeyboardEvent) {
   // Focus trap — keep Tab within the dialog
   if (e.key === 'Tab' && dialogRef.value) {
     const focusable = dialogRef.value.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      'button:not([disabled]), [tabindex]:not([tabindex="-1"])'
     )
     if (focusable.length === 0) return
 
@@ -91,7 +91,9 @@ function handleKeydown(e: KeyboardEvent) {
               </button>
               <button class="btn-confirm" :disabled="loading" @click="emit('confirm')">
                 <span v-if="loading">processing...</span>
-                <span v-else><span class="btn-prompt">$</span> {{ confirmLabel || 'confirm' }}</span>
+                <span v-else
+                  ><span class="btn-prompt">$</span> {{ confirmLabel || 'confirm' }}</span
+                >
               </button>
             </div>
           </div>

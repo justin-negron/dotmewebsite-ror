@@ -60,7 +60,7 @@ export const useAdminBlogPostsStore = defineStore('admin-blog-posts', () => {
 
   async function update(
     id: number | string,
-    data: Partial<BlogPostInput>,
+    data: Partial<BlogPostInput>
   ): Promise<BlogPost | null> {
     loading.value = true
     error.value = null

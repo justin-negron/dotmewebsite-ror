@@ -10,9 +10,7 @@ export const useAdminExperiencesStore = defineStore('admin-experiences', () => {
   const error = ref<ApiError | null>(null)
   const pagination = ref<PaginationMeta | null>(null)
 
-  const experienceCount = computed(
-    () => pagination.value?.total_count ?? experiences.value.length,
-  )
+  const experienceCount = computed(() => pagination.value?.total_count ?? experiences.value.length)
 
   async function fetchAll(params: Record<string, unknown> = {}): Promise<void> {
     loading.value = true
@@ -59,7 +57,7 @@ export const useAdminExperiencesStore = defineStore('admin-experiences', () => {
 
   async function update(
     id: number | string,
-    data: Partial<ExperienceInput>,
+    data: Partial<ExperienceInput>
   ): Promise<Experience | null> {
     loading.value = true
     error.value = null

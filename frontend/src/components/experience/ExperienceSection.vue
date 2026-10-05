@@ -170,75 +170,75 @@ onUnmounted(() => {
       </div>
 
       <div id="experience-tabpanel" role="tabpanel" :aria-label="`${activeTab} experience`">
-      <div v-if="viewState === 'loading'" class="timeline">
-        <div class="timeline-line" />
-        <div v-for="i in 3" :key="i" class="timeline-entry entry-left is-revealed">
-          <div class="timeline-dot" />
-          <div class="entry-card skeleton-entry">
-            <div class="skeleton-line w-1/3" />
-            <div class="skeleton-line w-2/3 mt-3" />
-            <div class="skeleton-line w-1/2 mt-2" />
-            <div class="skeleton-line w-full mt-4" />
-            <div class="skeleton-line w-5/6 mt-2" />
-            <div class="mt-4 flex gap-2">
-              <div class="skeleton-badge" />
-              <div class="skeleton-badge" />
-              <div class="skeleton-badge" />
+        <div v-if="viewState === 'loading'" class="timeline">
+          <div class="timeline-line" />
+          <div v-for="i in 3" :key="i" class="timeline-entry entry-left is-revealed">
+            <div class="timeline-dot" />
+            <div class="entry-card skeleton-entry">
+              <div class="skeleton-line w-1/3" />
+              <div class="skeleton-line w-2/3 mt-3" />
+              <div class="skeleton-line w-1/2 mt-2" />
+              <div class="skeleton-line w-full mt-4" />
+              <div class="skeleton-line w-5/6 mt-2" />
+              <div class="mt-4 flex gap-2">
+                <div class="skeleton-badge" />
+                <div class="skeleton-badge" />
+                <div class="skeleton-badge" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div v-if="viewState === 'error'" class="text-center py-12">
-        <p class="text-red-500 dark:text-red-400 mb-4">Failed to load experience.</p>
-        <button class="retry-btn" @click="experiencesStore.fetchExperiences(true)">
-          Try Again
-        </button>
-      </div>
-      <div v-if="viewState === 'empty'" class="text-center py-12">
-        <p class="empty-text">
-          {{
-            activeTab === 'work'
-              ? 'No work experience yet — check back soon.'
-              : 'No education entries yet — check back soon.'
-          }}
-        </p>
-      </div>
-      <div v-if="viewState === 'ready'" :key="tabSwitchKey" class="timeline">
-        <div class="timeline-line" />
+        <div v-if="viewState === 'error'" class="text-center py-12">
+          <p class="text-red-500 dark:text-red-400 mb-4">Failed to load experience.</p>
+          <button class="retry-btn" @click="experiencesStore.fetchExperiences(true)">
+            Try Again
+          </button>
+        </div>
+        <div v-if="viewState === 'empty'" class="text-center py-12">
+          <p class="empty-text">
+            {{
+              activeTab === 'work'
+                ? 'No work experience yet — check back soon.'
+                : 'No education entries yet — check back soon.'
+            }}
+          </p>
+        </div>
+        <div v-if="viewState === 'ready'" :key="tabSwitchKey" class="timeline">
+          <div class="timeline-line" />
 
-        <div
-          v-for="(exp, i) in experiences"
-          :key="exp.id"
-          :ref="(el) => setCardRef(el, i)"
-          :class="[
-            'timeline-entry',
-            i % 2 === 0 ? 'entry-left' : 'entry-right',
-            revealedCards.has(i) ? 'is-revealed' : '',
-          ]"
-        >
-          <!-- Dot on the timeline -->
-          <div class="timeline-dot" :class="{ 'is-current': exp.current }" />
+          <div
+            v-for="(exp, i) in experiences"
+            :key="exp.id"
+            :ref="(el) => setCardRef(el, i)"
+            :class="[
+              'timeline-entry',
+              i % 2 === 0 ? 'entry-left' : 'entry-right',
+              revealedCards.has(i) ? 'is-revealed' : '',
+            ]"
+          >
+            <!-- Dot on the timeline -->
+            <div class="timeline-dot" :class="{ 'is-current': exp.current }" />
 
-          <!-- Card -->
-          <div class="entry-card">
-            <div class="entry-header">
-              <span class="entry-duration">{{ exp.duration }}</span>
-              <span v-if="exp.current" class="current-badge">Current</span>
-            </div>
+            <!-- Card -->
+            <div class="entry-card">
+              <div class="entry-header">
+                <span class="entry-duration">{{ exp.duration }}</span>
+                <span v-if="exp.current" class="current-badge">Current</span>
+              </div>
 
-            <h3 class="entry-company">{{ exp.company }}</h3>
-            <p class="entry-position">{{ exp.position }}</p>
-            <p class="entry-desc">{{ exp.description }}</p>
+              <h3 class="entry-company">{{ exp.company }}</h3>
+              <p class="entry-position">{{ exp.position }}</p>
+              <p class="entry-desc">{{ exp.description }}</p>
 
-            <!-- Tech stack / Coursework -->
-            <div v-if="exp.technologies.length" class="mt-4 flex flex-wrap gap-2">
-              <span v-for="tech in exp.technologies" :key="tech" class="tech-badge">
-                {{ tech }}
-              </span>
+              <!-- Tech stack / Coursework -->
+              <div v-if="exp.technologies.length" class="mt-4 flex flex-wrap gap-2">
+                <span v-for="tech in exp.technologies" :key="tech" class="tech-badge">
+                  {{ tech }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   </section>

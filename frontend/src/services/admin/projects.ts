@@ -48,9 +48,7 @@ export async function update(id: number | string, data: Partial<ProjectInput>) {
 
 export async function remove(id: number | string) {
   try {
-    const response = await api.delete<ApiSuccessResponse<{ message: string }>>(
-      ENDPOINTS.detail(id),
-    )
+    const response = await api.delete<ApiSuccessResponse<{ message: string }>>(ENDPOINTS.detail(id))
     return extractData(response)
   } catch (error) {
     throw handleApiError(error as import('axios').AxiosError)

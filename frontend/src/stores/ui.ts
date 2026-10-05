@@ -43,7 +43,10 @@ export const useUiStore = defineStore('ui', () => {
     toasts.value.push({ id, message, type, duration })
 
     if (duration > 0) {
-      toastTimers.set(id, setTimeout(() => removeToast(id), duration))
+      toastTimers.set(
+        id,
+        setTimeout(() => removeToast(id), duration)
+      )
     }
   }
 

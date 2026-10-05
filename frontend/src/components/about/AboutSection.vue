@@ -142,13 +142,13 @@ onUnmounted(() => {
         <div class="about-text">
           <p class="bio-line">
             I'm <strong>Justin</strong> — born and raised in Henderson, Nevada, now working out of
-            the Dallas area. Off the clock, you'll usually find me somewhere new, hunting down
-            great food, or driving with good music and no real destination.
+            the Dallas area. Off the clock, you'll usually find me somewhere new, hunting down great
+            food, or driving with good music and no real destination.
           </p>
           <p class="bio-line mt-4">
-            I work broadly across performance engineering, site reliability, and full-stack
-            software — the kind of work that lives between load tests, distributed traces, and
-            the tooling that sits in the middle.
+            I work broadly across performance engineering, site reliability, and full-stack software
+            — the kind of work that lives between load tests, distributed traces, and the tooling
+            that sits in the middle.
           </p>
           <div class="mt-6">
             <a

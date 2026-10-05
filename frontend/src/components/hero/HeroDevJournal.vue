@@ -64,14 +64,17 @@ onMounted(() => {
           </div>
 
           <p :class="['reveal reveal-4 desc mt-6 max-w-lg', entered ? 'is-revealed' : '']">
-            I work broadly at the intersection of performance engineering, site reliability,
-            and full-stack development — building the tooling and automation that keeps
-            production honest across a wide range of languages and frameworks.
+            I work broadly at the intersection of performance engineering, site reliability, and
+            full-stack development — building the tooling and automation that keeps production
+            honest across a wide range of languages and frameworks.
           </p>
 
           <!-- CTAs with hover-to-type (via terminal bridge) -->
           <div
-            :class="['reveal reveal-5 mt-8 flex flex-wrap justify-center gap-4 lg:justify-start', entered ? 'is-revealed' : '']"
+            :class="[
+              'reveal reveal-5 mt-8 flex flex-wrap justify-center gap-4 lg:justify-start',
+              entered ? 'is-revealed' : '',
+            ]"
           >
             <a
               href="/#projects"

@@ -13,7 +13,7 @@ export async function login(email: string, password: string) {
     const response = await api.post<ApiSuccessResponse<AuthResponse>>(
       ENDPOINTS.login,
       { email, password },
-      { withCredentials: true },
+      { withCredentials: true }
     )
     return extractData(response)
   } catch (error) {
@@ -26,7 +26,7 @@ export async function refreshToken() {
     const response = await api.post<ApiSuccessResponse<AuthResponse>>(
       ENDPOINTS.refresh,
       {},
-      { withCredentials: true },
+      { withCredentials: true }
     )
     return extractData(response)
   } catch (error) {

@@ -48,7 +48,7 @@ async function confirmDelete() {
     <div class="table-card">
       <AdminDataTable
         :columns="columns"
-        :rows="(store.projects as unknown as Record<string, unknown>[])"
+        :rows="store.projects as unknown as Record<string, unknown>[]"
         :loading="store.loading"
         :pagination="store.pagination"
         empty-message="No projects yet. Create your first one."
@@ -57,7 +57,7 @@ async function confirmDelete() {
       >
         <template #cell-tech_stack="{ value }">
           <span class="tech-tags">
-            <span v-for="tech in (value as string[])" :key="tech" class="tech-tag">{{ tech }}</span>
+            <span v-for="tech in value as string[]" :key="tech" class="tech-tag">{{ tech }}</span>
           </span>
         </template>
         <template #cell-featured="{ value }">
