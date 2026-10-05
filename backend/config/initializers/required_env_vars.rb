@@ -12,6 +12,7 @@ REQUIRED_PRODUCTION_ENV_VARS = %w[
   JWT_SECRET
   SECRET_KEY_BASE
   FRONTEND_URL
+  CLOUDFRONT_SECRET
 ].freeze
 
 # Optional — app boots without these but email delivery will be disabled

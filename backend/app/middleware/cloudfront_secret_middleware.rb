@@ -15,7 +15,10 @@ class CloudfrontSecretMiddleware
     return @app.call(env) if SKIP_PATHS.include?(path)
 
     expected = ENV["CLOUDFRONT_SECRET"]
-    return @app.call(env) if expected.blank?
+    if expected.blank?
+      Rails.logger.warn("[CloudfrontSecretMiddleware] CLOUDFRONT_SECRET is not set — all requests are passing through unverified")
+      return @app.call(env)
+    end
 
     actual = env["HTTP_X_CLOUDFRONT_SECRET"]
 

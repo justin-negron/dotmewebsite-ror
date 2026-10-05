@@ -35,7 +35,7 @@ RSpec.describe 'Api::V1::Admin::Uploads', type: :request do
       expect(json_data[:public_url]).to start_with('https://test-bucket.s3.us-east-1.amazonaws.com/blog-images/')
     end
 
-    %w[image/jpeg image/png image/gif image/webp image/svg+xml].each do |type|
+    %w[image/jpeg image/png image/gif image/webp].each do |type|
       it "accepts #{type}" do
         post '/api/v1/admin/uploads/presign',
              params: { filename: "file.#{type.split('/').last}", content_type: type },

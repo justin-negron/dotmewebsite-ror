@@ -1,5 +1,5 @@
 class S3PresignService
-  ALLOWED_TYPES = %w[image/jpeg image/png image/gif image/webp image/svg+xml].freeze
+  ALLOWED_TYPES = %w[image/jpeg image/png image/gif image/webp].freeze
   EXPIRY = 300 # 5 minutes
 
   class UnsupportedContentType < StandardError; end
@@ -33,8 +33,7 @@ class S3PresignService
       "image/jpeg" => ".jpg",
       "image/png" => ".png",
       "image/gif" => ".gif",
-      "image/webp" => ".webp",
-      "image/svg+xml" => ".svg"
+      "image/webp" => ".webp"
     }.fetch(content_type, ".jpg")
   end
 end
