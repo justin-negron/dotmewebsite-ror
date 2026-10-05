@@ -1,0 +1,3 @@
+# Public keys allowed to SSH to the origin as ubuntu (installed by deploy/host-setup.sh)
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAuysLfn+6ecuDsEnZLHzoYkk1Jr4wuHeQ7aVZb+UNpv justinnegron174@gmail.com
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEoq2T30hF0Q3f2O64hw97nFwvvFiKr/PngmS83AD5NO justinnegron-deploy

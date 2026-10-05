@@ -8,13 +8,18 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 HOST="${ORIGIN_HOST:-origin.justinnegron.dev}"
 REMOTE="ubuntu@${HOST}"
+SSH_KEY="${ORIGIN_SSH_KEY:-$HOME/.ssh/justinnegron_deploy}"
 SSH_OPTS=(-o StrictHostKeyChecking=accept-new)
+[ -f "$SSH_KEY" ] && SSH_OPTS+=(-i "$SSH_KEY" -o IdentitiesOnly=yes)
 
 echo "==> Host setup on $HOST"
 ssh "${SSH_OPTS[@]}" "$REMOTE" 'sudo bash -s' < "$ROOT/deploy/host-setup.sh"
 
 echo "==> Copying deploy files"
 rsync -a -e "ssh ${SSH_OPTS[*]}" --exclude host-setup.sh "$ROOT/deploy/" "$REMOTE:/opt/app/"
+
+echo "==> Installing authorized SSH keys from deploy/authorized_keys"
+ssh "${SSH_OPTS[@]}" "$REMOTE" 'install -m 600 /opt/app/authorized_keys ~/.ssh/authorized_keys'
 
 echo "==> Writing instance AWS credentials"
 (

@@ -6,6 +6,9 @@ set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
 HOST="${ORIGIN_HOST:-origin.justinnegron.dev}"
+SSH_KEY="${ORIGIN_SSH_KEY:-$HOME/.ssh/justinnegron_deploy}"
+SSH_OPTS=(-o StrictHostKeyChecking=accept-new)
+[ -f "$SSH_KEY" ] && SSH_OPTS+=(-i "$SSH_KEY" -o IdentitiesOnly=yes)
 REGION="${AWS_REGION:-us-east-1}"
 REPO="${ECR_REPO:-$(aws ecr describe-repositories --region "$REGION" --repository-names justinnegron-api \
   --query 'repositories[0].repositoryUri' --output text)}"
@@ -24,7 +27,7 @@ if [ -z "${TAG:-}" ]; then
 fi
 
 echo "==> Syncing deploy files to $HOST"
-rsync -a --exclude host-setup.sh "$ROOT/deploy/" "ubuntu@$HOST:/opt/app/"
+rsync -a -e "ssh ${SSH_OPTS[*]}" --exclude host-setup.sh "$ROOT/deploy/" "ubuntu@$HOST:/opt/app/"
 
 echo "==> Deploying $TAG"
-ssh "ubuntu@$HOST" "/opt/app/deploy.sh $TAG"
+ssh "${SSH_OPTS[@]}" "ubuntu@$HOST" "/opt/app/deploy.sh $TAG"
