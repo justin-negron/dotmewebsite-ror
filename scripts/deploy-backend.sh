@@ -25,7 +25,7 @@ docker push "${ECR_REPO}:latest"
 
 echo "==> Deploying on EC2..."
 echo "Run this command to complete the deploy:"
-echo "  ssh ${EC2_HOST} \"sudo /opt/app/deploy.sh\""
+echo "  ssh ${EC2_HOST} \"/opt/app/deploy.sh\""
 echo ""
 echo "Then verify:"
 echo "  ssh ${EC2_HOST} \"curl -s http://localhost:3000/health\""
