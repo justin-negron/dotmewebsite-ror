@@ -43,32 +43,18 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Use Redis as the cache store (separate DB from Sidekiq on DB 0)
-  config.cache_store = :redis_cache_store, {
-    url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1"),
-    expires_in: 1.hour,
-    error_handler: lambda do |method:, returning:, exception:|
-      Rails.logger.error("Redis cache error: #{exception.class}: #{exception.message}")
-    end
-  }
+  # Single Puma process, so an in-memory cache is enough (also backs Rack::Attack).
+  config.cache_store = :memory_store, { size: 32 * 1024 * 1024 }
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
-  # config.active_job.queue_adapter = :resque
+  # Solid Queue runs inside Puma (see config/puma.rb) and stores jobs in the primary database.
+  config.active_job.queue_adapter = :solid_queue
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates (overridden below).
-
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -93,22 +79,9 @@ Rails.application.configure do
   # Action Mailer configuration
   config.action_mailer.default_url_options = { host: ENV.fetch('FRONTEND_URL', 'https://justinnegron.dev') }
 
-  if ENV['SMTP_ADDRESS'].present?
-    config.action_mailer.delivery_method = :smtp
-    config.action_mailer.perform_deliveries = true
-    config.action_mailer.raise_delivery_errors = false
-
-    config.action_mailer.smtp_settings = {
-      address: ENV['SMTP_ADDRESS'],
-      port: ENV.fetch('SMTP_PORT', 587).to_i,
-      domain: ENV.fetch('SMTP_DOMAIN', ENV.fetch('APP_HOST', 'justinnegron.dev')),
-      user_name: ENV['SMTP_USERNAME'],
-      password: ENV['SMTP_PASSWORD'],
-      authentication: 'plain',
-      enable_starttls_auto: true
-    }
-  else
-    config.action_mailer.delivery_method = :test
-    config.action_mailer.perform_deliveries = false
-  end
+  # Amazon SES API (credentials from AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY via config/initializers/aws.rb).
+  config.action_mailer.delivery_method = :ses_v2
+  config.action_mailer.ses_v2_settings = { region: ENV.fetch("AWS_REGION", "us-east-1") }
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
 end

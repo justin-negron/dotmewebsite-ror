@@ -1,11 +1,4 @@
 class Rack::Attack
-  # Use Redis in production for consistent rate limiting across processes
-  if Rails.env.production?
-    Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
-      url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1")
-    )
-  end
-
   # Throttle all requests by IP (300 requests per 5 minutes)
   throttle("req/ip", limit: 300, period: 5.minutes) do |req|
     req.ip unless req.path.start_with?("/assets")

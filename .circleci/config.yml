@@ -11,13 +11,11 @@ executors:
         environment:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/portfolio_test
-          REDIS_URL: redis://localhost:6379/1
-      - image: cimg/postgres:15.0
+      - image: cimg/postgres:17.11
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: portfolio_test
-      - image: cimg/redis:7.0
 
   frontend:
     docker:
@@ -37,10 +35,6 @@ jobs:
       - run:
           name: Wait for PostgreSQL
           command: dockerize -wait tcp://localhost:5432 -timeout 30s
-
-      - run:
-          name: Wait for Redis
-          command: dockerize -wait tcp://localhost:6379 -timeout 30s
 
       - run:
           name: Set up database

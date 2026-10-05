@@ -32,6 +32,9 @@ Rails.application.configure do
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
+  # Run jobs in-process; production uses Solid Queue.
+  config.active_job.queue_adapter = :async
+
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false
 
