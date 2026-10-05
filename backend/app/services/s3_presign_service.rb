@@ -10,7 +10,6 @@ class S3PresignService
     end
 
     bucket = ENV.fetch("AWS_S3_BUCKET")
-    region = ENV.fetch("AWS_REGION", "us-east-1")
     ext = File.extname(filename).presence || mime_to_ext(content_type)
     key = "blog-images/#{SecureRandom.uuid}#{ext}"
 
@@ -23,7 +22,7 @@ class S3PresignService
       expires_in: EXPIRY
     )
 
-    public_url = "https://#{bucket}.s3.#{region}.amazonaws.com/#{key}"
+    public_url = "https://#{ENV.fetch("ASSETS_HOST")}/#{key}"
 
     { presigned_url: presigned_url, public_url: public_url, key: key }
   end

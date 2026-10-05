@@ -7,7 +7,8 @@ RSpec.describe 'Api::V1::Admin::Uploads', type: :request do
   before do
     stub_const('ENV', ENV.to_h.merge(
       'AWS_S3_BUCKET' => 'test-bucket',
-      'AWS_REGION' => 'us-east-1'
+      'AWS_REGION' => 'us-east-1',
+      'ASSETS_HOST' => 'assets.example.com'
     ))
 
     presigner = instance_double(Aws::S3::Presigner)
@@ -29,10 +30,10 @@ RSpec.describe 'Api::V1::Admin::Uploads', type: :request do
       expect(json_data[:key]).to match(%r{\Ablog-images/[a-f0-9-]+\.jpg\z})
     end
 
-    it 'returns correct public URL format' do
+    it 'returns a public URL on the assets CDN host' do
       post '/api/v1/admin/uploads/presign', params: valid_params, headers: headers, as: :json
 
-      expect(json_data[:public_url]).to start_with('https://test-bucket.s3.us-east-1.amazonaws.com/blog-images/')
+      expect(json_data[:public_url]).to eq("https://assets.example.com/#{json_data[:key]}")
     end
 
     %w[image/jpeg image/png image/gif image/webp].each do |type|
