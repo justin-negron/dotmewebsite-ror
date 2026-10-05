@@ -1,0 +1,16 @@
+{
+	admin off
+}
+
+# CloudFront connects here over HTTPS. Let's Encrypt issues the certificate
+# automatically (TLS-ALPN challenge on 443).
+origin.justinnegron.dev {
+	encode zstd gzip
+
+	reverse_proxy web:3000 {
+		# Keep CloudFront's X-Forwarded-For, which ends with the real viewer IP.
+		# Without this Caddy replaces it with the CloudFront edge IP, and Rails
+		# (analytics) and Rack::Attack (rate limits) would see CloudFront instead.
+		header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+	}
+}
