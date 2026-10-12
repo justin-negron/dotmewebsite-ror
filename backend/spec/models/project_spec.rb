@@ -4,6 +4,23 @@ RSpec.describe Project, type: :model do
   describe 'validations' do
     it { should validate_presence_of(:title) }
     it { should validate_presence_of(:description) }
+
+    %i[github_url live_url].each do |attr|
+      it "accepts an http(s) #{attr}" do
+        expect(build(:project, attr => 'https://example.com/path?q=1')).to be_valid
+      end
+
+      it "rejects a #{attr} with a javascript: prefix" do
+        project = build(:project, attr => 'javascript:alert(1)//https://example.com')
+        expect(project).not_to be_valid
+        expect(project.errors[attr]).to be_present
+      end
+
+      it "rejects a #{attr} with an injected second line" do
+        project = build(:project, attr => "https://example.com\njavascript:alert(1)")
+        expect(project).not_to be_valid
+      end
+    end
   end
   
   describe 'scopes' do

@@ -13,6 +13,20 @@ RSpec.describe BlogPost, type: :model do
       expect(blog_post).not_to be_valid
       expect(blog_post.errors[:slug]).to be_present
     end
+
+    it 'accepts an https cover_image_url' do
+      expect(build(:blog_post, cover_image_url: 'https://assets.justinnegron.dev/a.png')).to be_valid
+    end
+
+    it 'rejects a cover_image_url with an injected second line' do
+      blog_post = build(:blog_post, cover_image_url: "https://example.com\njavascript:alert(1)")
+      expect(blog_post).not_to be_valid
+      expect(blog_post.errors[:cover_image_url]).to be_present
+    end
+
+    it 'rejects a non-http cover_image_url' do
+      expect(build(:blog_post, cover_image_url: 'javascript:alert(1)')).not_to be_valid
+    end
   end
   
   describe 'scopes' do

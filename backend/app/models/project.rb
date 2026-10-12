@@ -2,8 +2,8 @@ class Project < ApplicationRecord
   # Validations
   validates :title, presence: true, length: { maximum: 255 }
   validates :description, presence: true
-  validates :github_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), allow_blank: true }
-  validates :live_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), allow_blank: true }
+  validates :github_url, format: { with: HTTP_URL_FORMAT, allow_blank: true }
+  validates :live_url, format: { with: HTTP_URL_FORMAT, allow_blank: true }
   validates :display_order, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
 
   # Scopes
