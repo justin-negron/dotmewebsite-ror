@@ -463,9 +463,10 @@ onUnmounted(() => {
     padding-bottom: 3rem;
   }
 
+  /* Left cards keep the accent border and dot on the timeline side, but the
+     text stays left-aligned like every other card. */
   .entry-left {
     padding-right: 40px;
-    text-align: right;
   }
 
   .entry-left .entry-card {
@@ -475,14 +476,6 @@ onUnmounted(() => {
 
   :is(.dark *).entry-left .entry-card {
     border-right-color: var(--skin-400);
-  }
-
-  .entry-left .entry-header {
-    justify-content: flex-end;
-  }
-
-  .entry-left .tech-badge-wrap {
-    justify-content: flex-end;
   }
 
   .entry-right {
