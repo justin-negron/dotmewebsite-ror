@@ -81,9 +81,6 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0)
     alba (3.10.0)
-    annotate (3.2.0)
-      activerecord (>= 3.2, < 8.0)
-      rake (>= 10.4, < 14.0)
     ast (2.4.3)
     aws-actionmailer-ses (1.2.0)
       actionmailer (>= 7.1.0)
@@ -374,7 +371,6 @@ PLATFORMS
 
 DEPENDENCIES
   alba (~> 3.3)
-  annotate
   aws-actionmailer-ses (~> 1.2)
   aws-sdk-s3 (~> 1.0)
   bcrypt (~> 3.1.7)

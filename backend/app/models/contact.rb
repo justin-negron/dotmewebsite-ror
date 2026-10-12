@@ -6,11 +6,11 @@ class Contact < ApplicationRecord
   validates :message, presence: true, length: { minimum: 10, maximum: 5000 }
 
   # Enums
-  enum status: {
+  enum :status, {
     new: 'new',
     read: 'read',
     archived: 'archived'
-  }, _prefix: true
+  }, prefix: true
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }

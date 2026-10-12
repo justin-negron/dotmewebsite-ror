@@ -23,6 +23,22 @@ RSpec.describe Contact, type: :model do
     it 'defines status enum' do
       expect(Contact.new).to respond_to(:status)
     end
+
+    it 'maps statuses to string values' do
+      expect(Contact.statuses).to eq('new' => 'new', 'read' => 'read', 'archived' => 'archived')
+    end
+
+    it 'prefixes generated predicate methods with status_' do
+      contact = build(:contact, status: 'read')
+      expect(contact).to be_status_read
+      expect(contact).not_to be_status_new
+      expect(contact).not_to respond_to(:read?)
+    end
+
+    it 'prefixes generated scopes with status_' do
+      archived = create(:contact, status: 'archived')
+      expect(Contact.status_archived).to contain_exactly(archived)
+    end
   end
   
   describe 'scopes' do
