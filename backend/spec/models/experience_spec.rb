@@ -22,6 +22,11 @@ RSpec.describe Experience, type: :model do
       expect(Experience.current).to include(current_job)
       expect(Experience.current).not_to include(past_job)
     end
+
+    it 'leaves experiences that have not started out of current' do
+      upcoming = create(:experience, :current, start_date: 1.year.from_now.to_date)
+      expect(Experience.current).not_to include(upcoming)
+    end
     
     it 'returns past experiences' do
       expect(Experience.past).to include(past_job)
@@ -45,6 +50,18 @@ RSpec.describe Experience, type: :model do
     it 'returns false when end_date is present' do
       experience = build(:experience, :past)
       expect(experience.current?).to be false
+    end
+
+    it 'returns false when it has not started yet' do
+      experience = build(:experience, :current, start_date: 1.month.from_now.to_date)
+      expect(experience.current?).to be false
+    end
+  end
+
+  describe '#upcoming?' do
+    it 'is true only when start_date is in the future' do
+      expect(build(:experience, start_date: 1.day.from_now.to_date, end_date: nil)).to be_upcoming
+      expect(build(:experience, :current, start_date: Date.current)).not_to be_upcoming
     end
   end
   
@@ -70,6 +87,20 @@ RSpec.describe Experience, type: :model do
         end_date: Date.new(2023, 3, 31)
       )
       expect(experience.duration).to eq('March 2023')
+    end
+
+    context 'when it has not started yet' do
+      around { |example| travel_to(Date.new(2026, 10, 11)) { example.run } }
+
+      {
+        Date.new(2027, 8, 15) => 'Incoming Fall 2027',
+        Date.new(2027, 1, 10) => 'Incoming Spring 2027',
+        Date.new(2027, 6, 1) => 'Incoming Summer 2027'
+      }.each do |start_date, label|
+        it "returns #{label.inspect} for a start on #{start_date}" do
+          expect(build(:experience, :current, start_date: start_date).duration).to eq(label)
+        end
+      end
     end
   end
   

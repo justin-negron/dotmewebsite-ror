@@ -24,6 +24,18 @@ RSpec.describe 'Api::V1::Admin::Analytics', type: :request do
       )
     end
 
+    it 'keys views_by_date by ISO date strings' do
+      travel_to Time.zone.local(2026, 1, 15, 12, 0, 0) do
+        create_list(:page_view, 2, created_at: 1.day.ago)
+
+        get '/api/v1/admin/analytics/dashboard?days=7', headers: headers, as: :json
+
+        views = json_data[:views_by_date].transform_keys(&:to_s)
+        expect(views).to include('2026-01-14' => 2)
+        expect(views.keys).to all(match(/\A\d{4}-\d{2}-\d{2}\z/))
+      end
+    end
+
     it 'returns correct summary counts' do
       get '/api/v1/admin/analytics/dashboard', headers: headers, as: :json
 
