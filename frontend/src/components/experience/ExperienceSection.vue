@@ -110,9 +110,7 @@ onUnmounted(() => {
       <div class="mb-10 text-center">
         <span class="section-label">$ cat experience.log</span>
         <h2 class="section-title mt-3">Experience</h2>
-        <p class="section-subtitle mt-4 mx-auto max-w-xl">
-          Where I've been, what I've built, and the technologies I've worked with along the way.
-        </p>
+        <p class="section-subtitle mt-4 mx-auto max-w-xl">Work and school, newest first.</p>
       </div>
 
       <!-- Tab switcher -->

@@ -59,14 +59,13 @@ onMounted(() => {
 
           <div :class="['reveal reveal-3 role-line mt-3', entered ? 'is-revealed' : '']">
             <span class="role-bracket">&lt;</span>
-            <span class="role-text">Software Engineer</span>
-            <span class="role-bracket"> /&gt;</span>
+            <span class="role-text">Software Engineer II</span>
+            <span class="role-bracket">/&gt;</span>
           </div>
 
           <p :class="['reveal reveal-4 desc mt-6 max-w-lg', entered ? 'is-revealed' : '']">
-            I work broadly at the intersection of performance engineering, site reliability, and
-            full-stack development — building the tooling and automation that keeps production
-            honest across a wide range of languages and frameworks.
+            I like solving complex problems, and always looking for new ways to have an impact. I'm
+            having a pretty good time doing it.
           </p>
 
           <!-- CTAs with hover-to-type (via terminal bridge) -->

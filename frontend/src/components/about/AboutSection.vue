@@ -11,7 +11,7 @@ let observer: IntersectionObserver | null = null
 
 // Photos — swap placeholders for real images later
 const photos = [
-  { src: '', caption: 'Henderson, Nevada' },
+  { src: '', caption: 'Las Vegas, Nevada' },
   { src: '', caption: 'Las Vegas Strip' },
   { src: '', caption: 'Red Rock Canyon' },
   { src: '', caption: 'Dallas, Texas' },
@@ -141,14 +141,14 @@ onUnmounted(() => {
         <!-- Bio text -->
         <div class="about-text">
           <p class="bio-line">
-            I'm <strong>Justin</strong> — born and raised in Henderson, Nevada, now working out of
-            the Dallas area. Off the clock, you'll usually find me somewhere new, hunting down great
-            food, or driving with good music and no real destination.
+            I'm <strong>Justin</strong>. I grew up in Las Vegas, Nevada, but life has taken me to
+            the Dallas area. Off the clock I like to play pickleball and snowboard whenever I can
+            get to a mountain. I've also recently become a coffee connoisseur to "save money".
           </p>
           <p class="bio-line mt-4">
-            I work broadly across performance engineering, site reliability, and full-stack software
-            — the kind of work that lives between load tests, distributed traces, and the tooling
-            that sits in the middle.
+            At work I focus on the cutting edge use of AI, by designing and developing ways to help
+            teams get releases and security fixes out the door faster. In Fall 2027 I'll also be
+            starting Georgia Tech's online master's in computer science.
           </p>
           <div class="mt-6">
             <a

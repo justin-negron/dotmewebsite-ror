@@ -601,7 +601,6 @@ async function runBoot() {
 
   const sequence: { cmd: string; res: string; delay: number }[] = [
     { cmd: 'status', res: 'shipping code', delay: 300 },
-    { cmd: 'stack', res: 'rails + vue + aws', delay: 250 },
   ]
 
   await new Promise((r) => setTimeout(r, 800))

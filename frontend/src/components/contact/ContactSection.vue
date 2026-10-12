@@ -120,7 +120,7 @@ onUnmounted(() => {
         <span class="section-label">$ mail -s "hello"</span>
         <h2 class="section-title mt-3">Get In Touch</h2>
         <p class="section-subtitle mt-4 mx-auto max-w-xl">
-          Have a project in mind, want to collaborate, or just want to say hi? Drop me a message.
+          Got a question or just want to say hi? Send me a message.
         </p>
       </div>
 
@@ -301,7 +301,7 @@ onUnmounted(() => {
                 v-model="form.message"
                 class="field-textarea"
                 :class="{ 'has-error': errors.message, 'is-focused': focusedField === 'message' }"
-                placeholder="Tell me about your project, idea, or just say hello..."
+                placeholder="What's on your mind?"
                 rows="5"
                 @focus="focusedField = 'message'"
                 @blur="handleBlur('message')"

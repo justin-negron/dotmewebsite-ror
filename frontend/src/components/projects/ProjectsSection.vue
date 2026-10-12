@@ -48,8 +48,7 @@ onUnmounted(() => {
         <span class="section-label">$ ls projects/</span>
         <h2 class="section-title mt-3">Projects</h2>
         <p class="section-subtitle mt-4 mx-auto max-w-xl">
-          A selection of things I've built — from full-stack apps to developer tools, each one an
-          exercise in clean code and thoughtful design.
+          A few things I've built, mostly in school and on my own time.
         </p>
       </div>
 

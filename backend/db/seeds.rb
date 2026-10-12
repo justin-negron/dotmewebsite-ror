@@ -78,10 +78,10 @@ experiences_data = [
     company: "Bank of America",
     position: "Software Engineer II",
     start_date: Date.new(2026, 7, 16),
-    description: "Internal AI tooling: building agents for whatever the org needs next, and helping teammates actually use them.\n" \
-                 "Building the agent that checks a release is ready before it reaches the human approval gate, pulling from Jira, Octane, and internal APIs so vulnerability fixes ship faster.\n" \
-                 "Running bank-wide build trace analysis with Moderne CLI so leadership can see which codebases are falling behind on dependencies.",
-    technologies: ["AI Agents", "Moderne CLI", "Jira", "Octane", "REST APIs"],
+    description: "Build internal AI tools, including agents that help teams ship releases and security fixes faster.\n" \
+                 "Engage with teams to adopt those tools and fit them into their SDLC.\n" \
+                 "Track dependency health across the organization's codebases to know where automation can benefit the most.",
+    technologies: ["AI Agents", "LLMs", "REST APIs", "Jira", "Copilot Studio", "Moderne"],
     display_order: 1,
     experience_type: "work"
   },
@@ -90,10 +90,10 @@ experiences_data = [
     position: "Software Engineer",
     start_date: Date.new(2024, 2, 26),
     end_date: Date.new(2026, 7, 15),
-    description: "Performance and site reliability engineering for enterprise banking applications serving 2M+ users.\n" \
-                 "Planned each release's load testing with Product, Dev, and Production Support, then recalibrated tests from production traffic so results matched what production would actually see.\n" \
-                 "Built Python and Bash automation and an in-house test orchestrator that turned multi-day manual validation into self-service runs.\n" \
-                 "Won 1st of 22 teams at a 2024 internal hackathon and 3rd of 400+ at the 2025 Improve-a-thon.",
+    description: "Performance engineering and site reliability for enterprise banking apps serving 2M+ users.\n" \
+                 "Worked out each release's load tests with Product, Dev, and Production Support, and tuned them against real production traffic so the results meant something.\n" \
+                 "Built Python and Bash automation plus an in-house test orchestrator, so multi-day manual validation became something people could kick off themselves.\n" \
+                 "Placed 1st of 22 teams at a 2024 internal hackathon and 3rd of 400+ at the 2025 Improve-a-thon.",
     technologies: ["Python", "Bash", "SQL", "Java", "C", "LoadRunner", "JMeter", "Dynatrace", "Splunk"],
     display_order: 1,
     experience_type: "work"

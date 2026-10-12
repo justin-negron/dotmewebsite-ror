@@ -20,19 +20,13 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Portfolio',
       description:
-        'Justin Negron is a full-stack software engineer specializing in Ruby on Rails and Vue.js. Explore my projects, work experience, technical blog, and get in touch.',
+        'Justin Negron is a software engineer in Dallas building internal AI tools and agents at a large bank.',
       requiresAuth: false,
     },
   },
   {
     path: '/about',
-    name: 'about',
-    component: () => import('@/views/AboutView.vue'),
-    meta: {
-      title: 'About',
-      description: 'Learn more about Justin Negron — background, skills, and what I love building.',
-      requiresAuth: false,
-    },
+    redirect: { path: '/', hash: '#about' },
   },
   {
     path: '/blog',
