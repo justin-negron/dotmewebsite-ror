@@ -1,12 +1,20 @@
 -- Removes the sample data that db/seeds.rb inserted into production on
 -- 2026-03-19 at 04:04:17 UTC (the old seeds created fake contacts, backdated
 -- page views, and placeholder blog posts). Real content is never touched: every
--- row must fall inside the one-second seed run AND match the seed's content.
+-- row must fall inside the seed run's window (04:04:16-04:04:18 UTC) AND match
+-- the seed's content (names, backdated timestamps, exact blog body hashes).
 --
 -- Dry run (default, rolls back):
---   psql -v ON_ERROR_STOP=1 -d <db> -f purge-fake-seed-data.sql
--- Apply:
---   psql -v ON_ERROR_STOP=1 -v commit=1 -d <db> -f purge-fake-seed-data.sql
+--   psql -d <db> -f purge-fake-seed-data.sql
+-- Apply (only the exact value 1 commits):
+--   psql -v commit=1 -d <db> -f purge-fake-seed-data.sql
+
+\set ON_ERROR_STOP on
+\if :{?commit}
+\else
+  \set commit 0
+\endif
+SELECT :'commit' = '1' AS do_commit \gset
 
 \set seed_from '''2026-03-19 04:04:16'''
 \set seed_to   '''2026-03-19 04:04:18'''
@@ -45,7 +53,7 @@ SELECT 'blog_posts' AS tbl, count(*) FROM blog_posts
 UNION ALL SELECT 'contacts', count(*) FROM contacts
 UNION ALL SELECT 'page_views', count(*) FROM page_views;
 
-\if :{?commit}
+\if :do_commit
   COMMIT;
   \echo 'COMMITTED'
 \else

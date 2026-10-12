@@ -1,7 +1,9 @@
 # Seeds the admin user and the real portfolio content shown on justinnegron.dev.
-# Idempotent: records are matched by natural key (project title; experience
-# company + start date) and never overwritten, so it is safe to re-run anywhere,
-# including production after content edits in admin.
+# Records are matched by natural key (project title; experience company + start
+# date) and existing ones are never modified, so re-running neither duplicates
+# nor overwrites. A record whose key was changed or that was deleted in admin
+# would be re-created, so production only runs this on an empty database
+# (via db:prepare).
 # No sample blog posts, contacts, or page views: those come from real use.
 
 puts "\n=== Seeding Database ==="

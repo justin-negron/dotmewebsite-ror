@@ -36,6 +36,14 @@ RSpec.describe 'Api::V1::Admin::Uploads', type: :request do
       expect(json_data[:public_url]).to eq("https://assets.example.com/#{json_data[:key]}")
     end
 
+    it 'returns a public URL that BlogPost accepts as cover_image_url' do
+      post '/api/v1/admin/uploads/presign',
+           params: { filename: 'My Photo (1).JPG', content_type: 'image/jpeg' },
+           headers: headers, as: :json
+
+      expect(build(:blog_post, cover_image_url: json_data[:public_url])).to be_valid
+    end
+
     %w[image/jpeg image/png image/gif image/webp].each do |type|
       it "accepts #{type}" do
         post '/api/v1/admin/uploads/presign',
