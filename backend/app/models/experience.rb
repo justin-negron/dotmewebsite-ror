@@ -8,7 +8,7 @@ class Experience < ApplicationRecord
 
   # Scopes
   scope :ordered, -> { order(start_date: :desc) }
-  scope :current, -> { where(end_date: nil) }
+  scope :current, -> { where(end_date: nil).where(start_date: ..Date.current) }
   scope :past, -> { where.not(end_date: nil) }
   scope :work, -> { where(experience_type: 'work') }
   scope :education, -> { where(experience_type: 'education') }
@@ -18,11 +18,17 @@ class Experience < ApplicationRecord
 
   # Instance methods
   def current?
-    end_date.nil?
+    end_date.nil? && !upcoming?
+  end
+
+  # Starts in the future, e.g. an admitted-but-not-started degree.
+  def upcoming?
+    start_date.present? && start_date > Date.current
   end
 
   def duration
     return 'N/A' if start_date.nil?
+    return "Incoming #{season(start_date)} #{start_date.year}" if upcoming?
     
     start_year = start_date.year
     end_year = end_date&.year || Date.current.year
@@ -40,6 +46,14 @@ class Experience < ApplicationRecord
   end
 
   private
+
+  def season(date)
+    case date.month
+    when 1..5 then 'Spring'
+    when 6..7 then 'Summer'
+    else 'Fall'
+    end
+  end
 
   def end_date_after_start_date
     return if end_date.blank? || start_date.blank?

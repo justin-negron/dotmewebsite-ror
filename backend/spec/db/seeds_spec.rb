@@ -27,9 +27,21 @@ RSpec.describe 'db/seeds.rb' do
   it 'seeds only real portfolio content' do
     load_seeds
     expect(Project.count).to eq(4)
-    expect(Experience.count).to eq(6)
+    expect(Experience.count).to eq(7)
     expect(Experience.pluck(:company)).to include('University of Nevada, Las Vegas',
                                                   'Georgia Institute of Technology')
+  end
+
+  it 'reflects the current career timeline' do
+    travel_to(Date.new(2026, 10, 11)) do
+      load_seeds
+      bofa = Experience.where(company: 'Bank of America').index_by(&:position)
+
+      expect(bofa['Software Engineer II']).to be_current
+      expect(bofa['Software Engineer'].duration).to eq('February 2024 - July 2026')
+      expect(Experience.find_by(company: 'Georgia Institute of Technology').duration)
+        .to eq('Incoming Fall 2027')
+    end
   end
 
   it 'creates no placeholder blog posts, contacts, or page views' do

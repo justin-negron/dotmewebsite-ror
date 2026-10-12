@@ -76,10 +76,25 @@ puts "\nCreating experiences..."
 experiences_data = [
   {
     company: "Bank of America",
+    position: "Software Engineer II",
+    start_date: Date.new(2026, 7, 16),
+    description: "Internal AI tooling: building agents for whatever the org needs next, and helping teammates actually use them.\n" \
+                 "Building the agent that checks a release is ready before it reaches the human approval gate, pulling from Jira, Octane, and internal APIs so vulnerability fixes ship faster.\n" \
+                 "Running bank-wide build trace analysis with Moderne CLI so leadership can see which codebases are falling behind on dependencies.",
+    technologies: ["AI Agents", "Moderne CLI", "Jira", "Octane", "REST APIs"],
+    display_order: 1,
+    experience_type: "work"
+  },
+  {
+    company: "Bank of America",
     position: "Software Engineer",
     start_date: Date.new(2024, 2, 26),
-    description: "Efforts are focused in Performance, Observability, and Site Reliability.",
-    technologies: ["Java", "C", "Python", "Vugen", "BitBucket", "Splunk", "Dynatrace"],
+    end_date: Date.new(2026, 7, 15),
+    description: "Performance and site reliability engineering for enterprise banking applications serving 2M+ users.\n" \
+                 "Planned each release's load testing with Product, Dev, and Production Support, then recalibrated tests from production traffic so results matched what production would actually see.\n" \
+                 "Built Python and Bash automation and an in-house test orchestrator that turned multi-day manual validation into self-service runs.\n" \
+                 "Won 1st of 22 teams at a 2024 internal hackathon and 3rd of 400+ at the 2025 Improve-a-thon.",
+    technologies: ["Python", "Bash", "SQL", "Java", "C", "LoadRunner", "JMeter", "Dynatrace", "Splunk"],
     display_order: 1,
     experience_type: "work"
   },
@@ -133,7 +148,7 @@ experiences_data = [
   {
     company: "Georgia Institute of Technology",
     position: "M.S in Computer Science",
-    start_date: Date.new(2026, 8, 15),
+    start_date: Date.new(2027, 8, 15),
     description: "Specialization in Computing Systems",
     technologies: [],
     display_order: 5,
