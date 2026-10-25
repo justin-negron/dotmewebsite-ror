@@ -3,13 +3,13 @@ module Api
     class BlogPostsController < BaseController
       def index
         @blog_posts = BlogPost.published.recent
-        
+
         # Filter by tag if requested
         @blog_posts = @blog_posts.by_tag(params[:tag]) if params[:tag].present?
-        
+
         # Pagination
-        @blog_posts = @blog_posts.page(params[:page]).per(params[:per_page] || 10)
-        
+        @blog_posts = @blog_posts.page(page_param).per(per_page(10))
+
         render_success(
           BlogPostResource.new(@blog_posts).to_h,
           meta: pagination_meta(@blog_posts)

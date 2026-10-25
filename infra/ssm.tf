@@ -28,7 +28,7 @@ locals {
     DB_PASSWORD         = random_password.lightsail_db.result
     SECRET_KEY_BASE     = random_password.lightsail_secret_key_base.result
     JWT_SECRET          = random_password.lightsail_jwt_secret.result
-    # Shared with the legacy EC2 origin until teardown so CloudFront can switch either way
+    # Must equal the X-CloudFront-Secret header the site distribution sends (site.tf)
     CLOUDFRONT_SECRET     = random_password.cloudfront_secret.result
     FRONTEND_URL          = "https://${var.domain_name}"
     AWS_REGION            = var.aws_region
@@ -57,9 +57,4 @@ resource "aws_ssm_parameter" "app" {
   name  = "${local.ssm_prefix}/${each.key}"
   type  = "SecureString"
   value = local.app_config[each.key]
-
-  tags = {
-    Environment = var.environment
-    Project     = "justinnegron-dev"
-  }
 }

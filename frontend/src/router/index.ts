@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { trackPageView } from '@/services/analytics'
 import { updateHead } from '@/composables/useHead'
+import { focusSection } from '@/composables/useScrollTo'
+import { prefersReducedMotion } from '@/utils/motion'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -164,20 +166,24 @@ const router = createRouter({
       return savedPosition
     }
 
+    const behavior: ScrollBehavior = prefersReducedMotion() ? 'auto' : 'smooth'
+
     if (to.hash) {
       // Cross-route hash nav: delay scroll until the page transition finishes
       // (mode="out-in": 200ms leave + 350ms enter = 550ms; 650ms gives a safe buffer)
       if (from.path !== to.path) {
         return new Promise((resolve) => {
           setTimeout(() => {
-            resolve({ el: to.hash, behavior: 'smooth' as const, top: 80 })
+            resolve({ el: to.hash, behavior, top: 80 })
+            const section = document.getElementById(to.hash.slice(1))
+            if (section) focusSection(section)
           }, 650)
         })
       }
-      return { el: to.hash, behavior: 'smooth' as const, top: 80 }
+      return { el: to.hash, behavior, top: 80 }
     }
 
-    return { top: 0, behavior: 'smooth' as const }
+    return { top: 0, behavior }
   },
 })
 
@@ -188,6 +194,7 @@ router.beforeEach(async (to, _from, next) => {
     description: (to.meta.description as string) || '',
     path: to.path,
     type: to.name === 'blog-post' ? 'article' : 'website',
+    noindex: to.name === 'not-found',
   })
 
   if (to.matched.some((r) => r.meta.requiresAuth)) {

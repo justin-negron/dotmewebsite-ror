@@ -38,7 +38,7 @@ export const useBlogStore = defineStore('blog', () => {
     params: { page?: number; per_page?: number; tag?: string } = {},
     force = false
   ): Promise<void> {
-    const tagChanged = params.tag !== undefined && params.tag !== currentTag.value
+    const tagChanged = (params.tag ?? null) !== currentTag.value
     const pageChanged = params.page !== undefined && params.page !== currentPage.value
 
     if (postsLoaded.value && !force && !tagChanged && !pageChanged) return
@@ -61,6 +61,7 @@ export const useBlogStore = defineStore('blog', () => {
   }
 
   async function fetchPost(slug: string): Promise<void> {
+    error.value = null
     const cached = posts.value.find((p) => p.slug === slug)
 
     if (cached) {
@@ -69,12 +70,12 @@ export const useBlogStore = defineStore('blog', () => {
     }
 
     loading.value = true
-    error.value = null
 
     try {
       const response = await getBlogPost(slug)
       currentPost.value = response.data
     } catch (err) {
+      currentPost.value = null
       error.value = err as ApiError
     } finally {
       loading.value = false

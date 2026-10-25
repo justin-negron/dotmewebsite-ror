@@ -7,7 +7,8 @@ export interface ApiSuccessResponse<T> {
 export interface ApiErrorResponse {
   success: false
   message: string
-  errors?: Record<string, string[]> | null
+  /** Rails sends full messages, e.g. ["Email is invalid"]. */
+  errors?: string[] | null
 }
 
 export interface PaginationMeta {
@@ -19,6 +20,6 @@ export interface PaginationMeta {
 
 export interface ApiError {
   message: string
-  errors: Record<string, string[]> | null
+  errors: string[] | null
   status: number | null
 }

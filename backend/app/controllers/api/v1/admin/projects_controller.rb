@@ -2,10 +2,10 @@ module Api
   module V1
     module Admin
       class ProjectsController < BaseController
-        before_action :set_project, only: [:show, :update, :destroy]
+        before_action :set_project, only: [ :show, :update, :destroy ]
 
         def index
-          projects = Project.ordered.page(params[:page]).per(params[:per_page] || 20)
+          projects = Project.ordered.page(page_param).per(per_page(20))
           render_success(ProjectResource.new(projects).to_h, meta: pagination_meta(projects))
         end
 
@@ -25,7 +25,7 @@ module Api
 
         def destroy
           @project.destroy!
-          render_success({ message: 'Project deleted' })
+          render_success({ message: "Project deleted" })
         end
 
         private
@@ -37,7 +37,7 @@ module Api
         def project_params
           params.require(:project).permit(
             :title, :description, :featured, :display_order,
-            :github_url, :live_url, :image_url, tech_stack: []
+            :github_url, :live_url, :paper_url, tech_stack: [], media_urls: []
           )
         end
       end

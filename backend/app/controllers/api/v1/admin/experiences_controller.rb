@@ -2,12 +2,12 @@ module Api
   module V1
     module Admin
       class ExperiencesController < BaseController
-        before_action :set_experience, only: [:show, :update, :destroy]
+        before_action :set_experience, only: [ :show, :update, :destroy ]
 
         def index
           experiences = Experience.ordered
           experiences = experiences.where(experience_type: params[:type]) if params[:type].present?
-          experiences = experiences.page(params[:page]).per(params[:per_page] || 20)
+          experiences = experiences.page(page_param).per(per_page(20))
           render_success(ExperienceResource.new(experiences).to_h, meta: pagination_meta(experiences))
         end
 
@@ -27,7 +27,7 @@ module Api
 
         def destroy
           @experience.destroy!
-          render_success({ message: 'Experience deleted' })
+          render_success({ message: "Experience deleted" })
         end
 
         private

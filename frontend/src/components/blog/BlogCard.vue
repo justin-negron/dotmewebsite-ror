@@ -160,7 +160,7 @@ const formattedDate = computed(() => {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--skin-600);
+  color: var(--skin-700);
   letter-spacing: 0.01em;
 }
 
@@ -171,14 +171,14 @@ const formattedDate = computed(() => {
 .card-readtime {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
-  color: #a8a29e;
+  color: #57534e;
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.04);
 }
 
 :is(.dark *).card-readtime {
-  color: #78716c;
+  color: #a8a29e;
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -195,7 +195,7 @@ const formattedDate = computed(() => {
 }
 
 .blog-card:hover .card-title {
-  color: var(--skin-600);
+  color: var(--skin-700);
 }
 
 :is(.dark *).card-title {
@@ -279,13 +279,13 @@ const formattedDate = computed(() => {
 .card-views {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
-  color: #a8a29e;
+  color: #57534e;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 :is(.dark *).card-views {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 /* ===================================================================

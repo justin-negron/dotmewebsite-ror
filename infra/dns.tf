@@ -18,9 +18,7 @@ resource "aws_acm_certificate" "main" {
   validation_method         = "DNS"
 
   tags = {
-    Name        = "${var.domain_name}-cert"
-    Environment = var.environment
-    Project     = "justinnegron-dev"
+    Name = "${var.domain_name}-cert"
   }
 
   lifecycle {

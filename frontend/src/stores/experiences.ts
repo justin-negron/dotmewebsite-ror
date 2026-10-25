@@ -41,7 +41,7 @@ export const useExperiencesStore = defineStore('experiences', () => {
     error.value = null
 
     try {
-      const response = await getExperiences()
+      const response = await getExperiences({ per_page: 100 })
       experiences.value = response.data
       loaded.value = true
     } catch (err) {

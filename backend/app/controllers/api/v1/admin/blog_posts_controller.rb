@@ -2,11 +2,11 @@ module Api
   module V1
     module Admin
       class BlogPostsController < BaseController
-        before_action :set_blog_post, only: [:show, :update, :destroy, :publish, :unpublish]
+        before_action :set_blog_post, only: [ :show, :update, :destroy, :publish, :unpublish ]
 
         def index
           blog_posts = BlogPost.recent
-          blog_posts = blog_posts.page(params[:page]).per(params[:per_page] || 20)
+          blog_posts = blog_posts.page(page_param).per(per_page(20))
           render_success(BlogPostResource.new(blog_posts).to_h, meta: pagination_meta(blog_posts))
         end
 
@@ -26,7 +26,7 @@ module Api
 
         def destroy
           @blog_post.destroy!
-          render_success({ message: 'Blog post deleted' })
+          render_success({ message: "Blog post deleted" })
         end
 
         def publish

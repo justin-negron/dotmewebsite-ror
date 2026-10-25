@@ -1,0 +1,266 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1290" viewBox="0 0 2000 1290" role="img" aria-labelledby="t">
+<title id="t">justinnegron.dev system architecture (C4 container view)</title>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#D6D3D1"/></marker>
+  <marker id="arrow-ops" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A8A29E"/></marker>
+</defs>
+<rect width="2000" height="1290" fill="#141312"/>
+<text x="60" y="80" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#F5F5F4" text-anchor="start">justinnegron.dev — system architecture</text>
+<text x="60" y="112" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#A8A29E" text-anchor="start">C4 container view · Vue 3 single-page app on CloudFront + S3 · Rails 8.1 API on Lightsail behind the same distribution · AWS us-east-1, managed with Terraform · October 2026</text>
+<rect x="60" y="200" width="260" height="295" rx="12" fill="#1C1B1A" stroke="#44403C" stroke-width="1.5"/>
+<text x="76" y="228" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#D6D3D1" text-anchor="start">Legend</text>
+<rect x="76" y="240" width="28" height="18" rx="4" fill="#292524" stroke="#A8A29E" stroke-width="1.5"/>
+<text x="114" y="254" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Person</text>
+<rect x="76" y="268" width="28" height="18" rx="4" fill="#1E1B4B" stroke="#818CF8" stroke-width="1.5"/>
+<text x="114" y="282" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Web app / static site</text>
+<rect x="76" y="296" width="28" height="18" rx="4" fill="#172554" stroke="#60A5FA" stroke-width="1.5"/>
+<text x="114" y="310" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Service</text>
+<rect x="76" y="324" width="28" height="18" rx="4" fill="#3F2A06" stroke="#F59E0B" stroke-width="1.5"/>
+<text x="114" y="338" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Data store</text>
+<rect x="76" y="352" width="28" height="18" rx="4" fill="#431407" stroke="#FB923C" stroke-width="1.5"/>
+<text x="114" y="366" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">AWS managed service</text>
+<rect x="76" y="380" width="28" height="18" rx="4" fill="#052E16" stroke="#4ADE80" stroke-width="1.5"/>
+<text x="114" y="394" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Delivery &amp; operations</text>
+<path d="M76,420 L104,420" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<text x="114" y="424" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Runtime request / data flow</text>
+<path d="M76,448 L104,448" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<text x="114" y="452" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Deploy &amp; operations</text>
+<rect x="60" y="532" width="260" height="140" rx="12" fill="#292524" stroke="#A8A29E" stroke-width="2"/>
+<text x="74" y="561" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Visitor</text>
+<rect x="74" y="575" width="160" height="20" rx="10" fill="#A8A29E" opacity="0.22"/>
+<text x="82" y="589" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#A8A29E" text-anchor="start">Person · any browser</text>
+<text x="74" y="616" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">Reads the portfolio, submits</text>
+<text x="74" y="634" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">the contact form.</text>
+<rect x="60" y="712" width="260" height="140" rx="12" fill="#292524" stroke="#A8A29E" stroke-width="2"/>
+<text x="74" y="741" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Justin (admin)</text>
+<rect x="74" y="755" width="131" height="20" rx="10" fill="#A8A29E" opacity="0.22"/>
+<text x="82" y="769" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#A8A29E" text-anchor="start">Person · browser</text>
+<text x="74" y="796" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">Signs in at /admin to edit</text>
+<text x="74" y="814" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">projects, experience and blog</text>
+<text x="74" y="832" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">posts, and to upload images.</text>
+<rect x="420" y="200" width="460" height="760" rx="18" fill="#1C1B1A" stroke="#57534E" stroke-width="2" stroke-dasharray="10 7"/>
+<text x="438" y="226" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#D6D3D1" text-anchor="start">Edge</text>
+<text x="438" y="245" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#A8A29E" text-anchor="start">Amazon CloudFront · Route 53 · ACM</text>
+<rect x="450" y="250" width="400" height="150" rx="12" fill="#431407" stroke="#FB923C" stroke-width="2"/>
+<text x="464" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">assets.justinnegron.dev</text>
+<rect x="464" y="293" width="138" height="20" rx="10" fill="#FB923C" opacity="0.22"/>
+<text x="472" y="307" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#FB923C" text-anchor="start">Amazon CloudFront</text>
+<text x="464" y="334" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">Serves project and blog images from the assets</text>
+<text x="464" y="352" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">bucket through an origin access control.</text>
+<text x="464" y="370" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">Immutable caching: 30-day default, 1-year</text>
+<text x="464" y="388" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">maximum.</text>
+<rect x="450" y="440" width="400" height="360" rx="12" fill="#431407" stroke="#FB923C" stroke-width="2"/>
+<text x="464" y="469" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">justinnegron.dev</text>
+<rect x="464" y="483" width="138" height="20" rx="10" fill="#FB923C" opacity="0.22"/>
+<text x="472" y="497" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#FB923C" text-anchor="start">Amazon CloudFront</text>
+<text x="464" y="524" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">Default behavior: the single-page app from</text>
+<text x="464" y="545" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">the site bucket via origin access control,</text>
+<text x="464" y="566" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">with 403/404 rewritten to index.html for</text>
+<text x="464" y="587" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">client-side routing. /api/* and /health:</text>
+<text x="464" y="608" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">proxied to the Lightsail origin over HTTPS</text>
+<text x="464" y="629" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">with caching disabled and an</text>
+<text x="464" y="650" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">X-CloudFront-Secret header the API</text>
+<text x="464" y="671" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">verifies. A CloudFront Function redirects</text>
+<text x="464" y="692" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">www to the apex. HTTP/2 and HTTP/3, edges</text>
+<text x="464" y="713" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#D6D3D1" text-anchor="start">in North America and Europe.</text>
+<rect x="450" y="825" width="400" height="120" rx="12" fill="#431407" stroke="#FB923C" stroke-width="2"/>
+<text x="464" y="854" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">DNS &amp; certificates</text>
+<rect x="464" y="868" width="117" height="20" rx="10" fill="#FB923C" opacity="0.22"/>
+<text x="472" y="882" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#FB923C" text-anchor="start">Route 53 · ACM</text>
+<text x="464" y="909" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">A/AAAA records for apex, www, assets and origin.</text>
+<text x="464" y="927" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">One ACM certificate (apex + wildcard).</text>
+<rect x="940" y="200" width="1000" height="760" rx="18" fill="#1C1B1A" stroke="#57534E" stroke-width="2" stroke-dasharray="10 7"/>
+<text x="958" y="226" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#D6D3D1" text-anchor="start">AWS · us-east-1</text>
+<text x="958" y="245" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#A8A29E" text-anchor="start">Every resource here is declared in infra/ (Terraform, remote state in S3)</text>
+<rect x="970" y="250" width="280" height="150" rx="12" fill="#3F2A06" stroke="#F59E0B" stroke-width="2"/>
+<text x="984" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Assets bucket</text>
+<rect x="984" y="293" width="239" height="20" rx="10" fill="#F59E0B" opacity="0.22"/>
+<text x="992" y="307" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#F59E0B" text-anchor="start">Amazon S3 · private · versioned</text>
+<text x="984" y="334" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">Project and blog images. Browser</text>
+<text x="984" y="352" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">uploads go straight here via</text>
+<text x="984" y="370" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">presigned PUT URLs from the API.</text>
+<rect x="1290" y="250" width="280" height="150" rx="12" fill="#1E1B4B" stroke="#818CF8" stroke-width="2"/>
+<text x="1304" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Site bucket</text>
+<rect x="1304" y="293" width="239" height="20" rx="10" fill="#818CF8" opacity="0.22"/>
+<text x="1312" y="307" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#818CF8" text-anchor="start">Amazon S3 · private · versioned</text>
+<text x="1304" y="334" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">The Vue 3 + TypeScript build:</text>
+<text x="1304" y="352" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">index.html plus hashed JS and</text>
+<text x="1304" y="370" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">CSS. Readable only through</text>
+<text x="1304" y="388" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">CloudFront.</text>
+<rect x="970" y="440" width="630" height="355" rx="18" fill="#1C1B1A" stroke="#57534E" stroke-width="2" stroke-dasharray="10 7"/>
+<text x="988" y="466" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#D6D3D1" text-anchor="start">Lightsail · justinnegron-app · 443 public, SSH from one IP</text>
+<text x="988" y="485" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#A8A29E" text-anchor="start">Ubuntu 24.04 · static IP · Docker Compose</text>
+<rect x="995" y="507" width="130" height="190" rx="12" fill="#172554" stroke="#60A5FA" stroke-width="2"/>
+<text x="1009" y="536" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Caddy 2</text>
+<rect x="1009" y="550" width="110" height="20" rx="10" fill="#60A5FA" opacity="0.22"/>
+<text x="1017" y="564" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#60A5FA" text-anchor="start">Reverse proxy</text>
+<text x="1009" y="591" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">Let's Encrypt</text>
+<text x="1009" y="608" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">TLS. Proxies</text>
+<text x="1009" y="625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">to web:3000,</text>
+<text x="1009" y="642" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">keeps</text>
+<text x="1009" y="659" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">X-Forwarded-For.</text>
+<rect x="1180" y="507" width="205" height="190" rx="12" fill="#172554" stroke="#60A5FA" stroke-width="2"/>
+<text x="1194" y="536" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Rails 8.1 API</text>
+<rect x="1194" y="550" width="124" height="20" rx="10" fill="#60A5FA" opacity="0.22"/>
+<text x="1202" y="564" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#60A5FA" text-anchor="start">Ruby 3.4 · Puma</text>
+<text x="1194" y="591" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">JSON API at /api/v1</text>
+<text x="1194" y="609" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">(Alba). JWT admin auth,</text>
+<text x="1194" y="627" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Rack::Attack limits,</text>
+<text x="1194" y="645" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">CloudFront-secret</text>
+<text x="1194" y="663" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">check. Solid Queue</text>
+<text x="1194" y="681" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">in-process.</text>
+<rect x="1440" y="507" width="150" height="190" rx="12" fill="#3F2A06" stroke="#F59E0B" stroke-width="2"/>
+<text x="1454" y="535" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#F5F5F4" text-anchor="start">Postgres 17</text>
+<rect x="1454" y="546" width="74" height="20" rx="10" fill="#F59E0B" opacity="0.22"/>
+<text x="1462" y="560" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#F59E0B" text-anchor="start">Database</text>
+<text x="1454" y="587" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">Content,</text>
+<text x="1454" y="604" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">contacts, page</text>
+<text x="1454" y="621" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">views, Solid</text>
+<text x="1454" y="638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">Queue jobs.</text>
+<text x="1454" y="655" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6D3D1" text-anchor="start">Docker volume.</text>
+<rect x="995" y="715" width="295" height="62" rx="8" fill="#1C1B1A" stroke="#78716C" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="1007" y="735" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F5F4" text-anchor="start">deploy.sh</text>
+<text x="1007" y="752" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#A8A29E" text-anchor="start">.env from SSM · docker pull from ECR ·</text>
+<text x="1007" y="769" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#A8A29E" text-anchor="start">db:migrate · compose up --wait</text>
+<rect x="1310" y="715" width="265" height="62" rx="8" fill="#1C1B1A" stroke="#78716C" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="1322" y="735" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F5F4" text-anchor="start">Backup timer · daily 08:30 UTC</text>
+<text x="1322" y="752" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#A8A29E" text-anchor="start">pg_dump of the database → backups</text>
+<text x="1322" y="769" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#A8A29E" text-anchor="start">bucket</text>
+<rect x="1660" y="250" width="250" height="150" rx="12" fill="#431407" stroke="#FB923C" stroke-width="2"/>
+<text x="1674" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Transactional email</text>
+<rect x="1674" y="293" width="110" height="20" rx="10" fill="#FB923C" opacity="0.22"/>
+<text x="1682" y="307" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#FB923C" text-anchor="start">Amazon SES v2</text>
+<text x="1674" y="334" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">Contact-form notifications</text>
+<text x="1674" y="352" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">to Justin from</text>
+<text x="1674" y="370" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">notifications@justinnegron.dev.</text>
+<text x="1674" y="388" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">DKIM, SPF and DMARC set up.</text>
+<rect x="1660" y="440" width="250" height="150" rx="12" fill="#431407" stroke="#FB923C" stroke-width="2"/>
+<text x="1674" y="469" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Secrets &amp; config</text>
+<rect x="1674" y="483" width="153" height="20" rx="10" fill="#FB923C" opacity="0.22"/>
+<text x="1682" y="497" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#FB923C" text-anchor="start">SSM Parameter Store</text>
+<text x="1674" y="524" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">DB password,</text>
+<text x="1674" y="542" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">SECRET_KEY_BASE, JWT and</text>
+<text x="1674" y="560" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">CloudFront secrets, mail</text>
+<text x="1674" y="578" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">settings.</text>
+<rect x="1660" y="630" width="250" height="135" rx="12" fill="#431407" stroke="#FB923C" stroke-width="2"/>
+<text x="1674" y="659" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Container registry</text>
+<rect x="1674" y="673" width="88" height="20" rx="10" fill="#FB923C" opacity="0.22"/>
+<text x="1682" y="687" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#FB923C" text-anchor="start">Amazon ECR</text>
+<text x="1674" y="714" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">justinnegron-api images</text>
+<text x="1674" y="732" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">tagged by git SHA. CVE scan</text>
+<text x="1674" y="750" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">on push, last 5 kept.</text>
+<rect x="1660" y="805" width="250" height="120" rx="12" fill="#3F2A06" stroke="#F59E0B" stroke-width="2"/>
+<text x="1674" y="834" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Backups bucket</text>
+<rect x="1674" y="848" width="239" height="20" rx="10" fill="#F59E0B" opacity="0.22"/>
+<text x="1682" y="862" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#F59E0B" text-anchor="start">Amazon S3 · AES-256 · versioned</text>
+<text x="1674" y="889" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">Daily database dumps, 35-day</text>
+<text x="1674" y="907" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6D3D1" text-anchor="start">retention.</text>
+<rect x="60" y="1010" width="1880" height="225" rx="18" fill="#1C1B1A" stroke="#57534E" stroke-width="2" stroke-dasharray="10 7"/>
+<text x="78" y="1036" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#D6D3D1" text-anchor="start">Delivery &amp; operations</text>
+<text x="78" y="1055" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#A8A29E" text-anchor="start">Tests run in CI on every push · deploys are run from the workstation with the scripts below</text>
+<rect x="90" y="1065" width="240" height="150" rx="12" fill="#292524" stroke="#A8A29E" stroke-width="2"/>
+<text x="104" y="1094" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Justin (developer)</text>
+<rect x="104" y="1108" width="160" height="20" rx="10" fill="#A8A29E" opacity="0.22"/>
+<text x="112" y="1122" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#A8A29E" text-anchor="start">Person · workstation</text>
+<text x="104" y="1149" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Pushes to GitHub; runs</text>
+<text x="104" y="1167" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Terraform and the deploy</text>
+<text x="104" y="1185" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">scripts locally.</text>
+<rect x="370" y="1065" width="230" height="150" rx="12" fill="#052E16" stroke="#4ADE80" stroke-width="2"/>
+<text x="384" y="1094" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Source repository</text>
+<rect x="384" y="1108" width="124" height="20" rx="10" fill="#4ADE80" opacity="0.22"/>
+<text x="392" y="1122" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#4ADE80" text-anchor="start">GitHub · public</text>
+<text x="384" y="1149" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">backend/ (Rails), frontend/</text>
+<text x="384" y="1167" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">(Vue), infra/ (Terraform),</text>
+<text x="384" y="1185" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">deploy/ (host files),</text>
+<text x="384" y="1203" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">scripts/.</text>
+<rect x="640" y="1065" width="260" height="150" rx="12" fill="#052E16" stroke="#4ADE80" stroke-width="2"/>
+<text x="654" y="1094" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">CI pipeline</text>
+<rect x="654" y="1108" width="74" height="20" rx="10" fill="#4ADE80" opacity="0.22"/>
+<text x="662" y="1122" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#4ADE80" text-anchor="start">CircleCI</text>
+<text x="654" y="1149" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Every push: RSpec and Brakeman</text>
+<text x="654" y="1167" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">for the API; ESLint, Vitest and</text>
+<text x="654" y="1185" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">a production build for the SPA.</text>
+<text x="654" y="1203" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Deploys stay manual.</text>
+<rect x="950" y="1065" width="260" height="150" rx="12" fill="#052E16" stroke="#4ADE80" stroke-width="2"/>
+<text x="964" y="1094" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">Infrastructure as</text>
+<text x="964" y="1117" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">code</text>
+<rect x="964" y="1131" width="81" height="20" rx="10" fill="#4ADE80" opacity="0.22"/>
+<text x="972" y="1145" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#4ADE80" text-anchor="start">Terraform</text>
+<text x="964" y="1172" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">Declares every AWS resource</text>
+<text x="964" y="1190" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">shown here; remote state in S3.</text>
+<rect x="1260" y="1065" width="300" height="150" rx="12" fill="#052E16" stroke="#4ADE80" stroke-width="2"/>
+<text x="1274" y="1094" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">deploy-frontend.sh</text>
+<rect x="1274" y="1108" width="59" height="20" rx="10" fill="#4ADE80" opacity="0.22"/>
+<text x="1282" y="1122" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#4ADE80" text-anchor="start">Script</text>
+<text x="1274" y="1149" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">npm run build → aws s3 sync to the</text>
+<text x="1274" y="1167" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">site bucket → CloudFront</text>
+<text x="1274" y="1185" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">invalidation.</text>
+<rect x="1610" y="1065" width="300" height="150" rx="12" fill="#052E16" stroke="#4ADE80" stroke-width="2"/>
+<text x="1624" y="1094" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#F5F5F4" text-anchor="start">deploy-backend.sh</text>
+<rect x="1624" y="1108" width="59" height="20" rx="10" fill="#4ADE80" opacity="0.22"/>
+<text x="1632" y="1122" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#4ADE80" text-anchor="start">Script</text>
+<text x="1624" y="1149" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">docker build (linux/amd64) → push to</text>
+<text x="1624" y="1167" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">ECR → rsync deploy/ → ssh deploy.sh</text>
+<text x="1624" y="1185" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">&lt;tag&gt;. Re-run with TAG=&lt;sha&gt; to roll</text>
+<text x="1624" y="1203" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#D6D3D1" text-anchor="start">back.</text>
+<path d="M320,602 L450,602" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="363.125" y="564" width="43.75" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="385" y="575" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">HTTPS</text>
+<rect x="334.525" y="581" width="100.95" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="385" y="592" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">SPA + /api/v1</text>
+<path d="M320,782 L450,782" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="330.95" y="744" width="108.10000000000001" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="385" y="755" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">HTTPS · /admin</text>
+<rect x="345.25" y="761" width="79.5" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="385" y="772" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">JWT bearer</text>
+<path d="M320,552 L385,552 L385,325 L450,325" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="388" y="413" width="50.900000000000006" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="392" y="424" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="start">images</text>
+<path d="M850,325 L970,325" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="863.1" y="301" width="93.80000000000001" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="910" y="312" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">OAC · images</text>
+<path d="M850,480 L900,480 L900,425 L1430,425 L1430,400" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="1078.775" y="405" width="172.45000000000002" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1165" y="416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">OAC (SigV4) · SPA files</text>
+<path d="M850,602 L995,602" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="860.8" y="564" width="122.4" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="922" y="575" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">/api/* · /health</text>
+<rect x="842.925" y="581" width="158.15" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="922" y="592" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">HTTPS + secret header</text>
+<path d="M1125,602 L1180,602" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="1133.7" y="583" width="36.6" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1152" y="594" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">HTTP</text>
+<path d="M1385,602 L1440,602" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="1397.275" y="583" width="29.450000000000003" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1412" y="594" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="middle">SQL</text>
+<path d="M1380,507 L1380,497 L1630,497 L1630,325 L1660,325" fill="none" stroke="#D6D3D1" stroke-width="2.2"  marker-end="url(#arrow)"/>
+<rect x="1489.3" y="407" width="136.70000000000002" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1622" y="418" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="end">SES v2 · SendEmail</text>
+<rect x="1496.45" y="424" width="129.55" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1622" y="435" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#D6D3D1" text-anchor="end">(Solid Queue job)</text>
+<path d="M1660,520 L1600,520" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="1601.95" y="497" width="58.050000000000004" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1656" y="508" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="end">to .env</text>
+<path d="M1660,680 L1600,680" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="1573.35" y="657" width="86.65" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1656" y="668" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="end">docker pull</text>
+<path d="M1575,746 L1630,746 L1630,865 L1660,865" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="1510.75" y="799" width="115.25000000000001" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1622" y="810" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="end">pg_dump · daily</text>
+<path d="M330,1140 L370,1140" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="317.4" y="1117" width="65.2" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="350" y="1128" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="middle">git push</text>
+<path d="M600,1140 L640,1140" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="590.975" y="1117" width="58.050000000000004" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="620" y="1128" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="middle">webhook</text>
+<path d="M1080,1065 L1080,960" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="1088" y="1001" width="115.25000000000001" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1092" y="1012" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="start">terraform apply</text>
+<path d="M1410,1065 L1410,960" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="1418" y="1001" width="165.3" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1422" y="1012" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="start">s3 sync + invalidation</text>
+<path d="M1760,1065 L1760,960" fill="none" stroke="#A8A29E" stroke-width="2.2" stroke-dasharray="8 6" marker-end="url(#arrow-ops)"/>
+<rect x="1768" y="1001" width="201.05" height="17" rx="4" fill="#141312" opacity="0.92"/>
+<text x="1772" y="1012" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#A8A29E" text-anchor="start">docker push · ssh deploy.sh</text>
+<text x="60" y="1266" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#78716C" text-anchor="start">Source: infra/architecture/render.mjs → system-architecture.svg · github.com/justin-negron/dotmewebsite-ror</text>
+</svg>

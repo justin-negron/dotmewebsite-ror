@@ -29,8 +29,8 @@ echo "==> Writing instance AWS credentials"
     "$(terraform output -raw app_aws_secret_access_key)"
 ) | ssh "${SSH_OPTS[@]}" "$REMOTE" 'umask 077 && cat > /opt/app/aws-credentials'
 
-echo "==> Enabling nightly backup timer"
-ssh "${SSH_OPTS[@]}" "$REMOTE" 'sudo install -m 644 /opt/app/systemd/justinnegron-backup.* /etc/systemd/system/ \
+echo "==> Enabling nightly backup timer and its failure alert"
+ssh "${SSH_OPTS[@]}" "$REMOTE" 'sudo install -m 644 /opt/app/systemd/justinnegron-backup* /etc/systemd/system/ \
   && sudo systemctl daemon-reload && sudo systemctl enable --now justinnegron-backup.timer'
 
 echo "==> Done. Next: scripts/deploy-backend.sh"

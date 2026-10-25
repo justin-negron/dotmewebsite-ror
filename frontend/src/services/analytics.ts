@@ -28,18 +28,6 @@ export async function trackPageView(data: PageViewData) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Admin analytics reads — implement in Step 27 (admin dashboard)
-//
-// These endpoints don't exist yet and will require:
-//   - JWT auth headers (admin-only routes)
-//   - Backend routes: GET /api/v1/admin/analytics/stats
-//                     GET /api/v1/admin/analytics/page_views
-//                     GET /api/v1/admin/analytics/popular
-//   - Functions: getStats(), getPageViews(path), getPopularPages(limit),
-//                getTotalPageViews()
-// ---------------------------------------------------------------------------
-
 export default {
   trackPageView,
 }

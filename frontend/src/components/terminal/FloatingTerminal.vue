@@ -3,8 +3,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useWindowScroll, useWindowSize } from '@vueuse/core'
 import { useScrollTo, NAV_ITEMS, type NavItem } from '@/composables/useScrollTo'
-import { useAppearance, SKINS, BACKGROUNDS, SKIN_IDS, BG_IDS } from '@/composables/useAppearance'
-import type { SkinId, BgId } from '@/composables/useAppearance'
+import { useAppearance, isSkinId, isBgId, SKIN_IDS, BG_IDS } from '@/composables/useAppearance'
 import { useTerminalBridge } from '@/composables/useTerminalBridge'
 
 const route = useRoute()
@@ -22,7 +21,7 @@ const isMinimized = ref(false)
 const isDragging = ref(false)
 const isTransitioning = ref(false)
 
-// Page-coordinate position (relative to #app which has position: relative)
+// Page-coordinate position (relative to .app-shell, which has position: relative)
 const pagePos = ref({ x: 0, y: 0 })
 const lockedWidth = ref(0)
 const slotFound = ref(false)
@@ -197,7 +196,8 @@ const savedInput = ref('')
 
 const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   help: {
-    response: 'commands: home, projects, experience, contact, about, resume, skin, bg, clear, exit',
+    response:
+      'commands: home, projects, experience, contact, about, resume, article, skin, bg, clear, exit',
   },
   home: {
     response: 'navigating home...',
@@ -231,6 +231,9 @@ const COMMANDS: Record<string, { response: string; nav?: NavItem }> = {
   resume: {
     response: 'opening resume...',
   },
+  article: {
+    response: 'opening article...',
+  },
   clear: {
     response: '',
   },
@@ -241,6 +244,8 @@ const LINK_ACTIONS: Record<string, string> = {
   linkedin: 'https://www.linkedin.com/in/justin-negron/',
   email: 'mailto:justinnegron174@gmail.com',
   resume: '/Justin_Negron_resume.pdf',
+  article:
+    'https://www.unlv.edu/news/article/rebel-makes-it-happen-academic-probation-dual-degree-engineering',
 }
 
 function scrollTerminal() {
@@ -285,7 +290,7 @@ function executeCommand(cmd: string) {
     return
   }
 
-  const match = COMMANDS[trimmed]
+  const match = Object.hasOwn(COMMANDS, trimmed) ? COMMANDS[trimmed] : undefined
   if (match) {
     history.value.push({ command: trimmed, response: match.response })
     scrollTerminal()
@@ -295,9 +300,10 @@ function executeCommand(cmd: string) {
         followNavigation(match.nav as NavItem)
       }, 400)
     }
-    if (LINK_ACTIONS[trimmed]) {
+    const link = Object.hasOwn(LINK_ACTIONS, trimmed) ? LINK_ACTIONS[trimmed] : undefined
+    if (link) {
       setTimeout(() => {
-        window.open(LINK_ACTIONS[trimmed], '_blank', 'noopener,noreferrer')
+        window.open(link, '_blank', 'noopener,noreferrer')
       }, 400)
     }
     return
@@ -421,8 +427,8 @@ function handleSkinCommand(full: string, arg: string) {
     return
   }
 
-  if (SKINS[arg as SkinId]) {
-    setSkin(arg as SkinId)
+  if (isSkinId(arg)) {
+    setSkin(arg)
     history.value.push({ command: full, response: `skin set to ${arg}` })
   } else {
     history.value.push({
@@ -453,8 +459,8 @@ function handleBgCommand(full: string, arg: string) {
     return
   }
 
-  if (BACKGROUNDS[arg as BgId]) {
-    setBackground(arg as BgId)
+  if (isBgId(arg)) {
+    setBackground(arg)
     history.value.push({ command: full, response: `background set to ${arg}` })
   } else {
     history.value.push({
@@ -539,9 +545,12 @@ function handleKeyDown(e: KeyboardEvent) {
     historyIndex.value = next
     inputValue.value =
       next === -1 ? savedInput.value : (cmdHistory.value[cmdHistory.value.length - 1 - next] ?? '')
-  } else if (e.key === 'Tab') {
-    e.preventDefault()
+  } else if (e.key === 'Tab' && !e.shiftKey) {
+    const before = inputValue.value
     handleTabComplete()
+    if (inputValue.value !== before) e.preventDefault()
+  } else if (e.key === 'Escape') {
+    inputRef.value?.blur()
   }
 }
 
@@ -616,8 +625,6 @@ async function runBoot() {
 
   bootDone.value = true
   terminalReady.value = true
-  await nextTick()
-  inputRef.value?.focus()
 }
 
 /* ========================================================================
@@ -903,6 +910,8 @@ onUnmounted(() => {
   document.removeEventListener('touchend', onMobilePillTouchEnd)
   window.removeEventListener('scroll', onDragScroll, true)
   window.removeEventListener('resize', onResize)
+  removeBeforeGuard()
+  removeAfterHook()
   unregister()
 })
 
@@ -1020,11 +1029,11 @@ watch(scrollY, () => {
 
 // navTransitioning bridges the one-tick gap between a route change and the
 // watcher that calls undock() — prevents a brief isVisible=false flash.
-router.beforeEach(() => {
+const removeBeforeGuard = router.beforeEach(() => {
   navTransitioning.value = true
 })
 
-router.afterEach(() => {
+const removeAfterHook = router.afterEach(() => {
   nextTick(() => {
     navTransitioning.value = false
   })
@@ -1076,6 +1085,8 @@ router.afterEach(() => {
     :style="terminalStyle"
   >
     <div
+      role="region"
+      aria-label="Terminal"
       :class="[
         'terminal-card',
         revealDone ? 'reveal-done' : entered ? 'reveal reveal-terminal is-revealed' : 'reveal',
@@ -1107,16 +1118,18 @@ router.afterEach(() => {
         <div v-if="bootDone && history.length > 0" class="terminal-divider" />
 
         <!-- Command history -->
-        <div v-for="(entry, i) in history" :key="`hist-${i}`">
-          <div class="flex gap-2">
-            <span class="select-none prompt-char">$</span>
-            <span class="cmd-text">{{ entry.command }}</span>
-          </div>
-          <div
-            v-if="entry.response"
-            :class="['ml-4 mb-1', entry.isError ? 'cmd-error' : 'cmd-response']"
-          >
-            {{ entry.response }}
+        <div role="log" aria-label="Terminal output">
+          <div v-for="(entry, i) in history" :key="`hist-${i}`">
+            <div class="flex gap-2">
+              <span class="select-none prompt-char" aria-hidden="true">$</span>
+              <span class="cmd-text">{{ entry.command }}</span>
+            </div>
+            <div
+              v-if="entry.response"
+              :class="['ml-4 mb-1', entry.isError ? 'cmd-error' : 'cmd-response']"
+            >
+              {{ entry.response }}
+            </div>
           </div>
         </div>
 
@@ -1133,9 +1146,11 @@ router.afterEach(() => {
               autocorrect="off"
               autocapitalize="off"
               spellcheck="false"
+              aria-label="Terminal command"
+              :aria-describedby="terminalHint ? 'terminal-hint' : undefined"
               @keydown="handleKeyDown"
             />
-            <span v-if="terminalHint && !inputValue" class="terminal-placeholder">
+            <span v-if="terminalHint" id="terminal-hint" class="terminal-placeholder">
               {{ terminalHint }}
             </span>
           </div>
@@ -1330,7 +1345,7 @@ router.afterEach(() => {
 .terminal-title {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
-  color: #a8a29e;
+  color: #57534e;
   transition: color 0.3s ease;
 }
 
@@ -1373,7 +1388,7 @@ router.afterEach(() => {
 }
 .boot-res {
   margin-left: 1rem;
-  color: #059669;
+  color: #047857;
 }
 .prompt-char {
   color: var(--skin-700);
@@ -1392,7 +1407,7 @@ router.afterEach(() => {
    Terminal text colors — dark mode
    =================================================================== */
 :is(.dark *).boot-cmd {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 :is(.dark *).boot-res {
@@ -1408,7 +1423,7 @@ router.afterEach(() => {
 }
 
 :is(.dark *).cmd-response {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 :is(.dark *).cmd-error {
@@ -1475,14 +1490,14 @@ router.afterEach(() => {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(168, 162, 158, 0.4);
+  color: #78716c;
   font-family: 'JetBrains Mono', monospace;
   font-size: inherit;
   pointer-events: none;
 }
 
 :is(.dark *).terminal-placeholder {
-  color: rgba(168, 162, 158, 0.35);
+  color: #a8a29e;
 }
 
 /* ===================================================================

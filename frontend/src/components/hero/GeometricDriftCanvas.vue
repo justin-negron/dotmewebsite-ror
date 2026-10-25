@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { startAnimationLoop, type AnimationLoop } from './animationLoop'
 
 const props = withDefaults(
   defineProps<{
@@ -16,7 +17,7 @@ const props = withDefaults(
 )
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-let animationId = 0
+let loop: AnimationLoop | null = null
 let ctx: CanvasRenderingContext2D | null = null
 let width = 0
 let height = 0
@@ -190,7 +191,6 @@ function render() {
   }
 
   time++
-  animationId = requestAnimationFrame(render)
 }
 
 /* ========================================================================
@@ -207,6 +207,7 @@ function handleResize() {
   canvasRef.value.style.width = `${width}px`
   canvasRef.value.style.height = `${height}px`
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  loop?.redraw()
 }
 
 function handleMouseMove(e: MouseEvent) {
@@ -238,7 +239,7 @@ onMounted(() => {
 
   handleResize()
   shapes = Array.from({ length: SHAPE_COUNT }, createShape)
-  animationId = requestAnimationFrame(render)
+  loop = startAnimationLoop(canvasRef.value, render)
 
   window.addEventListener('resize', handleResize)
   window.addEventListener('mousemove', handleMouseMove)
@@ -247,8 +248,10 @@ onMounted(() => {
   window.addEventListener('touchend', handleTouchEnd)
 })
 
+watch(props, () => loop?.redraw())
+
 onUnmounted(() => {
-  cancelAnimationFrame(animationId)
+  loop?.stop()
   window.removeEventListener('resize', handleResize)
   window.removeEventListener('mousemove', handleMouseMove)
   window.removeEventListener('mouseleave', handleMouseLeave)

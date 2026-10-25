@@ -32,6 +32,20 @@ RSpec.describe 'Api::V1::Admin::Contacts', type: :request do
 
       expect(response).to have_http_status(:unauthorized)
     end
+
+    it 'falls back to page 1 for an array page' do
+      get '/api/v1/admin/contacts?page[]=2', headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_meta[:current_page]).to eq(1)
+    end
+
+    it 'falls back to page 1 for a hash page' do
+      get '/api/v1/admin/contacts?page[a]=2', headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_meta[:current_page]).to eq(1)
+    end
   end
 
   describe 'GET /api/v1/admin/contacts/:id' do
@@ -65,7 +79,18 @@ RSpec.describe 'Api::V1::Admin::Contacts', type: :request do
             params: { contact: { status: 'invalid' } },
             headers: headers, as: :json
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(json_errors).to eq([ 'Status is not included in the list' ])
+      expect(contact.reload.status).to eq('new')
+    end
+
+    it 'rejects a null status' do
+      patch "/api/v1/admin/contacts/#{contact.id}",
+            params: { contact: { status: nil } },
+            headers: headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(contact.reload.status).to eq('new')
     end
   end
 

@@ -113,6 +113,7 @@ onMounted(() => {
               :ref="(el) => setNavRef(el, index)"
               :href="item.href"
               :class="['nav-link', isActive(item) ? 'is-active' : '']"
+              :aria-current="isActive(item) ? 'location' : undefined"
               @click="handleNavClick($event, item)"
               @mouseenter="handleNavHover(item)"
               @mouseleave="handleNavLeave()"
@@ -321,7 +322,7 @@ onMounted(() => {
 }
 
 :is(.dark *).nav-link {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 :is(.dark *).nav-link:hover {
@@ -356,11 +357,6 @@ onMounted(() => {
 :is(.dark *).hamburger:hover {
   color: #d6d3d1;
   background: rgba(var(--skin-light-rgb), 0.06);
-}
-
-.hamburger:focus-visible {
-  outline: 2px solid var(--skin-500);
-  outline-offset: 2px;
 }
 
 .hamburger-icon {

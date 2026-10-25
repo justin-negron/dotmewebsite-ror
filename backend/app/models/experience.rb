@@ -10,8 +10,8 @@ class Experience < ApplicationRecord
   scope :ordered, -> { order(start_date: :desc) }
   scope :current, -> { where(end_date: nil).where(start_date: ..Date.current) }
   scope :past, -> { where.not(end_date: nil) }
-  scope :work, -> { where(experience_type: 'work') }
-  scope :education, -> { where(experience_type: 'education') }
+  scope :work, -> { where(experience_type: "work") }
+  scope :education, -> { where(experience_type: "education") }
 
   # Callbacks
   before_validation :set_display_order, on: :create
@@ -27,12 +27,12 @@ class Experience < ApplicationRecord
   end
 
   def duration
-    return 'N/A' if start_date.nil?
+    return "N/A" if start_date.nil?
     return "Incoming #{season(start_date)} #{start_date.year}" if upcoming?
-    
+
     start_year = start_date.year
     end_year = end_date&.year || Date.current.year
-    
+
     if start_year == end_year && start_date.month == end_date&.month
       start_date.strftime("%B %Y")
     else
@@ -49,15 +49,15 @@ class Experience < ApplicationRecord
 
   def season(date)
     case date.month
-    when 1..5 then 'Spring'
-    when 6..7 then 'Summer'
-    else 'Fall'
+    when 1..5 then "Spring"
+    when 6..7 then "Summer"
+    else "Fall"
     end
   end
 
   def end_date_after_start_date
     return if end_date.blank? || start_date.blank?
-    
+
     if end_date < start_date
       errors.add(:end_date, "must be after start date")
     end

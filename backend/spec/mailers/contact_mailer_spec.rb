@@ -14,9 +14,9 @@ RSpec.describe ContactMailer, type: :mailer do
 
     it 'goes to the owner from the site address, replying to the visitor' do
       expect(mail.subject).to eq('New Contact Form Submission: Test Subject')
-      expect(mail.to).to eq(['owner@example.com'])
-      expect(mail.from).to eq(['notifications@example.com'])
-      expect(mail.reply_to).to eq(['john@example.com'])
+      expect(mail.to).to eq([ 'owner@example.com' ])
+      expect(mail.from).to eq([ 'notifications@example.com' ])
+      expect(mail.reply_to).to eq([ 'john@example.com' ])
     end
 
     it 'includes contact name in body' do

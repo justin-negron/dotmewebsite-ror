@@ -128,7 +128,7 @@ function handleLeave() {
 }
 
 .social-link:hover {
-  color: var(--skin-600);
+  color: var(--skin-700);
 }
 
 :is(.dark *).social-link {

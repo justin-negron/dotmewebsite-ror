@@ -1,36 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta charset="UTF-8" />
+    <meta name="theme-color" content="#ffffff" />
+    <!-- The CSP allows this script by its sha256 hash, so any edit to it needs a new hash. -->
+    <!-- prettier-ignore -->
+    <script>try{var t=localStorage.getItem('theme-preference');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark')document.documentElement.classList.add('dark');document.querySelector('meta[name="theme-color"]').setAttribute('content',t==='dark'?'#0f0f0f':'#ffffff')}catch(e){}</script>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Portfolio | Justin Negron</title>
 
     <!-- SEO -->
-    <meta name="description" content="Justin Negron is a software engineer in Dallas building internal AI tools and agents at a large bank." />
-    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="Justin Negron is a software engineer in Dallas building internal AI tools and agents at a large bank."
+    />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Justin Negron" />
     <meta property="og:title" content="Portfolio | Justin Negron" />
-    <meta property="og:description" content="Justin Negron is a software engineer in Dallas building internal AI tools and agents at a large bank." />
+    <meta
+      property="og:description"
+      content="Justin Negron is a software engineer in Dallas building internal AI tools and agents at a large bank."
+    />
     <meta property="og:url" content="%VITE_SITE_URL%" />
     <meta property="og:image" content="%VITE_SITE_URL%/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Justin Negron, Software Engineer II" />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="%VITE_TWITTER_HANDLE%" />
     <meta name="twitter:title" content="Portfolio | Justin Negron" />
-    <meta name="twitter:description" content="Justin Negron is a software engineer in Dallas building internal AI tools and agents at a large bank." />
+    <meta
+      name="twitter:description"
+      content="Justin Negron is a software engineer in Dallas building internal AI tools and agents at a large bank."
+    />
     <meta name="twitter:image" content="%VITE_SITE_URL%/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Justin Negron, Software Engineer II" />
 
     <!-- Canonical -->
     <link rel="canonical" href="%VITE_SITE_URL%" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&family=Unbounded:wght@400;700;900&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+    <!-- prettier-ignore -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Justin Negron","url":"https://justinnegron.dev"},{"@type":"Person","name":"Justin Negron","url":"https://justinnegron.dev","jobTitle":"Software Engineer II","sameAs":["https://github.com/justin-negron","https://www.linkedin.com/in/justin-negron/"]}]}</script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="app"></div>

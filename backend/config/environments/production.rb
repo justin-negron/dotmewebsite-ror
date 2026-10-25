@@ -68,7 +68,7 @@ Rails.application.configure do
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts = [
-    ENV.fetch('APP_HOST', 'justinnegron.dev'),
+    ENV.fetch("APP_HOST", "justinnegron.dev"),
     /.*\.#{Regexp.escape(ENV.fetch('APP_HOST', 'justinnegron.dev'))}/
   ]
 
@@ -79,7 +79,7 @@ Rails.application.configure do
   } }
 
   # Action Mailer configuration
-  config.action_mailer.default_url_options = { host: ENV.fetch('FRONTEND_URL', 'https://justinnegron.dev') }
+  config.action_mailer.default_url_options = { host: "justinnegron.dev", protocol: "https" }
 
   # Amazon SES API (credentials from AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY via config/initializers/aws.rb).
   config.action_mailer.delivery_method = :ses_v2

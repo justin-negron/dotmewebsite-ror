@@ -3,7 +3,8 @@
 
 # Production Dockerfile for Rails API backend.
 # Build:  docker build -t justinnegron-api .
-# Run:    docker run -d -p 3000:3000 -e RAILS_MASTER_KEY=<key> --name api justinnegron-api
+# Run:    docker run -d -p 3000:3000 --env-file .env --name api justinnegron-api
+# Config comes from environment variables; on the origin, deploy/deploy.sh renders .env from SSM.
 
 ARG RUBY_VERSION=3.4.8
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
@@ -50,6 +51,6 @@ COPY --chown=rails:rails --from=build /rails /rails
 # Entrypoint runs db:prepare when starting the server
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
-# Puma on port 3000 — ALB handles HTTPS termination and port 80/443
+# Puma on port 3000; Caddy terminates TLS in front of it (deploy/compose.yaml)
 EXPOSE 3000
 CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]

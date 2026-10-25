@@ -44,11 +44,24 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // An idle admin's access token has usually expired by logout time, and the API interceptor
+  // never refreshes /admin/auth/ calls, so refresh here once or the session stays alive.
+  async function revokeSession(token: string): Promise<void> {
+    try {
+      await apiLogout(token)
+    } catch (err) {
+      if ((err as ApiError).status !== 401 || !(await refresh()) || !accessToken.value) throw err
+      await apiLogout(accessToken.value)
+    }
+  }
+
   async function logout(): Promise<void> {
     try {
       if (accessToken.value) {
-        await apiLogout(accessToken.value)
+        await revokeSession(accessToken.value)
       }
+    } catch {
+      // The admin is signed out locally either way.
     } finally {
       accessToken.value = null
       admin.value = null

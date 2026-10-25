@@ -17,6 +17,6 @@ Rails.application.config.middleware.insert_after ActionDispatch::Callbacks,
       headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
       headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
 
-      [status, headers, body]
+      [ status, headers, body ]
     end
   }

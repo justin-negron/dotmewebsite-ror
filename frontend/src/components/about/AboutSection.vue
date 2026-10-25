@@ -203,7 +203,7 @@ onUnmounted(() => {
 .section-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85rem;
-  color: var(--skin-600);
+  color: var(--skin-700);
   letter-spacing: 0.02em;
 }
 
@@ -383,7 +383,7 @@ onUnmounted(() => {
 :is(.dark *).photo-btn {
   background: rgba(var(--skin-light-rgb), 0.03);
   border-color: rgba(var(--skin-light-rgb), 0.08);
-  color: #78716c;
+  color: #a8a29e;
 }
 
 :is(.dark *).photo-btn:hover {

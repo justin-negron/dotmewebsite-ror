@@ -40,6 +40,13 @@
 # Ignore development files
 /.devcontainer
 
+# Ignore the local bundle, test and coverage output, and notes; the image installs
+# its gems into /usr/local/bundle.
+/vendor/bundle
+/coverage
+/spec
+/docs
+
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*

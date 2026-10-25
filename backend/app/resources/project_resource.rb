@@ -1,7 +1,7 @@
 class ProjectResource
   include Alba::Resource
 
-  attributes :id, :title, :description, :tech_stack, :featured, :display_order
+  attributes :id, :title, :description, :tech_stack, :media_urls, :featured, :display_order
 
   attribute :github_url do |project|
     project.github_url.presence
@@ -11,8 +11,8 @@ class ProjectResource
     project.live_url.presence
   end
 
-  attribute :image_url do |project|
-    project.image_url.presence
+  attribute :paper_url do |project|
+    project.paper_url.presence
   end
 
   attribute :created_at do |project|

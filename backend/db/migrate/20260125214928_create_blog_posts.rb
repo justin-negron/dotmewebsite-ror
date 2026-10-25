@@ -14,7 +14,7 @@ class CreateBlogPosts < ActiveRecord::Migration[7.1]
     end
 
     add_index :blog_posts, :slug, unique: true
-    add_index :blog_posts, [:published, :published_at]
+    add_index :blog_posts, [ :published, :published_at ]
     add_index :blog_posts, :tags, using: :gin
   end
 end

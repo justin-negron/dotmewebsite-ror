@@ -265,7 +265,7 @@ onUnmounted(() => {
 .section-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85rem;
-  color: var(--skin-600);
+  color: var(--skin-700);
   letter-spacing: 0.02em;
 }
 
@@ -344,7 +344,7 @@ onUnmounted(() => {
 }
 
 :is(.dark *).tab-btn {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 :is(.dark *).tab-btn:hover:not(.is-active) {
@@ -396,7 +396,7 @@ onUnmounted(() => {
 }
 
 :is(.dark *).empty-text {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 /* ===================================================================
@@ -587,7 +587,7 @@ onUnmounted(() => {
 .entry-duration {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
-  color: var(--skin-600);
+  color: var(--skin-700);
   font-weight: 500;
 }
 
@@ -602,7 +602,7 @@ onUnmounted(() => {
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(34, 197, 94, 0.1);
-  color: #16a34a;
+  color: #15803d;
 }
 
 :is(.dark *).current-badge {

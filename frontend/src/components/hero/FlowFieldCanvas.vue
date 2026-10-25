@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { startAnimationLoop, type AnimationLoop } from './animationLoop'
 
 const props = withDefaults(
   defineProps<{
@@ -16,7 +17,7 @@ const props = withDefaults(
 )
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-let animationId = 0
+let loop: AnimationLoop | null = null
 let ctx: CanvasRenderingContext2D | null = null
 let width = 0
 let height = 0
@@ -218,7 +219,6 @@ function render() {
   }
 
   time++
-  animationId = requestAnimationFrame(render)
 }
 
 /* ========================================================================
@@ -235,8 +235,11 @@ function handleResize() {
   canvasRef.value.style.width = `${width}px`
   canvasRef.value.style.height = `${height}px`
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  paintBackground()
+}
 
-  // Clear and reinitialize with skin-aware background
+function paintBackground() {
+  if (!ctx) return
   const bgRgb = props.isDark ? props.fadeDarkRgb : props.fadeLightRgb
   ctx.fillStyle = `rgb(${bgRgb})`
   ctx.fillRect(0, 0, width, height)
@@ -278,8 +281,8 @@ onMounted(() => {
   // Create particles
   particles = Array.from({ length: PARTICLE_COUNT }, createParticle)
 
-  // Start render loop
-  animationId = requestAnimationFrame(render)
+  // A single frame of fresh particles is invisible, so the still frame is the plain background.
+  loop = startAnimationLoop(canvasRef.value, render, paintBackground)
 
   // Events
   window.addEventListener('resize', handleResize)
@@ -289,8 +292,10 @@ onMounted(() => {
   window.addEventListener('touchend', handleTouchEnd)
 })
 
+watch(props, () => loop?.redraw())
+
 onUnmounted(() => {
-  cancelAnimationFrame(animationId)
+  loop?.stop()
   window.removeEventListener('resize', handleResize)
   window.removeEventListener('mousemove', handleMouseMove)
   window.removeEventListener('mouseleave', handleMouseLeave)

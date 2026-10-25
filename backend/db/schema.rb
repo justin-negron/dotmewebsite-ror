@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_060000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_000100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,10 +29,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_060000) do
     t.string "slug", null: false
     t.text "content", null: false
     t.text "excerpt"
-    t.boolean "published", default: false
+    t.boolean "published", default: false, null: false
     t.datetime "published_at"
     t.text "tags", default: [], array: true
-    t.integer "view_count", default: 0
+    t.integer "view_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "cover_image_url"
@@ -46,7 +46,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_060000) do
     t.string "email", null: false
     t.string "subject"
     t.text "message", null: false
-    t.string "status", default: "new"
+    t.string "status", default: "new", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_contacts_on_created_at"
@@ -72,26 +72,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_060000) do
   create_table "page_views", force: :cascade do |t|
     t.string "path", null: false
     t.text "user_agent"
-    t.inet "ip_address"
     t.string "referrer"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.inet "ip_address"
+    t.string "visitor_hash", limit: 32
     t.index ["created_at"], name: "index_page_views_on_created_at"
     t.index ["ip_address"], name: "index_page_views_on_ip_address"
     t.index ["path"], name: "index_page_views_on_path"
+    t.index ["visitor_hash"], name: "index_page_views_on_visitor_hash"
   end
 
   create_table "projects", force: :cascade do |t|
     t.string "title", null: false
-    t.text "description"
+    t.text "description", null: false
     t.text "tech_stack", default: [], array: true
     t.string "github_url"
     t.string "live_url"
-    t.string "image_url"
-    t.boolean "featured", default: false
+    t.boolean "featured", default: false, null: false
     t.integer "display_order"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "image_url"
+    t.string "media_urls", default: [], null: false, array: true
+    t.string "paper_url"
     t.index ["display_order"], name: "index_projects_on_display_order"
     t.index ["featured"], name: "index_projects_on_featured"
   end

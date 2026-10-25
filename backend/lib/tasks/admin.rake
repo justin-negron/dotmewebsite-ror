@@ -1,5 +1,5 @@
 namespace :admin do
-  desc 'Create admin user (interactive or via ADMIN_EMAIL/ADMIN_PASSWORD env vars)'
+  desc "Create admin user (interactive or via ADMIN_EMAIL/ADMIN_PASSWORD env vars)"
   task create: :environment do
     if Admin.exists?
       puts "Admin already exists: #{Admin.first.email}"
@@ -7,13 +7,13 @@ namespace :admin do
       exit
     end
 
-    email = ENV.fetch('ADMIN_EMAIL') do
-      print 'Admin email: '
+    email = ENV.fetch("ADMIN_EMAIL") do
+      print "Admin email: "
       $stdin.gets.chomp
     end
 
-    password = ENV.fetch('ADMIN_PASSWORD') do
-      print 'Admin password (min 12 chars): '
+    password = ENV.fetch("ADMIN_PASSWORD") do
+      print "Admin password (min 12 chars): "
       $stdin.gets.chomp
     end
 
@@ -21,10 +21,10 @@ namespace :admin do
     puts "Admin created: #{admin.email}"
   end
 
-  desc 'Reset admin password (via ADMIN_PASSWORD env var or interactive)'
+  desc "Reset admin password (via ADMIN_PASSWORD env var or interactive)"
   task reset: :environment do
     admin = Admin.first!
-    password = ENV.fetch('ADMIN_PASSWORD') do
+    password = ENV.fetch("ADMIN_PASSWORD") do
       print "New password for #{admin.email} (min 12 chars): "
       $stdin.gets.chomp
     end

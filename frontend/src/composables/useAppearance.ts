@@ -1,4 +1,5 @@
 import { ref, computed, watch } from 'vue'
+import { readStorage, writeStorage } from '@/utils/storage'
 
 /* ============================================================================
    Types
@@ -38,6 +39,7 @@ export const SKINS: Record<SkinId, SkinConfig> = {
       '--skin-600': '#d97706',
       '--skin-500': '#f59e0b',
       '--skin-400': '#fbbf24',
+      '--skin-300': '#fcd34d',
       '--skin-200': '#fde68a',
       '--skin-rgb': '217, 119, 6',
       '--skin-light-rgb': '245, 158, 11',
@@ -62,6 +64,7 @@ export const SKINS: Record<SkinId, SkinConfig> = {
       '--skin-600': '#0891b2',
       '--skin-500': '#06b6d4',
       '--skin-400': '#22d3ee',
+      '--skin-300': '#67e8f9',
       '--skin-200': '#a5f3fc',
       '--skin-rgb': '8, 145, 178',
       '--skin-light-rgb': '6, 182, 212',
@@ -86,6 +89,7 @@ export const SKINS: Record<SkinId, SkinConfig> = {
       '--skin-600': '#e11d48',
       '--skin-500': '#f43f5e',
       '--skin-400': '#fb7185',
+      '--skin-300': '#fda4af',
       '--skin-200': '#fecdd3',
       '--skin-rgb': '225, 29, 72',
       '--skin-light-rgb': '244, 63, 94',
@@ -110,6 +114,7 @@ export const SKINS: Record<SkinId, SkinConfig> = {
       '--skin-600': '#059669',
       '--skin-500': '#10b981',
       '--skin-400': '#34d399',
+      '--skin-300': '#6ee7b7',
       '--skin-200': '#a7f3d0',
       '--skin-rgb': '5, 150, 105',
       '--skin-light-rgb': '16, 185, 129',
@@ -133,6 +138,14 @@ export const BACKGROUNDS: Record<BgId, BgConfig> = {
 export const SKIN_IDS = Object.keys(SKINS) as SkinId[]
 export const BG_IDS = Object.keys(BACKGROUNDS) as BgId[]
 
+export function isSkinId(value: string | null): value is SkinId {
+  return value !== null && Object.hasOwn(SKINS, value)
+}
+
+export function isBgId(value: string | null): value is BgId {
+  return value !== null && Object.hasOwn(BACKGROUNDS, value)
+}
+
 /* ============================================================================
    State (module-level, shared across all consumers)
    ============================================================================ */
@@ -146,16 +159,14 @@ function randomItem<T>(arr: T[]): T {
 
 function getInitialSkin(): SkinId {
   if (typeof window === 'undefined') return 'amber'
-  const stored = localStorage.getItem(STORAGE_KEY_SKIN)
-  if (stored && stored in SKINS) return stored as SkinId
-  return randomItem(SKIN_IDS)
+  const stored = readStorage(STORAGE_KEY_SKIN)
+  return isSkinId(stored) ? stored : randomItem(SKIN_IDS)
 }
 
 function getInitialBg(): BgId {
   if (typeof window === 'undefined') return 'flow-field'
-  const stored = localStorage.getItem(STORAGE_KEY_BG)
-  if (stored && stored in BACKGROUNDS) return stored as BgId
-  return randomItem(BG_IDS)
+  const stored = readStorage(STORAGE_KEY_BG)
+  return isBgId(stored) ? stored : randomItem(BG_IDS)
 }
 
 const skin = ref<SkinId>(getInitialSkin())
@@ -177,31 +188,30 @@ function applySkinVars(id: SkinId) {
 // Apply immediately on module load to prevent flash
 applySkinVars(skin.value)
 
+watch(skin, (id) => {
+  applySkinVars(id)
+  writeStorage(STORAGE_KEY_SKIN, id)
+})
+
+watch(background, (id) => {
+  writeStorage(STORAGE_KEY_BG, id)
+})
+
 /* ============================================================================
    Public API
    ============================================================================ */
 
 export function useAppearance() {
-  // Watch for changes and persist
-  watch(skin, (id) => {
-    applySkinVars(id)
-    localStorage.setItem(STORAGE_KEY_SKIN, id)
-  })
-
-  watch(background, (id) => {
-    localStorage.setItem(STORAGE_KEY_BG, id)
-  })
-
   const skinConfig = computed(() => SKINS[skin.value])
 
-  function setSkin(id: SkinId) {
-    if (id in SKINS) {
+  function setSkin(id: string) {
+    if (isSkinId(id)) {
       skin.value = id
     }
   }
 
-  function setBackground(id: BgId) {
-    if (id in BACKGROUNDS) {
+  function setBackground(id: string) {
+    if (isBgId(id)) {
       background.value = id
     }
   }

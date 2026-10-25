@@ -6,11 +6,6 @@
 
 resource "aws_iam_user" "app" {
   name = "justinnegron-app"
-
-  tags = {
-    Environment = var.environment
-    Project     = "justinnegron-dev"
-  }
 }
 
 resource "aws_iam_access_key" "app" {

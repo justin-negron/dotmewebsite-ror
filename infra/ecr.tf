@@ -2,11 +2,12 @@
 # ECR — Docker Image Registry
 # =============================================================================
 # Private registry for the Rails API Docker image.
-# Lifecycle policy keeps the last 10 images to control storage costs.
+# Lifecycle policy keeps the last 5 images to control storage costs.
 
 resource "aws_ecr_repository" "api" {
-  name                 = "justinnegron-api"
-  image_tag_mutability = "MUTABLE" # Allows :latest tag updates
+  name = "justinnegron-api"
+  # A git sha tag always means the same image; a redeploy of a pushed sha uses TAG=<sha>.
+  image_tag_mutability = "IMMUTABLE"
   force_delete         = false
 
   image_scanning_configuration {
@@ -14,9 +15,7 @@ resource "aws_ecr_repository" "api" {
   }
 
   tags = {
-    Name        = "justinnegron-api"
-    Environment = var.environment
-    Project     = "justinnegron-dev"
+    Name = "justinnegron-api"
   }
 }
 

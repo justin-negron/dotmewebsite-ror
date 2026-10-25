@@ -1,21 +1,41 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { ref, watch, nextTick, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useScrollLock } from '@vueuse/core'
 import { useUiStore } from '@/stores'
 import { useScrollTo, NAV_ITEMS, type NavItem } from '@/composables/useScrollTo'
+import { trapTab } from '@/components/common/focusTrap'
 
 const route = useRoute()
 const uiStore = useUiStore()
 const { navigateTo } = useScrollTo()
 const scrollLock = useScrollLock(document.body)
+const overlayRef = ref<HTMLElement | null>(null)
+const closeBtnRef = ref<HTMLButtonElement | null>(null)
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') uiStore.closeMobileMenu()
+  else if (e.key === 'Tab') trapTab(overlayRef.value, e)
+}
 
 watch(
   () => uiStore.isMobileMenuOpen,
-  (isOpen) => {
+  async (isOpen) => {
     scrollLock.value = isOpen
+    if (isOpen) {
+      document.addEventListener('keydown', onKeydown)
+      await nextTick()
+      closeBtnRef.value?.focus()
+    } else {
+      document.removeEventListener('keydown', onKeydown)
+      document.querySelector<HTMLElement>('button[aria-controls="mobile-menu"]')?.focus()
+    }
   }
 )
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKeydown)
+})
 
 watch(
   () => route.fullPath,
@@ -48,11 +68,11 @@ function handleNavClick(event: Event, item: NavItem) {
       <div
         v-if="uiStore.isMobileMenuOpen"
         id="mobile-menu"
+        ref="overlayRef"
         class="mobile-overlay"
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
-        @keydown.escape="uiStore.closeMobileMenu()"
       >
         <!-- Top bar: brand + close -->
         <div class="overlay-top">
@@ -61,11 +81,7 @@ function handleNavClick(event: Event, item: NavItem) {
             <span class="brand-name">justin-negron</span>
             <span class="brand-cursor" aria-hidden="true" />
           </span>
-          <button
-            class="overlay-close"
-            aria-label="Close navigation menu"
-            @click="uiStore.closeMobileMenu()"
-          >
+          <button ref="closeBtnRef" class="overlay-close" @click="uiStore.closeMobileMenu()">
             exit
           </button>
         </div>
@@ -77,6 +93,7 @@ function handleNavClick(event: Event, item: NavItem) {
             :key="item.href"
             :href="item.href"
             :class="['overlay-item', isActive(item) ? 'is-active' : '']"
+            :aria-current="isActive(item) ? 'location' : undefined"
             :style="{ animationDelay: `${i * 0.055}s` }"
             @click="handleNavClick($event, item)"
           >
@@ -120,6 +137,11 @@ function handleNavClick(event: Event, item: NavItem) {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+}
+
+/* The backdrop stays dark in light mode, where the global ring is the darker --skin-700. */
+.mobile-overlay :focus-visible {
+  outline-color: var(--skin-400);
 }
 
 /* ===================================================================
@@ -203,7 +225,7 @@ function handleNavClick(event: Event, item: NavItem) {
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: #44403c;
+  color: #a8a29e;
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: pointer;

@@ -1,0 +1,7 @@
+[Unit]
+Description=Mail the site owner that the database backup failed
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/opt/app/backup-alert.sh

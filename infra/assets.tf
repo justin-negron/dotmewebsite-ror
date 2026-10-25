@@ -10,9 +10,11 @@ resource "aws_s3_bucket" "assets" {
   bucket = var.assets_bucket_name
 
   tags = {
-    Name        = "Blog Image Assets"
-    Environment = var.environment
-    Project     = "justinnegron-dev"
+    Name = "Blog Image Assets"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -21,6 +23,36 @@ resource "aws_s3_bucket_versioning" "assets" {
 
   versioning_configuration {
     status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "assets" {
+  bucket = aws_s3_bucket.assets.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+    bucket_key_enabled = true
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "assets" {
+  bucket = aws_s3_bucket.assets.id
+
+  rule {
+    id     = "expire-noncurrent-90-days"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
@@ -78,6 +110,14 @@ resource "aws_s3_bucket_policy" "assets" {
             "AWS:SourceArn" = aws_cloudfront_distribution.assets.arn
           }
         }
+      },
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.assets.arn, "${aws_s3_bucket.assets.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
       }
     ]
   })
@@ -107,6 +147,10 @@ resource "aws_cloudfront_cache_policy" "assets" {
   }
 }
 
+data "aws_cloudfront_response_headers_policy" "security" {
+  name = "Managed-SecurityHeadersPolicy"
+}
+
 # --- CloudFront Distribution (assets)
 resource "aws_cloudfront_distribution" "assets" {
   enabled         = true
@@ -123,12 +167,13 @@ resource "aws_cloudfront_distribution" "assets" {
   }
 
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "s3-assets"
-    cache_policy_id        = aws_cloudfront_cache_policy.assets.id
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "s3-assets"
+    cache_policy_id            = aws_cloudfront_cache_policy.assets.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security.id
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
   }
 
   restrictions {
@@ -144,8 +189,6 @@ resource "aws_cloudfront_distribution" "assets" {
   }
 
   tags = {
-    Name        = "Blog Image Assets CDN"
-    Environment = var.environment
-    Project     = "justinnegron-dev"
+    Name = "Blog Image Assets CDN"
   }
 }

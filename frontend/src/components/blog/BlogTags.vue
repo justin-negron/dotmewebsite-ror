@@ -58,7 +58,7 @@ const emit = defineEmits<{
 }
 
 .tag-filter:hover {
-  color: var(--skin-600);
+  color: var(--skin-700);
   background: rgba(var(--skin-rgb), 0.06);
 }
 

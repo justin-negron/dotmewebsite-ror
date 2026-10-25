@@ -13,13 +13,24 @@ REGION="${AWS_REGION:-us-east-1}"
 REPO="${ECR_REPO:-$(aws ecr describe-repositories --region "$REGION" --repository-names justinnegron-api \
   --query 'repositories[0].repositoryUri' --output text)}"
 
-if [ -z "${TAG:-}" ]; then
+EXPLICIT_TAG="${TAG:-}"
+if [ -z "$EXPLICIT_TAG" ]; then
   if [ -n "$(git -C "$ROOT" status --porcelain -- backend deploy)" ] && [ "${ALLOW_DIRTY:-}" != 1 ]; then
     echo "backend/ or deploy/ has uncommitted changes; commit them or set ALLOW_DIRTY=1" >&2
     exit 1
   fi
   TAG="$(git -C "$ROOT" rev-parse --short=12 HEAD)"
+fi
 
+# ECR tags are immutable, so a sha that is already there is reused as-is. An
+# explicit TAG that is missing is an error: building the working tree under
+# someone else's sha would mislabel it for good.
+if aws ecr describe-images --region "$REGION" --repository-name justinnegron-api --image-ids imageTag="$TAG" >/dev/null 2>&1; then
+  echo "==> $REPO:$TAG is already in ECR; skipping build"
+elif [ -n "$EXPLICIT_TAG" ]; then
+  echo "TAG=$TAG is not in ECR; unset TAG to build HEAD, or check out that commit" >&2
+  exit 1
+else
   echo "==> Building $REPO:$TAG"
   docker build --platform linux/amd64 -t "$REPO:$TAG" "$ROOT/backend"
   aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "${REPO%%/*}"

@@ -6,13 +6,15 @@ RSpec.describe ProjectResource do
       project = create(:project,
         github_url: 'https://github.com/test',
         live_url: 'https://test.com',
-        image_url: 'https://test.com/image.png'
+        paper_url: 'https://doi.org/10.1000/example',
+        media_urls: [ 'https://test.com/one.webp', 'https://test.com/two.webp' ]
       )
       result = ProjectResource.new(project).to_h
 
       expect(result["github_url"]).to eq('https://github.com/test')
       expect(result["live_url"]).to eq('https://test.com')
-      expect(result["image_url"]).to eq('https://test.com/image.png')
+      expect(result["paper_url"]).to eq('https://doi.org/10.1000/example')
+      expect(result["media_urls"]).to eq([ 'https://test.com/one.webp', 'https://test.com/two.webp' ])
     end
 
     it 'returns nil for blank github_url' do
@@ -43,18 +45,25 @@ RSpec.describe ProjectResource do
       expect(result["live_url"]).to be_nil
     end
 
-    it 'returns nil for blank image_url' do
-      project = create(:project, image_url: nil)
+    it 'returns nil for blank paper_url' do
+      project = create(:project, paper_url: nil)
       result = ProjectResource.new(project).to_h
 
-      expect(result["image_url"]).to be_nil
+      expect(result["paper_url"]).to be_nil
     end
 
-    it 'returns nil for empty string image_url' do
-      project = create(:project, image_url: '')
+    it 'returns nil for empty string paper_url' do
+      project = create(:project, paper_url: '')
       result = ProjectResource.new(project).to_h
 
-      expect(result["image_url"]).to be_nil
+      expect(result["paper_url"]).to be_nil
+    end
+
+    it 'returns an empty array when there are no media_urls' do
+      project = create(:project, media_urls: [])
+      result = ProjectResource.new(project).to_h
+
+      expect(result["media_urls"]).to eq([])
     end
 
     it 'formats created_at when present' do

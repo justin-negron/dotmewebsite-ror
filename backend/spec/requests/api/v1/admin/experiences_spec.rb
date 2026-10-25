@@ -32,6 +32,20 @@ RSpec.describe 'Api::V1::Admin::Experiences', type: :request do
 
       expect(response).to have_http_status(:unauthorized)
     end
+
+    it 'falls back to page 1 for an array page' do
+      get '/api/v1/admin/experiences?page[]=2', headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_meta[:current_page]).to eq(1)
+    end
+
+    it 'falls back to page 1 for a hash page' do
+      get '/api/v1/admin/experiences?page[a]=2', headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_meta[:current_page]).to eq(1)
+    end
   end
 
   describe 'GET /api/v1/admin/experiences/:id' do
@@ -61,7 +75,7 @@ RSpec.describe 'Api::V1::Admin::Experiences', type: :request do
           description: 'Built awesome things',
           experience_type: 'work',
           start_date: '2023-01-01',
-          technologies: ['Ruby', 'Rails']
+          technologies: [ 'Ruby', 'Rails' ]
         }
       }
     end

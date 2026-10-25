@@ -37,7 +37,7 @@ export const useProjectsStore = defineStore('projects', () => {
     error.value = null
 
     try {
-      const response = await getProjects()
+      const response = await getProjects({ per_page: 100 })
       projects.value = response.data
       allLoaded.value = true
     } catch (err) {
@@ -76,7 +76,7 @@ export const useProjectsStore = defineStore('projects', () => {
     error.value = null
 
     try {
-      const response = await getFeaturedProjects()
+      const response = await getFeaturedProjects({ per_page: 100 })
       featuredProjects.value = response.data
       featuredLoaded.value = true
     } catch (err) {

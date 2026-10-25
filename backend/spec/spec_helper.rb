@@ -20,6 +20,8 @@ SimpleCov.start 'rails' do
   add_filter '/config/'
   add_filter '/vendor/'
   enable_coverage :branch
+  # Only a full run can meet the floor; a single spec file would always fail it.
+  minimum_coverage line: 99, branch: 90 if ENV['CI']
 end
 
 RSpec.configure do |config|

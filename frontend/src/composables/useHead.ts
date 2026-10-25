@@ -9,11 +9,13 @@ export interface HeadOptions {
   /** ISO date string for article:published_time */
   publishedAt?: string | null
   tags?: string[]
+  /** Keeps the page out of search results and points the canonical at the site root. */
+  noindex?: boolean
 }
 
-const SITE_URL = (import.meta.env.VITE_SITE_URL as string) || ''
-const SITE_TITLE = (import.meta.env.VITE_APP_TITLE as string) || 'Portfolio'
-const TWITTER_HANDLE = (import.meta.env.VITE_TWITTER_HANDLE as string) || ''
+const SITE_URL = import.meta.env.VITE_SITE_URL || ''
+const SITE_TITLE = import.meta.env.VITE_APP_TITLE || 'Portfolio'
+const TWITTER_HANDLE = import.meta.env.VITE_TWITTER_HANDLE || ''
 
 function setMeta(attr: 'name' | 'property', key: string, content: string): void {
   const selector = `meta[${attr}="${key}"]`
@@ -24,6 +26,14 @@ function setMeta(attr: 'name' | 'property', key: string, content: string): void 
     document.head.appendChild(el)
   }
   el.content = content
+}
+
+function setRobots(noindex: boolean): void {
+  if (noindex) {
+    setMeta('name', 'robots', 'noindex')
+  } else {
+    document.querySelector('meta[name="robots"]')?.remove()
+  }
 }
 
 function setCanonical(href: string): void {
@@ -38,7 +48,7 @@ function setCanonical(href: string): void {
 
 export function updateHead(options: HeadOptions): void {
   const fullTitle = `${options.title} | ${SITE_TITLE}`
-  const canonicalUrl = `${SITE_URL}${options.path ?? ''}`
+  const canonicalUrl = options.noindex ? `${SITE_URL}/` : `${SITE_URL}${options.path ?? ''}`
   const image = options.image ?? `${SITE_URL}/og-image.jpg`
   const type = options.type ?? 'website'
 
@@ -84,6 +94,6 @@ export function updateHead(options: HeadOptions): void {
     )
   }
 
-  // Canonical
+  setRobots(options.noindex ?? false)
   setCanonical(canonicalUrl)
 }

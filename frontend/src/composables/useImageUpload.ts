@@ -4,6 +4,14 @@ import { adminUploadsApi } from '@/services/admin'
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 
+// Services reject with the plain ApiError object from handleApiError, the XHR with an Error.
+function messageOf(err: unknown): string {
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    if (typeof err.message === 'string' && err.message) return err.message
+  }
+  return 'Upload failed'
+}
+
 export function useImageUpload() {
   const uploading = ref(false)
   const progress = ref(0)
@@ -59,7 +67,7 @@ export function useImageUpload() {
       progress.value = 100
       return public_url
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Upload failed'
+      error.value = messageOf(err)
       return null
     } finally {
       uploading.value = false

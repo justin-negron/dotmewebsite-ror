@@ -65,7 +65,7 @@ onMounted(() => {
 
           <p :class="['reveal reveal-4 desc mt-6 max-w-lg', entered ? 'is-revealed' : '']">
             I like solving complex problems, and always looking for new ways to have an impact. I'm
-            having a pretty good time doing it.
+            having a pretty good time doing it!
           </p>
 
           <!-- CTAs with hover-to-type (via terminal bridge) -->
@@ -247,7 +247,7 @@ onMounted(() => {
   font-size: 0.95rem;
 }
 .role-bracket {
-  color: var(--skin-600);
+  color: var(--skin-700);
   font-weight: 400;
 }
 .role-text {

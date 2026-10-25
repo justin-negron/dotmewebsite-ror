@@ -2,6 +2,7 @@
 Description=Back up the portfolio database to S3
 Requires=docker.service
 After=docker.service
+OnFailure=justinnegron-backup-alert.service
 
 [Service]
 Type=oneshot

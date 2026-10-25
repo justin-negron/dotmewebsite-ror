@@ -5,9 +5,8 @@
 resource "aws_s3_bucket" "backups" {
   bucket = "justinnegron-backups-${data.aws_caller_identity.current.account_id}"
 
-  tags = {
-    Environment = var.environment
-    Project     = "justinnegron-dev"
+  lifecycle {
+    prevent_destroy = true
   }
 }
 

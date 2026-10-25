@@ -4,8 +4,8 @@ ruby "3.4.8"
 
 # Core Rails gems
 gem "rails", "~> 8.1.4"
-gem "pg", "~> 1.5"
-gem "puma", ">= 5.0"
+gem "pg", "~> 1.7"
+gem "puma", ">= 8.0"
 
 # Authentication & Security
 gem "bcrypt", "~> 3.1.7"
@@ -18,9 +18,9 @@ gem "solid_queue", "~> 1.7"
 gem "aws-actionmailer-ses", "~> 1.2"
 
 # JSON Serialization
-gem "alba", "~> 3.3"
+gem "alba", "~> 4.0"
 
-# AWS SDK (for S3 uploads later)
+# AWS SDK for S3 presigned uploads
 gem "aws-sdk-s3", "~> 1.0", require: false
 
 # Reduces boot times through caching
@@ -35,25 +35,23 @@ gem "kaminari", "~> 1.2"
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
-  
+
   # Testing
   gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails"
-  gem "faker"
-  
+
   # Environment variables
   gem "dotenv-rails"
-  
+
   # Interactive console
   gem "pry-rails"
 
-  gem 'simplecov', require: false, group: :test
+  gem "simplecov", require: false, group: :test
 end
 
 group :development do
   # Code quality
-  gem "rubocop-rails", require: false
-  gem "bullet"
+  gem "rubocop-rails-omakase", require: false
 
   # Security scanning
   gem "bundler-audit", require: false
@@ -61,7 +59,7 @@ group :development do
 end
 
 group :test do
-  gem "shoulda-matchers", "~> 5.0"
+  gem "shoulda-matchers", "~> 8.0"
   gem "database_cleaner-active_record"
 end
 

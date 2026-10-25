@@ -3,7 +3,8 @@
 # =============================================================================
 # Postgres data lives on the instance disk. Replacing the instance (bundle or
 # blueprint change) wipes it, so prevent_destroy guards against that. To resize:
-# take a fresh backup, create a new instance, restore (see docs/RUNBOOK.md).
+# take a fresh backup (/opt/app/backup-db.sh manual), create a new instance, and
+# restore with scripts/restore-db.sh.
 
 resource "aws_lightsail_key_pair" "admin" {
   name       = "justinnegron-admin"
@@ -23,11 +24,6 @@ resource "aws_lightsail_instance" "app" {
     type          = "AutoSnapshot"
     snapshot_time = "09:00"
     status        = "Enabled"
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = "justinnegron-dev"
   }
 
   lifecycle {

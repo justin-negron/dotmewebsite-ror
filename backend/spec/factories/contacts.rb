@@ -5,11 +5,11 @@ FactoryBot.define do
     subject { "Test Subject" }
     message { "This is a test message with enough content to pass validation." }
     status { "new" }
-    
+
     trait :read do
       status { "read" }
     end
-    
+
     trait :archived do
       status { "archived" }
     end

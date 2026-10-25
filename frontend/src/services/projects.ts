@@ -24,10 +24,10 @@ export async function getProject(id: number | string) {
   }
 }
 
-export async function getFeaturedProjects() {
+export async function getFeaturedProjects(params: Record<string, unknown> = {}) {
   try {
     const response = await api.get<ApiSuccessResponse<Project[]>>(ENDPOINTS.base, {
-      params: { featured: true },
+      params: { ...params, featured: true },
     })
     return extractData(response)
   } catch (error) {

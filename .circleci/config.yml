@@ -44,16 +44,17 @@ jobs:
           name: Run tests
           command: bundle exec rspec --format documentation
 
-      - store_test_results:
-          path: ~/project/backend/tmp/test-results
+      - run:
+          name: Lint
+          command: bin/rubocop
 
       - run:
           name: Security audit (dependencies)
-          command: bundle exec bundler-audit check --update || true
+          command: bundle exec bundler-audit check --update
 
       - run:
           name: Security scan (static analysis)
-          command: bundle exec brakeman --no-pager -q || true
+          command: bundle exec brakeman --no-pager -q --exit-on-warn --exit-on-error
 
   test_frontend:
     executor: frontend
@@ -83,7 +84,7 @@ jobs:
 
       - run:
           name: Security audit (dependencies)
-          command: npm audit --audit-level=high || true
+          command: npm audit --audit-level=high --omit=dev
 
       - run:
           name: Build
@@ -94,8 +95,29 @@ jobs:
           paths:
             - dist
 
+  validate_terraform:
+    docker:
+      - image: hashicorp/terraform:1.16
+    working_directory: ~/project/infra
+    steps:
+      - checkout:
+          path: ~/project
+
+      - run:
+          name: Check formatting
+          command: terraform fmt -check -recursive
+
+      - run:
+          name: Init without the S3 backend
+          command: terraform init -backend=false -input=false
+
+      - run:
+          name: Validate
+          command: terraform validate
+
 workflows:
   ci:
     jobs:
       - test_backend
       - test_frontend
+      - validate_terraform

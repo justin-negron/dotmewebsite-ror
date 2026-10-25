@@ -11,14 +11,16 @@ RSpec.describe JwtService do
     end
 
     it 'encodes the correct payload' do
-      token = described_class.encode_access_token(admin)
-      payload = described_class.decode(token)
+      freeze_time do
+        token = described_class.encode_access_token(admin)
+        payload = described_class.decode(token)
 
-      expect(payload['admin_id']).to eq(admin.id)
-      expect(payload['type']).to eq('access')
-      expect(payload['jti']).to be_present
-      expect(payload['exp']).to be_present
-      expect(payload['iat']).to be_present
+        expect(payload['admin_id']).to eq(admin.id)
+        expect(payload['type']).to eq('access')
+        expect(payload['jti']).to match(/\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/)
+        expect(payload['exp']).to eq(15.minutes.from_now.to_i)
+        expect(payload['iat']).to eq(Time.current.to_i)
+      end
     end
   end
 
@@ -66,7 +68,7 @@ RSpec.describe JwtService do
 
     it 'raises AuthenticationError for invalid token' do
       expect { described_class.decode('garbage.token.here') }.to raise_error(
-        JwtService::AuthenticationError
+        JwtService::AuthenticationError, /\AInvalid token:/
       )
     end
 
@@ -75,7 +77,15 @@ RSpec.describe JwtService do
       tampered = token[0...-5] + 'XXXXX'
 
       expect { described_class.decode(tampered) }.to raise_error(
-        JwtService::AuthenticationError
+        JwtService::AuthenticationError, /\AInvalid token:/
+      )
+    end
+
+    it 'rejects an unsigned token' do
+      token = JWT.encode({ admin_id: admin.id, type: 'access', exp: 1.hour.from_now.to_i }, nil, 'none')
+
+      expect { described_class.decode(token) }.to raise_error(
+        JwtService::AuthenticationError, /\AInvalid token:/
       )
     end
   end

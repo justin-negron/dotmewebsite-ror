@@ -3,6 +3,7 @@ class BlogPost < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
   validates :content, presence: true
+  validates :published, inclusion: { in: [ true, false ] }
   validates :cover_image_url, format: { with: HTTP_URL_FORMAT }, allow_blank: true
 
   # Scopes
@@ -35,9 +36,9 @@ class BlogPost < ApplicationRecord
 
   def generate_slug
     return if slug.present?
-    
+
     self.slug = title.parameterize
-    
+
     # Handle duplicates
     if BlogPost.exists?(slug: slug)
       counter = 1
@@ -51,7 +52,7 @@ class BlogPost < ApplicationRecord
 
   def generate_excerpt
     # Take first 160 characters of content
-    self.excerpt = content.truncate(160, separator: ' ', omission: '...')
+    self.excerpt = content.truncate(160, separator: " ", omission: "...")
   end
 
   def set_published_at

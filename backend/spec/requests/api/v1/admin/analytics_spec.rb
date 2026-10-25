@@ -70,4 +70,15 @@ RSpec.describe 'Api::V1::Admin::Analytics', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
   end
+
+  describe 'popular pages' do
+    it 'ranks only the pages viewed within the days window' do
+      create_list(:page_view, 3, path: '/old', created_at: 60.days.ago)
+      create(:page_view, path: '/new')
+
+      get '/api/v1/admin/analytics/dashboard?days=7', headers: headers, as: :json
+
+      expect(json_data[:popular_pages]).to eq([ { path: '/new', count: 1 } ])
+    end
+  end
 end

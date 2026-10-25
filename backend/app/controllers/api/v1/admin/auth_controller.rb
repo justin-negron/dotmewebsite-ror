@@ -4,14 +4,23 @@ module Api
       class AuthController < Api::V1::BaseController
         include Authenticatable
 
-        before_action :authenticate_admin!, only: [:logout]
+        before_action :authenticate_admin!, only: [ :logout ]
+
+        throttle to: 5, within: 15.minutes, only: :login
+        throttle to: 10, within: 1.minute, only: :refresh
+
+        # Compared against when the email is unknown, so the response takes as
+        # long as a real bcrypt check and does not reveal which email is the admin's.
+        DUMMY_DIGEST = BCrypt::Password.create("placeholder").to_s.freeze
 
         # POST /api/v1/admin/auth/login
         def login
           admin = ::Admin.find_by(email: params[:email])
+          candidate = admin || ::Admin.new(password_digest: DUMMY_DIGEST)
+          authenticated = candidate.authenticate(params[:password].to_s)
 
-          unless admin&.authenticate(params[:password])
-            return render_error('Invalid email or password', status: :unauthorized)
+          unless admin && authenticated
+            return render_error("Invalid email or password", status: :unauthorized)
           end
 
           access_token = JwtService.encode_access_token(admin)
@@ -28,17 +37,17 @@ module Api
         # POST /api/v1/admin/auth/refresh
         def refresh
           refresh_token = cookies.signed[:refresh_token]
-          return render_error('Missing refresh token', status: :unauthorized) unless refresh_token
+          return render_error("Missing refresh token", status: :unauthorized) unless refresh_token
 
           payload = JwtService.decode(refresh_token)
-          return render_error('Invalid token type', status: :unauthorized) unless payload['type'] == 'refresh'
+          return render_error("Invalid token type", status: :unauthorized) unless payload["type"] == "refresh"
 
-          admin = ::Admin.find(payload['admin_id'])
+          admin = ::Admin.find(payload["admin_id"])
 
-          unless admin.refresh_token_valid?(payload['jti'])
+          unless admin.refresh_token_valid?(payload["jti"])
             admin.invalidate_refresh_token!
             delete_refresh_cookie
-            return render_error('Refresh token revoked', status: :unauthorized)
+            return render_error("Refresh token revoked", status: :unauthorized)
           end
 
           # Rotate: issue new token pair, invalidate old refresh JTI
@@ -52,7 +61,7 @@ module Api
             admin: AdminResource.new(admin).to_h
           })
         rescue ActiveRecord::RecordNotFound
-          render_error('Admin not found', status: :unauthorized)
+          render_error("Admin not found", status: :unauthorized)
         rescue JwtService::AuthenticationError => e
           delete_refresh_cookie
           render_error(e.message, status: :unauthorized)
@@ -62,7 +71,7 @@ module Api
         def logout
           current_admin.invalidate_refresh_token!
           delete_refresh_cookie
-          render_success({ message: 'Logged out successfully' })
+          render_success({ message: "Logged out successfully" })
         end
 
         private
@@ -74,12 +83,12 @@ module Api
             secure: Rails.env.production?,
             same_site: Rails.env.production? ? :strict : :lax,
             expires: 7.days.from_now,
-            path: '/api/v1/admin/auth'
+            path: "/api/v1/admin/auth"
           }
         end
 
         def delete_refresh_cookie
-          cookies.delete(:refresh_token, path: '/api/v1/admin/auth')
+          cookies.delete(:refresh_token, path: "/api/v1/admin/auth")
         end
       end
     end

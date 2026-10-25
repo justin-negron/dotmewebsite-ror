@@ -2,16 +2,26 @@ require 'rails_helper'
 
 RSpec.describe EmailNotificationJob, type: :job do
   let(:contact) { create(:contact) }
-  
+
+  before { ActionMailer::Base.deliveries.clear }
+
   describe '#perform' do
-    it 'sends notification email to site owner' do
-      expect(ContactMailer).to receive(:new_contact_notification)
-        .with(contact.id)
-        .and_call_original
-      
+    it 'delivers one notification that replies to the visitor' do
       described_class.new.perform(contact.id)
+
+      expect(ActionMailer::Base.deliveries.map(&:reply_to)).to eq([ [ contact.email ] ])
     end
-    
+
+    it 'sends nothing and discards nothing when the contact was deleted before it ran' do
+      contact.destroy
+      allow(Rails.logger).to receive(:error).and_call_original
+
+      described_class.perform_now(contact.id)
+
+      expect(ActionMailer::Base.deliveries).to be_empty
+      expect(Rails.logger).not_to have_received(:error).with(/Discarding job/)
+    end
+
     it 'sends only the owner notification' do
       delivery = double('MessageDelivery', deliver_now: true)
       allow(ContactMailer).to receive(:new_contact_notification).and_return(delivery)
@@ -39,7 +49,7 @@ RSpec.describe EmailNotificationJob, type: :job do
       }.to raise_error(StandardError, 'Email failed')
     end
   end
-  
+
   describe 'retry and discard handling' do
     let!(:contact) { create(:contact) }
 

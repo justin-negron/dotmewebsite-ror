@@ -7,25 +7,25 @@ class Contact < ApplicationRecord
 
   # Enums
   enum :status, {
-    new: 'new',
-    read: 'read',
-    archived: 'archived'
-  }, prefix: true
+    new: "new",
+    read: "read",
+    archived: "archived"
+  }, prefix: true, validate: true
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
-  scope :unread, -> { where(status: 'new') }
+  scope :unread, -> { where(status: "new") }
 
   # Callbacks
   after_commit :send_notification, on: :create
 
   # Instance methods
   def mark_as_read!
-    update(status: 'read')
+    update(status: "read")
   end
 
   def mark_as_archived!
-    update(status: 'archived')
+    update(status: "archived")
   end
 
   private

@@ -31,8 +31,11 @@ function isActive(path: string): boolean {
 }
 
 async function handleLogout() {
-  await authStore.logout()
-  router.push({ name: 'admin-login' })
+  try {
+    await authStore.logout()
+  } finally {
+    router.push({ name: 'admin-login' })
+  }
 }
 
 function closeSidebar() {

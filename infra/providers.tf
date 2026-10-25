@@ -25,6 +25,13 @@ terraform {
 # Primary provider — us-east-1 is required for CloudFront + ACM certificates
 provider "aws" {
   region = var.aws_region
+
+  default_tags {
+    tags = {
+      Environment = var.environment
+      Project     = "justinnegron-dev"
+    }
+  }
 }
 
 data "aws_caller_identity" "current" {}

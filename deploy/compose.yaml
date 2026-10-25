@@ -6,6 +6,8 @@ services:
   caddy:
     image: caddy:2.11
     restart: unless-stopped
+    environment:
+      CLOUDFRONT_SECRET: ${CLOUDFRONT_SECRET:?CLOUDFRONT_SECRET is not set}
     ports:
       - "443:443"
     volumes:

@@ -1,4 +1,5 @@
 import { useRouter, useRoute } from 'vue-router'
+import { prefersReducedMotion } from '@/utils/motion'
 
 export interface NavItem {
   label: string
@@ -16,15 +17,27 @@ export const NAV_ITEMS: NavItem[] = [
 
 export const HEADER_HEIGHT = 80
 
+// window.scrollTo ignores the CSS reduced-motion rule, so ask for an instant jump explicitly.
+function scrollBehavior(): ScrollBehavior {
+  return prefersReducedMotion() ? 'auto' : 'smooth'
+}
+
+/** Moves keyboard focus to a section the page just scrolled to, so the next Tab starts there. */
+export function focusSection(el: HTMLElement): void {
+  if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1')
+  el.focus({ preventScroll: true })
+}
+
 export function useScrollTo() {
   const router = useRouter()
   const route = useRoute()
 
   function scrollToHash(hash: string) {
-    const el = document.querySelector(hash)
+    const el = document.querySelector<HTMLElement>(hash)
     if (el) {
       const top = el.getBoundingClientRect().top + window.scrollY - HEADER_HEIGHT
-      window.scrollTo({ top, behavior: 'smooth' })
+      window.scrollTo({ top, behavior: scrollBehavior() })
+      focusSection(el)
     }
   }
 
@@ -38,7 +51,7 @@ export function useScrollTo() {
 
     if (item.href === '/') {
       if (route.path === '/') {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        window.scrollTo({ top: 0, behavior: scrollBehavior() })
       } else {
         await router.push('/')
       }

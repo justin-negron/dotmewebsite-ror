@@ -6,10 +6,10 @@ module Api
           days = (params[:days] || 30).to_i.clamp(1, 365)
 
           render_success({
-            total_views: PageView.where('created_at >= ?', days.days.ago).count,
+            total_views: PageView.where("created_at >= ?", days.days.ago).count,
             unique_visitors: PageView.unique_visitors(days),
             views_by_date: PageView.views_by_date(days).transform_keys(&:to_s),
-            popular_pages: PageView.popular_pages(10).map { |pv| { path: pv.path, count: pv.view_count } },
+            popular_pages: PageView.where(created_at: days.days.ago..).popular_pages(10).map { |pv| { path: pv.path, count: pv.view_count } },
             recent_views: PageViewResource.new(PageView.recent.limit(20)).to_h,
             summary: {
               total_projects: Project.count,

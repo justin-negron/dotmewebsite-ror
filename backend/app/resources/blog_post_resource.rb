@@ -8,7 +8,7 @@ class BlogPostResource
   end
 
   attribute :excerpt do |post|
-    post.excerpt.presence || post.content.truncate(160, separator: ' ', omission: '...')
+    post.excerpt.presence || post.content.truncate(160, separator: " ", omission: "...")
   end
 
   attribute :published_at do |post|

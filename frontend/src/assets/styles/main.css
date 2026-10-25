@@ -456,6 +456,12 @@
    ============================================================================ */
 
 @layer base {
+  /* First-paint backgrounds until useAppearance applies the visitor's skin. */
+  :root {
+    --skin-hero-1: #fefcf8;
+    --skin-hero-dark-1: #0a0a0a;
+  }
+
   /* Typography */
   html {
     @apply antialiased;
@@ -516,9 +522,19 @@
     @apply transition-colors duration-200;
   }
 
-  /* Focus visible for accessibility */
+  /* Solid ring in the skin's dark accent, at least 3:1 against every page background. */
   *:focus-visible {
-    @apply outline-hidden ring-2 ring-primary-500 ring-offset-2;
+    outline: 2px solid var(--skin-700);
+    outline-offset: 2px;
+  }
+
+  :is(.dark *):focus-visible {
+    outline-color: var(--skin-400);
+  }
+
+  /* Sections and messages that script focuses so the next Tab starts there. */
+  [tabindex='-1']:focus {
+    outline: none;
   }
 
   /* Scrollbar styling */
@@ -594,5 +610,27 @@
   }
   to {
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Show revealed content in place. !important outranks the scoped component rules,
+     which carry an extra attribute selector. */
+  .reveal,
+  .project-card,
+  .timeline-entry,
+  .info-panel,
+  .form-panel,
+  .success-card,
+  .about-content,
+  .overlay-item {
+    opacity: 1 !important;
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
   }
 }

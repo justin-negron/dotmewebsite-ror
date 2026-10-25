@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminProjectsStore } from '@/stores'
 import AdminTagInput from '@/components/admin/AdminTagInput.vue'
+import AdminUrlListInput from '@/components/admin/AdminUrlListInput.vue'
 import type { ProjectInput } from '@/types'
 
 const route = useRoute()
@@ -20,7 +21,8 @@ const form = ref<ProjectInput>({
   display_order: undefined,
   github_url: '',
   live_url: '',
-  image_url: '',
+  paper_url: '',
+  media_urls: [],
 })
 
 onMounted(async () => {
@@ -36,7 +38,8 @@ onMounted(async () => {
         display_order: p.display_order,
         github_url: p.github_url || '',
         live_url: p.live_url || '',
-        image_url: p.image_url || '',
+        paper_url: p.paper_url || '',
+        media_urls: [...p.media_urls],
       }
     }
   }
@@ -99,8 +102,21 @@ async function handleSubmit() {
       </div>
 
       <div class="field">
-        <label class="field-label">image_url:</label>
-        <input v-model="form.image_url" type="url" class="field-input" />
+        <label class="field-label">paper_url:</label>
+        <input
+          v-model="form.paper_url"
+          type="url"
+          class="field-input"
+          placeholder="DOI or publisher link for a paper about this project"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field-label">media_urls:</label>
+        <AdminUrlListInput
+          v-model="form.media_urls"
+          placeholder="One image URL per line, in slide order. End a URL with #light-only or #dark-only to show it in one theme."
+        />
       </div>
 
       <div class="field-row">

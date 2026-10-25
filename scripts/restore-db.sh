@@ -3,7 +3,9 @@
 # restarts, and prints row counts. Accepts a local file or an S3 URI:
 #   scripts/restore-db.sh ~/backups/portfolio.dump
 #   scripts/restore-db.sh s3://justinnegron-backups-<account>/db/daily/portfolio-<stamp>.dump
-# Take a fresh backup first (ssh ubuntu@origin.justinnegron.dev /opt/app/backup-db.sh manual).
+# Before it drops anything, it checks the dump with pg_restore -l in the origin's db
+# container and takes a manual backup there, and it stops if either fails. The check
+# runs remotely because Postgres 17 dumps need a pg_restore 17, which a laptop may lack.
 set -euo pipefail
 
 SOURCE="${1:?usage: restore-db.sh <file.dump | s3://bucket/key>}"
@@ -18,6 +20,18 @@ REMOTE="ubuntu@${ORIGIN_HOST:-origin.justinnegron.dev}"
 SSH_KEY="${ORIGIN_SSH_KEY:-$HOME/.ssh/justinnegron_deploy}"
 SSH_OPTS=(-o StrictHostKeyChecking=accept-new)
 [ -f "$SSH_KEY" ] && SSH_OPTS+=(-i "$SSH_KEY" -o IdentitiesOnly=yes)
+
+echo "==> Checking $(basename "$SOURCE")"
+if ! ssh "${SSH_OPTS[@]}" "$REMOTE" 'cd /opt/app && docker compose exec -T db pg_restore -l > /dev/null' < "$DUMP"; then
+  echo "The dump check failed (error above). Either $SOURCE is not a readable pg_dump -Fc archive or the origin is unreachable. Production was not touched." >&2
+  exit 1
+fi
+
+echo "==> Taking a safety backup on the origin"
+if ! ssh "${SSH_OPTS[@]}" "$REMOTE" '/opt/app/backup-db.sh manual'; then
+  echo "The safety backup failed, so the restore stopped. Production was not touched." >&2
+  exit 1
+fi
 
 echo "==> Recreating database"
 ssh "${SSH_OPTS[@]}" "$REMOTE" 'cd /opt/app && docker compose stop web && docker compose exec -T db sh -c \

@@ -8,6 +8,7 @@ import FloatingTerminal from '@/components/terminal/FloatingTerminal.vue'
 import ToastContainer from '@/components/layout/ToastContainer.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useAppearance } from '@/composables/useAppearance'
+import { prefersReducedMotion } from '@/utils/motion'
 
 const route = useRoute()
 const isAdminRoute = computed(() => route.path.startsWith('/admin'))
@@ -28,6 +29,7 @@ onMounted(() => {
 // style, which persists right up until done() triggers DOM removal — no snap.
 
 function onPageEnter(el: Element, done: () => void) {
+  if (prefersReducedMotion()) return done()
   const htmlEl = el as HTMLElement
   htmlEl.style.opacity = '0'
   htmlEl.style.transform = 'translateY(10px)'
@@ -45,6 +47,11 @@ function onPageEnter(el: Element, done: () => void) {
 }
 
 function onPageLeave(el: Element, done: () => void) {
+  // A synchronous done() inside an out-in leave drops the re-render that mounts the next page.
+  if (prefersReducedMotion()) {
+    setTimeout(done)
+    return
+  }
   const htmlEl = el as HTMLElement
   void htmlEl.offsetHeight // force reflow so current state is committed before transitioning
   htmlEl.style.transition = 'opacity 0.2s ease'
@@ -56,7 +63,7 @@ function onPageLeave(el: Element, done: () => void) {
 </script>
 
 <template>
-  <div id="app" class="flex min-h-screen flex-col">
+  <div class="app-shell flex min-h-screen flex-col">
     <a v-if="!isAdminRoute" href="#main-content" class="skip-link">Skip to main content</a>
 
     <template v-if="!isAdminRoute">
@@ -81,14 +88,14 @@ function onPageLeave(el: Element, done: () => void) {
 </template>
 
 <style scoped>
-#app {
+.app-shell {
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--skin-hero-1);
 }
 
-:is(.dark *) #app {
+:is(.dark *) .app-shell {
   background-color: var(--skin-hero-dark-1);
 }
 
@@ -99,7 +106,7 @@ function onPageLeave(el: Element, done: () => void) {
   top: 1rem;
   z-index: 9999;
   padding: 0.5rem 1rem;
-  background: var(--skin-600);
+  background: var(--skin-700);
   color: white;
   font-weight: 600;
   border-radius: 6px;

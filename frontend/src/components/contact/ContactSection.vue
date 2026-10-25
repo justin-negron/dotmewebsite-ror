@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useContactStore, useUiStore } from '@/stores'
 import type { ContactFormData } from '@/types'
 
 const contactStore = useContactStore()
 const uiStore = useUiStore()
 const sectionRef = ref<HTMLElement | null>(null)
+const successTitleRef = ref<HTMLElement | null>(null)
+const nameInputRef = ref<HTMLInputElement | null>(null)
 const hasRevealed = ref(false)
 const focusedField = ref<string | null>(null)
 let observer: IntersectionObserver | null = null
@@ -78,7 +80,7 @@ function handleBlur(field: string) {
   validateField(field)
 }
 
-function handleReset() {
+async function handleReset() {
   form.name = ''
   form.email = ''
   form.subject = ''
@@ -87,7 +89,19 @@ function handleReset() {
   errors.email = ''
   errors.message = ''
   contactStore.resetForm()
+  await nextTick()
+  nameInputRef.value?.focus()
 }
+
+// The success card replaces the form, so move focus onto it instead of letting it drop to the page.
+watch(
+  () => contactStore.submitted,
+  async (sent) => {
+    if (!sent) return
+    await nextTick()
+    successTitleRef.value?.focus()
+  }
+)
 
 onMounted(() => {
   observer = new IntersectionObserver(
@@ -213,7 +227,7 @@ onUnmounted(() => {
         <!-- Right: Contact form -->
         <div :class="['form-panel', hasRevealed ? 'is-revealed' : '']">
           <!-- Success state -->
-          <div v-if="contactStore.submitted" class="success-card">
+          <div v-if="contactStore.submitted" class="success-card" role="status">
             <div class="success-icon-wrap">
               <svg
                 class="success-icon"
@@ -229,7 +243,7 @@ onUnmounted(() => {
                 />
               </svg>
             </div>
-            <p class="success-title">Message sent!</p>
+            <p ref="successTitleRef" class="success-title" tabindex="-1">Message sent!</p>
             <p class="success-text">Thanks for reaching out. I'll get back to you soon.</p>
             <button class="reset-btn" @click="handleReset">Send another message</button>
           </div>
@@ -239,26 +253,34 @@ onUnmounted(() => {
             <!-- Name -->
             <div class="field-group">
               <label class="field-label" for="contact-name">
-                <span class="field-prompt">~$</span> name <span class="field-required">*</span>
+                <span class="field-prompt" aria-hidden="true">~$</span> name
+                <span class="field-required" aria-hidden="true">*</span>
               </label>
               <input
                 id="contact-name"
+                ref="nameInputRef"
                 v-model="form.name"
                 type="text"
                 class="field-input"
                 :class="{ 'has-error': errors.name, 'is-focused': focusedField === 'name' }"
                 placeholder="Your name"
                 autocomplete="name"
+                required
+                :aria-invalid="!!errors.name"
+                :aria-describedby="errors.name ? 'contact-name-error' : undefined"
                 @focus="focusedField = 'name'"
                 @blur="handleBlur('name')"
               />
-              <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
+              <span v-if="errors.name" id="contact-name-error" class="field-error">
+                {{ errors.name }}
+              </span>
             </div>
 
             <!-- Email -->
             <div class="field-group">
               <label class="field-label" for="contact-email">
-                <span class="field-prompt">~$</span> email <span class="field-required">*</span>
+                <span class="field-prompt" aria-hidden="true">~$</span> email
+                <span class="field-required" aria-hidden="true">*</span>
               </label>
               <input
                 id="contact-email"
@@ -268,16 +290,21 @@ onUnmounted(() => {
                 :class="{ 'has-error': errors.email, 'is-focused': focusedField === 'email' }"
                 placeholder="your@email.com"
                 autocomplete="email"
+                required
+                :aria-invalid="!!errors.email"
+                :aria-describedby="errors.email ? 'contact-email-error' : undefined"
                 @focus="focusedField = 'email'"
                 @blur="handleBlur('email')"
               />
-              <span v-if="errors.email" class="field-error">{{ errors.email }}</span>
+              <span v-if="errors.email" id="contact-email-error" class="field-error">
+                {{ errors.email }}
+              </span>
             </div>
 
             <!-- Subject -->
             <div class="field-group">
               <label class="field-label" for="contact-subject">
-                <span class="field-prompt">~$</span> subject
+                <span class="field-prompt" aria-hidden="true">~$</span> subject
               </label>
               <input
                 id="contact-subject"
@@ -294,7 +321,8 @@ onUnmounted(() => {
             <!-- Message -->
             <div class="field-group">
               <label class="field-label" for="contact-message">
-                <span class="field-prompt">~$</span> message <span class="field-required">*</span>
+                <span class="field-prompt" aria-hidden="true">~$</span> message
+                <span class="field-required" aria-hidden="true">*</span>
               </label>
               <textarea
                 id="contact-message"
@@ -303,14 +331,19 @@ onUnmounted(() => {
                 :class="{ 'has-error': errors.message, 'is-focused': focusedField === 'message' }"
                 placeholder="What's on your mind?"
                 rows="5"
+                required
+                :aria-invalid="!!errors.message"
+                :aria-describedby="errors.message ? 'contact-message-error' : undefined"
                 @focus="focusedField = 'message'"
                 @blur="handleBlur('message')"
               />
-              <span v-if="errors.message" class="field-error">{{ errors.message }}</span>
+              <span v-if="errors.message" id="contact-message-error" class="field-error">
+                {{ errors.message }}
+              </span>
             </div>
 
             <!-- Server error -->
-            <div v-if="contactStore.error" class="server-error">
+            <div v-if="contactStore.error" class="server-error" role="alert">
               <span class="error-prefix">err:</span>
               {{ contactStore.error.message || 'Something went wrong. Please try again.' }}
             </div>
@@ -369,7 +402,7 @@ onUnmounted(() => {
 .section-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85rem;
-  color: var(--skin-600);
+  color: var(--skin-700);
   letter-spacing: 0.02em;
 }
 
@@ -504,7 +537,7 @@ onUnmounted(() => {
 .info-terminal-title {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.6rem;
-  color: #a8a29e;
+  color: #57534e;
   margin-left: auto;
 }
 
@@ -543,7 +576,7 @@ onUnmounted(() => {
 
 .info-response {
   margin-left: 1.25rem;
-  color: #059669;
+  color: #047857;
   margin-top: 2px;
 }
 
@@ -583,11 +616,11 @@ onUnmounted(() => {
 }
 
 .social-link:hover {
-  color: var(--skin-600);
+  color: var(--skin-700);
 }
 
 :is(.dark *).social-link {
-  color: #78716c;
+  color: #a8a29e;
 }
 
 :is(.dark *).social-link:hover {
@@ -630,7 +663,7 @@ onUnmounted(() => {
 }
 
 .field-prompt {
-  color: var(--skin-600);
+  color: var(--skin-700);
   font-weight: 600;
 }
 
@@ -656,7 +689,6 @@ onUnmounted(() => {
   background: #fafaf9;
   border: 1px solid #e7e5e4;
   border-radius: 12px;
-  outline: none;
   transition:
     border-color 0.25s ease,
     background 0.25s ease,
@@ -665,7 +697,7 @@ onUnmounted(() => {
 
 .field-input::placeholder,
 .field-textarea::placeholder {
-  color: #a8a29e;
+  color: #78716c;
 }
 
 .field-input:focus,
@@ -692,7 +724,7 @@ onUnmounted(() => {
 
 :is(.dark *).field-input::placeholder,
 :is(.dark *).field-textarea::placeholder {
-  color: #57534e;
+  color: #a8a29e;
 }
 
 :is(.dark *).field-input:focus,
@@ -883,7 +915,7 @@ onUnmounted(() => {
   margin-top: 1.5rem;
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--skin-600);
+  color: var(--skin-700);
   background: transparent;
   border: 1px solid var(--skin-500);
   border-radius: 10px;

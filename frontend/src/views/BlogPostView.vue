@@ -49,7 +49,14 @@ const readingProgress = computed(() => {
    Lifecycle
    ======================================================================== */
 function updatePostHead() {
-  if (!post.value) return
+  if (!post.value) {
+    updateHead({
+      title: route.meta.title ?? '',
+      description: route.meta.description ?? '',
+      noindex: true,
+    })
+    return
+  }
   updateHead({
     title: post.value.title,
     description: post.value.excerpt,
@@ -84,6 +91,7 @@ watch(slug, async (newSlug) => {
 
 onUnmounted(() => {
   blogStore.clearCurrentPost()
+  blogStore.clearError()
 })
 
 function goBack() {

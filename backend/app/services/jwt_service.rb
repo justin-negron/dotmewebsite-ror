@@ -11,9 +11,9 @@ class JwtService
         exp: ACCESS_TOKEN_EXPIRY.from_now.to_i,
         iat: Time.current.to_i,
         jti: SecureRandom.uuid,
-        type: 'access'
+        type: "access"
       }
-      JWT.encode(payload, secret, 'HS256')
+      JWT.encode(payload, secret, "HS256")
     end
 
     def encode_refresh_token(admin)
@@ -25,19 +25,19 @@ class JwtService
         exp: exp.to_i,
         iat: Time.current.to_i,
         jti: jti,
-        type: 'refresh'
+        type: "refresh"
       }
 
       admin.update_columns(refresh_token_jti: jti, refresh_token_exp: exp)
 
-      JWT.encode(payload, secret, 'HS256')
+      JWT.encode(payload, secret, "HS256")
     end
 
     def decode(token)
-      decoded = JWT.decode(token, secret, true, { algorithm: 'HS256' })
+      decoded = JWT.decode(token, secret, true, { algorithm: "HS256" })
       decoded.first.with_indifferent_access
     rescue JWT::ExpiredSignature
-      raise AuthenticationError, 'Token has expired'
+      raise AuthenticationError, "Token has expired"
     rescue JWT::DecodeError => e
       raise AuthenticationError, "Invalid token: #{e.message}"
     end
@@ -45,8 +45,8 @@ class JwtService
     private
 
     def secret
-      ENV.fetch('JWT_SECRET') do
-        raise 'JWT_SECRET environment variable is not set'
+      ENV.fetch("JWT_SECRET") do
+        raise "JWT_SECRET environment variable is not set"
       end
     end
   end

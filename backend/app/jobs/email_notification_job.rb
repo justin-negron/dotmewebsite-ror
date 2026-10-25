@@ -1,5 +1,5 @@
-require 'net/smtp'
-require 'aws-sdk-sesv2'
+require "net/smtp"
+require "aws-sdk-sesv2"
 
 class EmailNotificationJob < ApplicationJob
   queue_as :mailers

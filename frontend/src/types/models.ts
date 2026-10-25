@@ -9,7 +9,8 @@ export interface Project {
   display_order: number
   github_url: string | null
   live_url: string | null
-  image_url: string | null
+  paper_url: string | null
+  media_urls: string[]
   created_at: string
   updated_at: string
 }
@@ -91,7 +92,8 @@ export interface ProjectInput {
   display_order?: number
   github_url?: string
   live_url?: string
-  image_url?: string
+  paper_url?: string
+  media_urls: string[]
 }
 
 export interface ExperienceInput {

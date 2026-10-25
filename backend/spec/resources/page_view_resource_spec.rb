@@ -40,11 +40,11 @@ RSpec.describe PageViewResource do
       expect(result).not_to have_key("user_agent")
     end
 
-    it 'does not expose ip_address' do
-      page_view = create(:page_view, ip_address: '127.0.0.1')
+    it 'does not expose the visitor hash' do
+      page_view = create(:page_view, visitor_hash: 'c4fe3134f9f8014b1094426cad1dbc7c')
       result = PageViewResource.new(page_view).to_h
 
-      expect(result).not_to have_key("ip_address")
+      expect(result).not_to have_key("visitor_hash")
     end
   end
 end

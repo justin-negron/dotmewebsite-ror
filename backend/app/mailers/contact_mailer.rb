@@ -7,7 +7,7 @@ class ContactMailer < ApplicationMailer
     return unless @contact
 
     mail(
-      to: ENV.fetch('CONTACT_NOTIFY_TO', 'owner@example.com'),
+      to: ENV.fetch("CONTACT_NOTIFY_TO", "owner@example.com"),
       subject: "New Contact Form Submission: #{@contact.subject || 'No Subject'}",
       reply_to: @contact.email
     )

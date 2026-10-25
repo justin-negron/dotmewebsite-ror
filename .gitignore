@@ -73,4 +73,3 @@ infra/.terraform/
 infra/*.tfstate
 infra/*.tfstate.backup
 infra/terraform.tfvars
-infra/.terraform.lock.hcl

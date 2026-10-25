@@ -98,7 +98,10 @@ export default tseslint.config(
       'vue/require-default-prop': 'off',
       'vue/require-prop-types': 'off',
       'vue/component-name-in-template-casing': ['error', 'PascalCase'],
-      'vue/custom-event-name-casing': ['error', 'kebab-case'],
+      // vue-tsc already checks undefined names; no-undef cannot see DOM globals in .vue files
+      'no-undef': 'off',
+      // v-model events (update:modelValue) are camelCase by Vue convention
+      'vue/custom-event-name-casing': ['error', 'kebab-case', { ignores: ['/^update:/'] }],
       'vue/html-self-closing': [
         'error',
         {

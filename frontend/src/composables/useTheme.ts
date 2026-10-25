@@ -1,4 +1,6 @@
-import { ref, watch } from 'vue'
+import { readonly, ref, watch } from 'vue'
+import { prefersReducedMotion } from '@/utils/motion'
+import { readStorage, writeStorage } from '@/utils/storage'
 
 export type Theme = 'light' | 'dark'
 
@@ -9,10 +11,14 @@ function getSystemPreference(): Theme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+function isTheme(value: string | null): value is Theme {
+  return value === 'light' || value === 'dark'
+}
+
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'light'
-  const stored = localStorage.getItem(STORAGE_KEY) as Theme | null
-  return stored ?? getSystemPreference()
+  const stored = readStorage(STORAGE_KEY)
+  return isTheme(stored) ? stored : getSystemPreference()
 }
 
 // Eagerly initialize to prevent flash of wrong theme
@@ -35,6 +41,14 @@ function applyTheme(t: Theme) {
 
 // Apply immediately on module load
 applyTheme(theme.value)
+
+watch(theme, (t) => {
+  applyTheme(t)
+  writeStorage(STORAGE_KEY, t)
+})
+
+/** The active theme, for components that only need to read it. */
+export const activeTheme = readonly(theme)
 
 /**
  * Circular reveal with blurred new-theme content.
@@ -64,8 +78,7 @@ function toggleWithTransition(event?: MouseEvent) {
     Math.max(y, window.innerHeight - y)
   )
 
-  // Fallback: no View Transitions API
-  if (!doc.startViewTransition) {
+  if (!doc.startViewTransition || prefersReducedMotion()) {
     theme.value = theme.value === 'light' ? 'dark' : 'light'
     return
   }
@@ -106,11 +119,6 @@ function toggleWithTransition(event?: MouseEvent) {
 }
 
 export function useTheme() {
-  watch(theme, (t) => {
-    applyTheme(t)
-    localStorage.setItem(STORAGE_KEY, t)
-  })
-
   return {
     theme,
     toggleTheme: toggleWithTransition,

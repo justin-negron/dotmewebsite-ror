@@ -20,7 +20,8 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
-  config.cache_store = :null_store
+  # Rate limits (rack-attack and rate_limit) count in Rails.cache; rails_helper clears it per example.
+  config.cache_store = :memory_store
 
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
@@ -51,10 +52,6 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
 
-  # Disable email delivery in tests
-  config.action_mailer.perform_deliveries = false
-  config.action_mailer.delivery_method = :test
-
   # Use test queue adapter for ActiveJob
-  config.active_job.queue_adapter = :test 
+  config.active_job.queue_adapter = :test
 end

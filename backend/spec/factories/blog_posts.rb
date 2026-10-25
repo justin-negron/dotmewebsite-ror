@@ -6,14 +6,14 @@ FactoryBot.define do
     excerpt { "This is a great blog post..." }
     published { false }
     published_at { nil }
-    tags { ["Rails", "Ruby", "Development"] }
+    tags { [ "Rails", "Ruby", "Development" ] }
     view_count { 0 }
-    
+
     trait :published do
       published { true }
       published_at { 1.week.ago }
     end
-    
+
     trait :draft do
       published { false }
       published_at { nil }

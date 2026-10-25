@@ -1,19 +1,19 @@
 Rails.application.routes.draw do
-  # Health check endpoint (for AWS ECS health checks)
-  get '/health', to: proc { [200, {}, ['OK']] }
+  # Health check endpoint (hit by CloudFront and the Caddy origin)
+  get "/health", to: proc { [ 200, {}, [ "OK" ] ] }
 
   # API namespace
   namespace :api do
-    namespace :v1 do
+    namespace :v1, format: false do
       # Public endpoints
-      resources :projects, only: [:index, :show]
-      resources :experiences, only: [:index]
-      resources :blog_posts, only: [:index, :show], param: :slug
-      resources :contacts, only: [:create]
-      
+      resources :projects, only: [ :index, :show ]
+      resources :experiences, only: [ :index ]
+      resources :blog_posts, only: [ :index, :show ], param: :slug
+      resources :contacts, only: [ :create ]
+
       # Analytics
       namespace :analytics do
-        post :track, to: 'analytics#track'
+        post :track, to: "analytics#track"
       end
 
       # Admin endpoints (JWT authenticated)
@@ -33,13 +33,13 @@ Rails.application.routes.draw do
             patch :unpublish
           end
         end
-        resources :contacts, only: [:index, :show, :update, :destroy]
-        
+        resources :contacts, only: [ :index, :show, :update, :destroy ]
+
         # Image uploads
-        post 'uploads/presign', to: 'uploads#presign'
+        post "uploads/presign", to: "uploads#presign"
 
         # Analytics dashboard
-        get 'analytics/dashboard', to: 'analytics#dashboard'
+        get "analytics/dashboard", to: "analytics#dashboard"
       end
     end
   end

@@ -93,6 +93,7 @@ RSpec.configure do |config|
   config.before(:each) do
     clear_enqueued_jobs
     clear_performed_jobs
+    Rails.cache.clear
   end
 
   config.after(:each) do

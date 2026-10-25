@@ -2,13 +2,12 @@ module Api
   module V1
     module Admin
       class ContactsController < BaseController
-        before_action :set_contact, only: [:show, :update, :destroy]
-        rescue_from ArgumentError, with: :bad_enum_value
+        before_action :set_contact, only: [ :show, :update, :destroy ]
 
         def index
           contacts = Contact.recent
           contacts = contacts.where(status: params[:status]) if params[:status].present?
-          contacts = contacts.page(params[:page]).per(params[:per_page] || 20)
+          contacts = contacts.page(page_param).per(per_page(20))
           render_success(ContactResource.new(contacts).to_h, meta: pagination_meta(contacts))
         end
 
@@ -23,7 +22,7 @@ module Api
 
         def destroy
           @contact.destroy!
-          render_success({ message: 'Contact deleted' })
+          render_success({ message: "Contact deleted" })
         end
 
         private
@@ -34,10 +33,6 @@ module Api
 
         def contact_params
           params.require(:contact).permit(:status)
-        end
-
-        def bad_enum_value(exception)
-          render_error(exception.message, status: :bad_request)
         end
       end
     end

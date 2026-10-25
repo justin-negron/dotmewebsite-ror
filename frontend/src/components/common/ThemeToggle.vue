@@ -73,12 +73,6 @@ defineEmits<{
   padding: 0;
   overflow: hidden;
   flex-shrink: 0;
-  outline: none;
-  transition: box-shadow 0.2s ease;
-}
-
-.theme-toggle:focus-visible {
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.5);
 }
 
 /* === Track === */

@@ -28,6 +28,20 @@ RSpec.describe 'Api::V1::Admin::BlogPosts', type: :request do
 
       expect(response).to have_http_status(:unauthorized)
     end
+
+    it 'falls back to page 1 for an array page' do
+      get '/api/v1/admin/blog_posts?page[]=2', headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_meta[:current_page]).to eq(1)
+    end
+
+    it 'falls back to page 1 for a hash page' do
+      get '/api/v1/admin/blog_posts?page[a]=2', headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_meta[:current_page]).to eq(1)
+    end
   end
 
   describe 'GET /api/v1/admin/blog_posts/:id' do
@@ -57,7 +71,7 @@ RSpec.describe 'Api::V1::Admin::BlogPosts', type: :request do
         blog_post: {
           title: 'New Blog Post',
           content: 'This is the content of the new blog post with enough text.',
-          tags: ['Ruby', 'Rails']
+          tags: [ 'Ruby', 'Rails' ]
         }
       }
     end
@@ -78,6 +92,15 @@ RSpec.describe 'Api::V1::Admin::BlogPosts', type: :request do
            headers: headers, as: :json
 
       expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it 'returns 422, not 500, when published is null' do
+      post '/api/v1/admin/blog_posts',
+           params: valid_params.deep_merge(blog_post: { published: nil }),
+           headers: headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(json_errors).to eq([ 'Published is not included in the list' ])
     end
 
     it 'creates a blog post with cover_image_url' do

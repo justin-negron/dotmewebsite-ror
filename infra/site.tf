@@ -2,7 +2,9 @@
 # Frontend SPA Hosting — S3 + CloudFront
 # =============================================================================
 # Private S3 bucket → CloudFront OAC → justinnegron.dev
-# SPA routing: all 404/403 errors return /index.html (Vue Router handles paths)
+# SPA routing: the viewer-request function serves /index.html for any path whose
+# last segment has no dot. It runs only on the S3 behavior, so /api/* errors reach
+# the browser unchanged, and a missing file returns S3's 403.
 
 # --- Shared secret CloudFront sends to the API origin (checked by CloudfrontSecretMiddleware)
 resource "random_password" "cloudfront_secret" {
@@ -20,9 +22,7 @@ resource "aws_s3_bucket" "site" {
   bucket = var.site_bucket_name
 
   tags = {
-    Name        = "Frontend SPA"
-    Environment = var.environment
-    Project     = "justinnegron-dev"
+    Name = "Frontend SPA"
   }
 }
 
@@ -31,6 +31,36 @@ resource "aws_s3_bucket_versioning" "site" {
 
   versioning_configuration {
     status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+    bucket_key_enabled = true
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+
+  rule {
+    id     = "expire-noncurrent-30-days"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
@@ -71,13 +101,21 @@ resource "aws_s3_bucket_policy" "site" {
             "AWS:SourceArn" = aws_cloudfront_distribution.site.arn
           }
         }
+      },
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.site.arn, "${aws_s3_bucket.site.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
       }
     ]
   })
 }
 
 # --- CloudFront Cache Policy (optimized for SPA)
-# HTML: no cache (always get latest deploy). JS/CSS: long cache (hashed filenames).
+# TTLs follow the Cache-Control headers scripts/deploy-frontend.sh sets on each object.
 resource "aws_cloudfront_cache_policy" "site" {
   name        = "${var.site_bucket_name}-cache-policy"
   comment     = "SPA cache policy — cache by query strings and encoding"
@@ -100,12 +138,69 @@ resource "aws_cloudfront_cache_policy" "site" {
   }
 }
 
-# --- CloudFront Function: www → apex redirect
-# Redirects www.justinnegron.dev → justinnegron.dev (SEO best practice)
+# --- Response headers for the site and the API proxy
+# connect-src lists both S3 hostnames because admin image uploads PUT straight to a
+# presigned S3 URL, and the SDK picks the global or regional form by its config.
+resource "aws_cloudfront_response_headers_policy" "site" {
+  name    = "justinnegron-site-security-headers"
+  comment = "HSTS, nosniff, frame and referrer policy, report-only CSP"
+
+  security_headers_config {
+    strict_transport_security {
+      access_control_max_age_sec = 63072000
+      include_subdomains         = true
+      override                   = true
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "Permissions-Policy"
+      value    = "camera=(), microphone=(), geolocation=()"
+      override = true
+    }
+
+    items {
+      header = "Content-Security-Policy-Report-Only"
+      value = join("; ", [
+        "default-src 'self'",
+        # Hash of the inline theme script in frontend/index.html; update it when that script changes.
+        "script-src 'self' 'sha256-v3SasoOBk/RnLiB827NX4pDRt7O84UqywJPqqe1S29o='",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com",
+        "img-src 'self' data: blob: https://assets.${var.domain_name}",
+        "connect-src 'self' https://${aws_s3_bucket.assets.bucket_domain_name} https://${aws_s3_bucket.assets.bucket_regional_domain_name}",
+        # frame-ancestors is ignored in report-only mode; add it back when the
+        # header becomes Content-Security-Policy. X-Frame-Options DENY covers framing now.
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+      ])
+      override = true
+    }
+  }
+}
+
+# --- CloudFront Function: www → apex redirect, then SPA routing
+# Name and resource address stay "www_redirect" so the function ARN does not change.
 resource "aws_cloudfront_function" "www_redirect" {
   name    = "www-redirect"
   runtime = "cloudfront-js-2.0"
-  comment = "Redirect www to apex domain"
+  comment = "Redirect www to apex; serve index.html for extensionless paths"
   publish = true
 
   code = <<-EOF
@@ -125,6 +220,10 @@ resource "aws_cloudfront_function" "www_redirect" {
           statusDescription: 'Moved Permanently',
           headers: { location: { value: newUrl } }
         };
+      }
+      var lastSegment = request.uri.split('/').pop();
+      if (lastSegment.indexOf('.') === -1) {
+        request.uri = '/index.html';
       }
       return request;
     }
@@ -206,6 +305,8 @@ resource "aws_cloudfront_distribution" "site" {
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.site.id
+
     function_association {
       event_type   = "viewer-request"
       function_arn = aws_cloudfront_function.www_redirect.arn
@@ -222,8 +323,9 @@ resource "aws_cloudfront_distribution" "site" {
     compress               = true
 
     # No caching for API responses
-    cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.api.id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.disabled.id
+    origin_request_policy_id   = aws_cloudfront_origin_request_policy.api.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.site.id
   }
 
   # Health check behavior — forwards /health to the Lightsail origin
@@ -234,24 +336,9 @@ resource "aws_cloudfront_distribution" "site" {
     target_origin_id       = "lightsail-api"
     viewer_protocol_policy = "redirect-to-https"
 
-    cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.api.id
-  }
-
-  # SPA routing — return index.html for paths that don't match S3 objects.
-  # Vue Router handles client-side routing from there.
-  custom_error_response {
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 10
-  }
-
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 10
+    cache_policy_id            = data.aws_cloudfront_cache_policy.disabled.id
+    origin_request_policy_id   = aws_cloudfront_origin_request_policy.api.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.site.id
   }
 
   restrictions {
@@ -267,8 +354,6 @@ resource "aws_cloudfront_distribution" "site" {
   }
 
   tags = {
-    Name        = "Frontend SPA CDN"
-    Environment = var.environment
-    Project     = "justinnegron-dev"
+    Name = "Frontend SPA CDN"
   }
 }

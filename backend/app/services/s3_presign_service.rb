@@ -1,16 +1,22 @@
 class S3PresignService
-  ALLOWED_TYPES = %w[image/jpeg image/png image/gif image/webp].freeze
+  EXTENSIONS = {
+    "image/jpeg" => ".jpg",
+    "image/png" => ".png",
+    "image/gif" => ".gif",
+    "image/webp" => ".webp"
+  }.freeze
   EXPIRY = 300 # 5 minutes
 
   class UnsupportedContentType < StandardError; end
 
-  def self.generate_presigned_url(filename:, content_type:)
-    unless ALLOWED_TYPES.include?(content_type)
-      raise UnsupportedContentType, "Unsupported content type: #{content_type}. Allowed: #{ALLOWED_TYPES.join(', ')}"
+  # The key extension and the signed Content-Type both come from the validated
+  # content type, so the client cannot name the object or change its type.
+  def self.generate_presigned_url(content_type:)
+    ext = EXTENSIONS.fetch(content_type) do
+      raise UnsupportedContentType, "Unsupported content type: #{content_type}. Allowed: #{EXTENSIONS.keys.join(', ')}"
     end
 
     bucket = ENV.fetch("AWS_S3_BUCKET")
-    ext = File.extname(filename).presence || mime_to_ext(content_type)
     key = "blog-images/#{SecureRandom.uuid}#{ext}"
 
     signer = Aws::S3::Presigner.new
@@ -25,14 +31,5 @@ class S3PresignService
     public_url = "https://#{ENV.fetch("ASSETS_HOST")}/#{key}"
 
     { presigned_url: presigned_url, public_url: public_url, key: key }
-  end
-
-  def self.mime_to_ext(content_type)
-    {
-      "image/jpeg" => ".jpg",
-      "image/png" => ".png",
-      "image/gif" => ".gif",
-      "image/webp" => ".webp"
-    }.fetch(content_type, ".jpg")
   end
 end

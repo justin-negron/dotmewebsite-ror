@@ -7,10 +7,20 @@
 origin.justinnegron.dev {
 	encode zstd gzip
 
-	reverse_proxy web:3000 {
-		# Keep CloudFront's X-Forwarded-For, which ends with the real viewer IP.
-		# Without this Caddy replaces it with the CloudFront edge IP, and Rails
-		# (analytics) and Rack::Attack (rate limits) would see CloudFront instead.
-		header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+	# Only CloudFront knows the secret. Anything that reaches the origin directly
+	# gets a bare 403 before it can touch Rails, its health routes or its rate limits.
+	@cloudfront header X-CloudFront-Secret {env.CLOUDFRONT_SECRET}
+
+	handle @cloudfront {
+		reverse_proxy web:3000 {
+			# Keep CloudFront's X-Forwarded-For, which ends with the real viewer IP.
+			# Without this Caddy replaces it with the CloudFront edge IP, and Rails
+			# (analytics) and Rack::Attack (rate limits) would see CloudFront instead.
+			header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+		}
+	}
+
+	handle {
+		respond 403
 	}
 }

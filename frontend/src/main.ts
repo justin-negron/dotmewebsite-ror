@@ -4,8 +4,11 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { setAuthTokenGetter } from './services/api'
+import { reloadOnStaleChunk } from './utils/reloadOnStaleChunk'
 
 import './assets/styles/main.css'
+
+reloadOnStaleChunk()
 
 const app = createApp(App)
 

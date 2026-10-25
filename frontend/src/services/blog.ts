@@ -46,10 +46,10 @@ export async function getPostsByTag(tag: string) {
   }
 }
 
-export async function getRecentPosts(limit: number = 5) {
+export async function getRecentPosts(perPage: number = 5) {
   try {
     const response = await api.get<ApiSuccessResponse<BlogPost[]>>(ENDPOINTS.base, {
-      params: { published: true, limit },
+      params: { published: true, per_page: perPage },
     })
     return extractData(response)
   } catch (error) {
