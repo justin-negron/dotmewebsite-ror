@@ -27,8 +27,10 @@ The repo is public. Treat every tracked file as published.
 - Verification means `bin/check`. Run it, fix what it reports, run it again until it passes, then commit. Never disable, skip or loosen a test, lint rule, coverage floor or security check to get there.
 - A `bin/check` failure that was already there and is outside your brief is not yours to fix. Leave it alone and list it in your summary: the step and the first lines of the error.
 - Tests travel with behavior. Add or update specs for what you change (see "Rules specific to this repo").
-- Never read or edit `.env` files and never print their contents, in any tool or shell command. `backend/.env.example` is the one exception. `bin/setup-worktree` copies the test credentials into place without showing them, and `.claude/settings.json` denies these reads for Claude Code.
+- Never read or edit `.env` files and never print their contents, in any tool or shell command. `backend/.env.example` is the one exception. `bin/setup-worktree` copies the test credentials into place without showing them. `.claude/settings.json` denies these reads for Claude Code's Read tool and for `cat`, `head`, `tail`, `sed` and `tee`; that is a guard, not a boundary, so the rule binds everything else you run too.
 - No new gems, npm packages or tools unless the brief asks for them.
+- Run one `bin/check` at a time on a machine. Every worktree shares the `portfolio_test` database and the check resets its tables. `bin/check` takes a lock around the database steps and waits if another run holds it, but a plain `bundle exec rspec` takes no lock.
+- Leave the dev database alone. `portfolio_development` is Justin's and shared across checkouts; seeding, reseeding and `bin/rails runner` resets are his.
 - Terraform is for `fmt -check`, `init -backend=false` and `validate` only, which is what `bin/check` runs. Never `plan`, `apply` or anything that needs AWS credentials.
 - Never run the deploy scripts or anything that touches the production box. Those are Justin's.
 - Don't edit `.circleci/` or `.github/` unless the brief says so. If CI should change, say so in your summary.
@@ -51,7 +53,7 @@ Then verify with:
 bin/check
 ```
 
-It runs every step of `.circleci/config.yml`, keeps going after a failure, prints one pass/fail line per step and exits non-zero if any step failed. It installs nothing: a missing tool is a failed step. It sets `CI=1` (CircleCI sets `CI=true`; `backend/spec/spec_helper.rb` turns on the coverage floor when `CI` is set) and `RAILS_ENV=test`, like the CI executor. Running it leaves `git status --short` empty.
+It runs every step of `.circleci/config.yml`, keeps going after a failure, prints one pass/fail line per step and exits non-zero if any step failed. It installs nothing: a missing tool is a failed step. It sets `CI=1` (CircleCI sets `CI=true`; `backend/spec/spec_helper.rb` turns on the coverage floor and `config/environments/test.rb` turns on eager loading when `CI` is set) and `RAILS_ENV=test`, like the CI executor. Running it leaves `git status --short` empty.
 
 | Step | Directory | Command |
 |---|---|---|
@@ -72,9 +74,10 @@ It runs every step of `.circleci/config.yml`, keeps going after a failure, print
 
 Notes on the steps:
 - `npx --no -- <tool>` runs the binary installed in `node_modules` and fails if it is missing, where plain `npx` would download it. The `--` stops npm from reading the tool's flags (such as `--check`) as its own. With packages installed it runs the same tool and flags CI runs.
-- The test database is `portfolio_test` on the local Postgres, shared by every worktree on the machine. `db:schema:load` resets its tables, which is also what CI does on a fresh database.
+- The test database is `portfolio_test` on the local Postgres, shared by every worktree on the machine. `db:schema:load` resets its tables, which is also what CI does on a fresh database. `bin/check` holds a lock file in the shared `.git` directory around the schema load and rspec so two runs don't reset each other's tables.
 - `bundler-audit --update` refreshes the advisory database and `npm audit` and `terraform init` reach the network. None of them change tracked files.
-- CI runs Node 22; `frontend/package.json` `engines` accepts Node 22, 24 and 26 lines. `npm ci` warns on a Node outside those ranges but still installs.
+- CI runs Node 22. `frontend/package.json` `engines` requires Node `^22.22.2 || ^24.15.0 || >=26.0.0`; `npm ci` prints an EBADENGINE warning on a Node outside those ranges but still installs.
+- In the main checkout, `terraform fmt -check` also checks the gitignored `infra/terraform.tfvars`, which CI never sees.
 
 ## Commands
 
@@ -87,9 +90,9 @@ bundle exec rspec spec/models/project_spec.rb:12   # one example
 bin/rubocop                                        # rubocop-rails-omakase
 bin/brakeman --quiet --no-pager                    # static security scan, keep it at 0 warnings
 bin/bundler-audit                                  # gem CVE check
-bin/ci                                             # setup + rubocop + bundler-audit + brakeman (config/ci.rb)
-bin/rails db:migrate && bin/rails db:seed
-bin/rails runner 'Project.delete_all' && bin/rails db:seed   # reload project rows after editing db/seeds.rb
+bin/ci                                             # Justin's: bin/setup (bundle install, db:prepare on the dev DB) + rubocop + bundler-audit + brakeman; builders use bin/check
+bin/rails db:migrate && bin/rails db:seed          # Justin's dev DB only
+bin/rails runner 'Project.delete_all' && bin/rails db:seed   # Justin's: reload project rows after editing db/seeds.rb
 ```
 
 Frontend, from `frontend/`:
@@ -125,7 +128,7 @@ Verification before any commit is `bin/check`. Report each step's result. Circle
 Request path: browser, then CloudFront, then either S3 (site files) or `/api/*` to Caddy on Lightsail, then Puma/Rails, then Postgres on the same box. Images come from `assets.justinnegron.dev`, a private bucket behind CloudFront with an immutable cache. The full picture is `infra/architecture/system-architecture.svg`.
 
 Backend
-- Every endpoint is under `/api/v1/` and inherits `Api::V1::BaseController`, which renders `{ success, data, meta }` or `{ success: false, message, errors }`. Keep that envelope.
+- Every API endpoint is under `/api/v1/` and inherits `Api::V1::BaseController`, which renders `{ success, data, meta }` or `{ success: false, message, errors }`. Keep that envelope. Only the `/health` and `/up` health checks sit outside the namespace.
 - Serialization is Alba in `app/resources/`. `to_h` returns string keys.
 - Public routes: projects, experiences, blog posts by slug, contact create, analytics track. Admin routes need a JWT (`Authenticatable` concern, `JwtService`) and cover CRUD, publish/unpublish, S3 presigned uploads and the dashboard.
 - Jobs run in Solid Queue inside Puma (`SOLID_QUEUE_IN_PUMA` in `config/puma.rb`). No Redis, no Sidekiq.
@@ -140,21 +143,21 @@ Frontend
 - Dark mode is a `.dark` class on `<html>` managed by `composables/useTheme.ts`. In scoped styles write `:is(.dark *) .foo`, not `dark:`. Four color skins are CSS variables set by `useAppearance.ts`.
 - Project media: `media_urls` is an ordered list of CDN URLs. A URL ending in `#light-only` or `#dark-only` shows in that theme only (`utils/themedMedia.ts`).
 - The blog is off the public nav, but its routes, views and admin CRUD stay. Do not remove them.
-- `frontend/` carries a husky + lint-staged config, but it is not wired to this repo (`core.hooksPath` is unset), so lint and format checks run only by hand, in `bin/check` and in CI. `bin/setup-worktree` runs `npm ci` with `HUSKY=0` so it stays that way.
+- `frontend/` carries a husky + lint-staged config, but it is not wired to this repo (`core.hooksPath` is unset), so lint and format checks run only by hand, in `bin/check` and in CI. The `prepare` script (`husky`) is a no-op from `frontend/` because there is no `.git` there; `bin/setup-worktree` sets `HUSKY=0` as a guard anyway.
 
 Infra and deploy
 - Terraform state is remote in S3. `infra/terraform.tfvars` is gitignored.
 - Production config is rendered from SSM Parameter Store by `deploy/deploy.sh`. No production `.env` exists in the repo.
 - A systemd timer runs `backup-db.sh` nightly to S3; `scripts/restore-db.sh` restores from a dump or an S3 URI.
-- The assets CDN caches for a year. Never overwrite an object key; upload under a new name.
+- The assets CDN cache policy allows up to a year at the edge (default TTL 30 days). Never overwrite an object key; upload under a new name.
 
 ## Rules specific to this repo
 
-- No secrets in tracked files. `.env*`, `master.key` and `terraform.tfvars` stay ignored. Brakeman stays at zero warnings.
+- No secrets in tracked files. `.env`, `.env*.local`, `master.key` and `terraform.tfvars` are ignored, and `backend/.env.example` is the tracked template. Other names such as `backend/.env.test` are not ignored, so never create them. Brakeman stays at zero warnings.
 - Commits are conventional (`feat:`, `fix:`, `chore:`, ...) with no attribution footer. Builders never push. Justin pushes from his machine with `git -c credential.helper='!gh auth git-credential' push <remote-url> <branch>`.
 - Justin branches from `main`, opens the PR and lets CircleCI pass. Builders stay on the branch their worktree was created with and leave branching, pushing and the PR to him. Deploys, Terraform apply and anything that touches the production box happen only on Justin's explicit go-ahead, and he runs them.
-- Preview before commit. Justin reviews UI and copy changes at http://localhost:5173 before anything is committed. After editing `db/seeds.rb`, reseed the dev database; the preview shows rows, not the file.
-- The content is Justin's. Site copy is casual, plain English, short sentences; run `anthropic-skills:humanizer` or `pstack:unslop` over new copy. Never add employers, clients, contracts, personal details or numbers he has not given in the conversation. No hire-me or open-to-work wording. Project images are real artifacts only. The Discord bot's paper acknowledges Justin; it is not his publication. The detailed checklist is `docs/CONTENT.md` (local only; ask if it is missing).
+- Preview before merge. Justin reviews UI and copy changes at http://localhost:5173 before the PR merges; builders commit once `bin/check` passes. After editing `db/seeds.rb`, Justin reseeds his dev database and checks the rows in the preview, not the file.
+- The content is Justin's. Site copy is casual, plain English, short sentences; run `anthropic-skills:humanizer` or `pstack:unslop` over new copy. Never add employers, clients, contracts, personal details or numbers he has not given in the conversation. No hire-me or open-to-work wording. Project images are real artifacts only. The Discord bot's paper acknowledges Justin; it is not his publication. The detailed checklist is `docs/CONTENT.md` on Justin's machine only (`docs/` is gitignored, so a worktree never has it); ask him for it before touching site copy.
 - Images never go in git. Upload to the assets bucket and reference the CDN URL.
 - Tests travel with behavior: backend changes get specs under `spec/models`, `spec/requests` or `spec/resources`; frontend logic gets a Vitest spec in a sibling `__tests__/`. The backend coverage floor is 99 percent of lines and 90 percent of branches, enforced whenever `CI` is set (CircleCI sets it, `bin/check` sets `CI=1`). Frontend coverage thresholds live in `vitest.config.js`, but only `npm run test:coverage` checks them; CI and `bin/check` run vitest without coverage.
 
@@ -183,7 +186,7 @@ Infra, deploy and AWS
 Quality gates before a PR
 - `code-reviewer` on the diff, plus the language reviewers above. `ecc:silent-failure-hunter` on error-handling changes. `ecc:pr-test-analyzer` to check that the tests cover behavior rather than implementation.
 - `pstack:thermo-nuclear-review` for a security and correctness audit of the whole branch before merging anything that touches auth, uploads or infra. `pstack:thermo-nuclear-code-quality-review` when a file is getting long.
-- `bin/check` is the checklist; `verification-loop` or `/verify` wrap it. `ecc:security-scan` or `security-review` before commits touching inputs or secrets.
+- `bin/check` is the checklist. `verification-loop` and `/verify` run their own generic lists and don't know about it, so run `bin/check` itself. `ecc:security-scan` or `security-review` before commits touching inputs or secrets.
 - `ecc:conventional-commit-review` or the `ecc:commit-reviewer` agent for the message; `pstack:make-pr-easy-to-review` and `ecc:pr` for the pull request Justin opens.
 
 Live site health
