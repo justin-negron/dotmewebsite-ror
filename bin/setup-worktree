@@ -9,7 +9,7 @@ ROOT="$PWD"
 
 copy_test_env() {
   local target="$ROOT/backend/.env.test.local"
-  if [ -e "$target" ]; then
+  if [ -e "$target" ] || [ -L "$target" ]; then
     echo "== backend/.env.test.local already present, left as is =="
     return
   fi
@@ -24,8 +24,7 @@ copy_test_env() {
     return
   fi
 
-  cp "$source" "$target"
-  chmod 600 "$target"
+  (umask 077 && cp "$source" "$target")
   echo "== copied backend/.env.test.local from the main checkout =="
 }
 
@@ -34,8 +33,9 @@ copy_test_env
 echo "== backend: bundle install =="
 (cd "$ROOT/backend" && bundle install)
 
-# HUSKY=0 keeps the frontend's prepare script from pointing the shared git
-# config's core.hooksPath at this worktree.
+# The frontend's prepare script runs husky, which is a no-op from frontend/
+# because there is no .git there. HUSKY=0 guards the shared git config's
+# core.hooksPath in case that ever changes.
 echo "== frontend: npm ci =="
 (cd "$ROOT/frontend" && HUSKY=0 npm ci)
 
