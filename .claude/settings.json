@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bin/check)",
+      "Bash(./bin/check)",
+      "Bash(bin/setup-worktree)",
+      "Bash(./bin/setup-worktree)",
+      "Bash(bundle exec rspec *)",
+      "Bash(bin/rubocop *)",
+      "Bash(bundle exec rubocop *)",
+      "Bash(bin/brakeman *)",
+      "Bash(bundle exec brakeman *)",
+      "Bash(bin/bundler-audit *)",
+      "Bash(bundle exec bundler-audit *)",
+      "Bash(npx vitest *)",
+      "Bash(npx eslint *)",
+      "Bash(npx prettier --check *)",
+      "Bash(npx vue-tsc *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run lint:check *)",
+      "Bash(npm run format:check *)",
+      "Bash(npm run build *)",
+      "Bash(npm run test *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(!.env.example)"
+    ]
+  }
+}
