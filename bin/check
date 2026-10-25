@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Runs every check CircleCI runs (.circleci/config.yml) against this checkout.
+# Every step runs even after one fails. The summary at the end has one line per
+# step, and the exit status is non-zero if any step failed. Installs nothing:
+# run bin/setup-worktree first in a fresh worktree.
+set -uo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
+ROOT="$PWD"
+
+# CircleCI sets CI=true in every job; backend/spec/spec_helper.rb turns on the
+# SimpleCov coverage floor when CI is set. The backend executor runs as test.
+export CI=1
+export RAILS_ENV=test
+
+RESULTS=()
+FAILED=0
+
+# step <label> <directory> <command...>
+step() {
+  local label="$1" dir="$2"
+  shift 2
+  printf '\n==> %s\n    (%s) $ %s\n' "$label" "$dir" "$*"
+  (cd "$ROOT/$dir" && "$@")
+  local status=$?
+  if [ "$status" -eq 0 ]; then
+    RESULTS+=("pass  $label")
+  elif [ "$status" -eq 127 ]; then
+    RESULTS+=("FAIL  $label (command not found; bin/check installs nothing)")
+    FAILED=1
+  else
+    RESULTS+=("FAIL  $label (exit $status)")
+    FAILED=1
+  fi
+}
+
+step "backend: load test schema"  backend bin/rails db:schema:load
+step "backend: rspec"             backend bundle exec rspec
+step "backend: rubocop"           backend bin/rubocop
+step "backend: bundler-audit"     backend bundle exec bundler-audit check --update
+step "backend: brakeman"          backend bundle exec brakeman --no-pager -q --exit-on-warn --exit-on-error
+
+# `npx --no -- <tool>` runs the locally installed binary and errors if it is missing,
+# where plain npx would download it. The `--` keeps npm from reading the
+# tool's flags (such as `--check`) as its own.
+step "frontend: vue-tsc"          frontend npx --no -- vue-tsc --build --force
+step "frontend: eslint"           frontend npx --no -- eslint .
+step "frontend: prettier"         frontend npx --no -- prettier --check src/
+step "frontend: vitest"           frontend npx --no -- vitest run --passWithNoTests
+step "frontend: npm audit"        frontend npm audit --audit-level=high --omit=dev
+step "frontend: vite build"       frontend npx --no -- vite build
+
+step "infra: terraform fmt"       infra terraform fmt -check -recursive
+step "infra: terraform init"      infra terraform init -backend=false -input=false
+step "infra: terraform validate"  infra terraform validate
+
+printf '\n==> Summary\n'
+printf '%s\n' "${RESULTS[@]}"
+if [ "$FAILED" -ne 0 ]; then
+  echo "bin/check: FAILED"
+  exit 1
+fi
+echo "bin/check: all steps passed"
