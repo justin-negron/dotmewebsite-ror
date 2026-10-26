@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Makes a fresh worktree usable: copies the test database credentials from the
+# main checkout when this worktree has none, then installs backend gems and
+# frontend packages. Safe to re-run. Never overwrites a file that exists.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
+ROOT="$PWD"
+
+copy_test_env() {
+  local target="$ROOT/backend/.env.test.local"
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    echo "== backend/.env.test.local already present, left as is =="
+    return
+  fi
+
+  # git lists the main checkout first.
+  local main_checkout
+  main_checkout="$(git worktree list --porcelain | sed -n '1s/^worktree //p')"
+  local source="$main_checkout/backend/.env.test.local"
+
+  if [ -z "$main_checkout" ] || [ "$main_checkout" = "$ROOT" ] || [ ! -f "$source" ]; then
+    echo "note: no backend/.env.test.local to copy; backend tests need database credentials (see backend/.env.example)"
+    return
+  fi
+
+  (umask 077 && cp "$source" "$target")
+  echo "== copied backend/.env.test.local from the main checkout =="
+}
+
+copy_test_env
+
+echo "== backend: bundle install =="
+(cd "$ROOT/backend" && bundle install)
+
+# The frontend's prepare script runs husky, which is a no-op from frontend/
+# because there is no .git there. HUSKY=0 guards the shared git config's
+# core.hooksPath in case that ever changes.
+echo "== frontend: npm ci =="
+(cd "$ROOT/frontend" && HUSKY=0 npm ci)
+
+echo "== setup-worktree: done. Run bin/check to verify. =="

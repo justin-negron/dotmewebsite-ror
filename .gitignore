@@ -73,3 +73,8 @@ infra/.terraform/
 infra/*.tfstate
 infra/*.tfstate.backup
 infra/terraform.tfvars
+
+# Claude Code: per-machine settings, local notes and agent worktrees
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/worktrees/
